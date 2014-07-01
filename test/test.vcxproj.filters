@@ -17,4 +17,12 @@
   <ItemGroup>
     <None Include="document\20140701.md" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gtest_demo.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="gtest_main.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>
