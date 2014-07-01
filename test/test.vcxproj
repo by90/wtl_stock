@@ -81,6 +81,11 @@
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\model\model.vcxproj">
+      <Project>{ebfdc7b4-80e1-49bd-ad05-e990320121e2}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
