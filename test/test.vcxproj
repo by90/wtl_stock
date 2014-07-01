@@ -57,6 +57,9 @@
       <AdditionalLibraryDirectories>$(TargetDir);$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>model.lib;gtest.lib;gmock.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>if not exist "$(TargetDir)test.dad" copy $(SolutionDir)lib\data\test.dad $(TargetDir)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -75,11 +78,15 @@
       <AdditionalLibraryDirectories>$(TargetDir);$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>model.lib;gtest.lib;gmock.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>if not exist "$(TargetDir)test.dad" copy $(SolutionDir)lib\data\test.dad $(TargetDir)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />
+    <ClCompile Include="stl_demo.cc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\model\model.vcxproj">
