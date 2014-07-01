@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="document\20140701.md" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="gtest_demo.cc">
       <Filter>源文件</Filter>
     </ClCompile>
