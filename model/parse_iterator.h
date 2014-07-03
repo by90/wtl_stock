@@ -12,13 +12,12 @@ template <typename T, typename source_iterator_type>
 class parse_iterator :std::iterator<std::input_iterator_tag, T>
 {
 public:
-	using self_type = parse_iterator;
+	//由于是模板类，self_type应如下定义
+	using self_type = parse_iterator<T, source_iterator_type>;
 
-	//定义advance的函数类型
-	using advance_function = std::function<void(reference)>;
-	using equal_to_function = std::function<bool(value_type)>;
-
-	parse_iterator(source_iterator_type _being, source_iterator_type _end, value_type _value)
+	//正常的构造函数
+	parse_iterator(source_iterator_type _begin, source_iterator_type _end, value_type &&_value):
+		begin_(_begin), end_(_end), value_(_value), ptr_(&value_)
 	{
 
 	}
@@ -28,6 +27,7 @@ public:
 	~parse_iterator(){};
 	self_type& operator=(const self_type&);
 
+
 	self_type& operator++(); //prefix increment
 	reference operator*() const;
 	friend void swap(self_type& lhs, self_type& rhs); //C++11 I think
@@ -36,9 +36,18 @@ public:
 	self_type operator++(int); //postfix increment后置++
 	//value_type operator*() const;
 	pointer operator->() const;
-	friend bool operator==(const self_type&, const self_type&);
+	friend bool operator==(const self_type& _first, const self_type& _next)
+	{
+		//nullptr不能执行*操作，所以需要判断
+		//如果比较的两个，至少有一个为nullptr
+		if (!_first.ptr_ || !_next.ptr_) return (_first.ptr_ == _next.ptr_);
+
+		//如果都不是
+		return (*_first.ptr_ == *_next.ptr_);
+		
+	};
 	friend bool operator!=(const self_type&, const self_type&);
-private:
+protected:
 	pointer ptr_ = nullptr;//初始化为nullptr，表示end
 	value_type value_;//仅在构造函数中使用
 	source_iterator_type begin_; //传入迭代器的开始值

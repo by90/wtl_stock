@@ -4,6 +4,7 @@
 //#include <algorithm> //stl算法
 #include "gtest/gtest.h"
 #include <iterator>
+#include <istream>
 using namespace std;
 
 //以下是stdmymy_Advance的源码，拷贝到这里，将advance改为my_advance
@@ -77,7 +78,7 @@ class _Diff> inline
 }
 
 
-//通过stdmymy_Advance理解算法和迭代器
+//通过my_Advance理解算法和迭代器
 TEST(StlDemo, lgorithm_and_iterator)
 {
 	//1.使用指针：两个int指针间的距离
