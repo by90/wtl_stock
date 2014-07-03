@@ -85,9 +85,9 @@ TEST_F(DadParseIterator, begin)
 	//注意，这种方式比较字符串不行，后面的被识别为指针地址。
 	//EXPECT_EQ("SH000001", p->idOfDad->id);
 	EXPECT_STREQ("SH000001", p->idOfDad->id);
-	EXPECT_STREQ("上证指数", (*p).idOfDad->title);
+	EXPECT_STREQ("上证指数", p->idOfDad->title);
 
-	EXPECT_EQ((long)1402876800, (long)(*p).quoteOfDad->quoteTime);
+	EXPECT_EQ((long)1402876800, (long)p->quoteOfDad->quoteTime);
 
 	//使用精度比较浮点数
 	EXPECT_TRUE(fabs(2070.70f - (*p).quoteOfDad->open) < std::numeric_limits<float>::epsilon());
@@ -97,5 +97,11 @@ TEST_F(DadParseIterator, begin)
 	EXPECT_FLOAT_EQ(2085.980F, p->quoteOfDad->close);
 	EXPECT_FLOAT_EQ(95939768.00F, p->quoteOfDad->volume);
 	EXPECT_FLOAT_EQ(79953076224.00F, p->quoteOfDad->amount);
+};
 
-}
+TEST_F(DadParseIterator, end)
+{
+	dad_parse_iterator iter;
+	EXPECT_EQ(0, iter->idOfDad);
+	EXPECT_EQ(0, iter->quoteOfDad);
+};
