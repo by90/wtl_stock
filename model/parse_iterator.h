@@ -18,7 +18,7 @@ public:
 	using self_type = parse_iterator<T, source_iterator_type>;
 
 	//正常的构造函数
-	parse_iterator(source_iterator_type _begin, source_iterator_type _end, value_type &&_value):
+	parse_iterator(source_iterator_type _begin, source_iterator_type _end, T _value):
 		begin_(_begin), end_(_end), value_(_value)
 	{}
 

@@ -27,5 +27,8 @@
     <ClCompile Include="stl_demo.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="dad_parse_iterator_test.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

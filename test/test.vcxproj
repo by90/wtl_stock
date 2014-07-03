@@ -83,6 +83,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dad_parse_iterator_test.cc" />
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />
