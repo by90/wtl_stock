@@ -6,9 +6,11 @@
 #ifndef parse_iterator_h
 #define parse_iterator_h
 //基于迭代器的迭代器
-//由于Source可指定默认值，我们需要放在后面
+//由于source_iterator_type可指定默认值，我们需要放在后面
 //T是要解析出来的类型
-template <typename T, typename source_iterator_type>
+//本类假设T具有++操作，如果T不是指针而是结构，则派生类应覆盖operator ++;假设T具有==操作，
+//如果没有，则需要覆盖==。默认{}表示end迭代器。
+template <typename T, typename source_iterator_type=char *>
 class parse_iterator :std::iterator<std::input_iterator_tag, T>
 {
 public:

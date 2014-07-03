@@ -159,7 +159,7 @@ TEST_F(ParseIterator, operator_point)
 	EXPECT_EQ((int *)(int_ptr),*iter);
 }
 
-TEST_F(ParseIterator, operator_add)
+TEST_F(ParseIterator, operator_increment_prefix)
 {
 	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
 	EXPECT_EQ(1, **iter);
@@ -173,7 +173,7 @@ TEST_F(ParseIterator, operator_add)
 	EXPECT_EQ(5, **iter);
 }
 
-TEST_F(ParseIterator, operator_postfix_increment)
+TEST_F(ParseIterator, operator_increment_postfix)
 {
 	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
 	EXPECT_EQ(1, **iter);
