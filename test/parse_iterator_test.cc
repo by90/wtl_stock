@@ -150,5 +150,13 @@ TEST_F(ParseIterator, operator_equal_not)
 	EXPECT_EQ(true, iter != iter3);
 }
 
+TEST_F(ParseIterator, operator_point)
+{
+	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	EXPECT_EQ(1, **iter);
+	parse_iterator<int *, char *> iter1(int_ptr, int_ptr + sizeof(int)* 5, (int *)(int_ptr+sizeof(int)*2));
+	EXPECT_EQ(3, **iter1);
+	EXPECT_EQ((int *)(int_ptr),*iter);
+}
 
 

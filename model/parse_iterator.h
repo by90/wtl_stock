@@ -17,53 +17,55 @@ public:
 
 	//正常的构造函数
 	parse_iterator(source_iterator_type _begin, source_iterator_type _end, value_type &&_value):
-		begin_(_begin), end_(_end), value_(_value), ptr_(&value_)
+		begin_(_begin), end_(_end), value_(_value)
 	{}
-	//iterator
+
+	//默认构造函数
 	parse_iterator() = default;//指示编译器生成默认的构造函数
-	//使用另一个迭代器构造
+	
+	//拷贝构造函数
+	//实现拷贝构造后，assign即可正常工作，无需重载=
+	//self_type& operator=(const self_type&);
 	parse_iterator(const self_type& _another):
-		begin_(_another.begin_), end_(_another.end_), value_(_another.value_), ptr_(_another.ptr_)
-	{
+		begin_(_another.begin_), end_(_another.end_), value_(_another.value_)
+	{}
 
-	}
-	~parse_iterator(){};
+	//默认析构函数
+	~parse_iterator() = default;
 
-
-	self_type& operator=(const self_type&);
-
-
-	self_type& operator++(); //prefix increment
-	reference operator*() const;
-	friend void swap(self_type& lhs, self_type& rhs); //C++11 I think
-
-	//input_iterator
-	self_type operator++(int); //postfix increment后置++
-	//value_type operator*() const;
-	pointer operator->() const;
+	//==操作符
 	friend bool operator==(const self_type& _first, const self_type& _next)
 	{
-		//nullptr不能执行*操作，所以需要判断
-		//如果比较的两个，至少有一个为nullptr
-		if (!_first.ptr_ || !_next.ptr_) return (_first.ptr_ == _next.ptr_);
-
-		//如果都不是
-		return (*_first.ptr_ == *_next.ptr_);
-		
+		return (_first.value_ == _next.value_);
 	};
+
+	//!=操作符
 	friend bool operator!=(const self_type& _first, const self_type& _next)
 	{
-		if (!_first.ptr_ || !_next.ptr_) return (_first.ptr_ != _next.ptr_);
-
-		//如果都不是
-		return (*_first.ptr_ != *_next.ptr_);
+		return (_first.value_ != _next.value_);
 	}
+
+
+	//*操作符
+	value_type  operator*() const
+	{
+		return value_;
+	};
+
+	self_type& operator++(); //prefix increment
+	self_type operator++(int); //postfix increment后置++
+
+	
+	friend void swap(self_type& lhs, self_type& rhs); //C++11 I think
+
+	//value_type operator*() const;
+	pointer operator->() const;
+
 protected:
-	pointer ptr_ = nullptr;//初始化为nullptr，表示end
 	value_type value_;//仅在构造函数中使用
-	source_iterator_type begin_; //传入迭代器的开始值
-	source_iterator_type end_;//传入迭代器的结束值
-	std::function<void(reference)> advance_; //前置++操作
-	std::function<bool(value_type, value_type)> equal_to_; //相等操作
+
+	//这里使用默认的{}来初始化，意味着传入迭代器应具备构造函数
+	source_iterator_type begin_ = {}; //传入迭代器的开始值
+	source_iterator_type end_ = {};//传入迭代器的结束值
 };
 #endif
