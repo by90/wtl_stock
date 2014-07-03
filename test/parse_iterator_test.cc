@@ -129,5 +129,26 @@ TEST_F(ParseIterator, operator_equal)
 	EXPECT_EQ(false, iter == iter3);
 }
 
+//operator!=
+TEST_F(ParseIterator, operator_equal_not)
+{
+	//两个nullptr比较，应相等
+	parse_iterator<int *, char *> iter;
+	parse_iterator<int *, char *> empty_iter;
+	EXPECT_EQ(iter, empty_iter);
+
+	//两个相等的iterator
+	parse_iterator<int *, char *> iter1(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	parse_iterator<int *, char *> iter2(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	EXPECT_EQ(false, iter1 != iter2);
+
+	//不相等的两个迭代器
+	parse_iterator<int *, char *> iter3(int_ptr, int_ptr + sizeof(int)* 5, (int *)(int_ptr + sizeof(int)));
+	EXPECT_EQ(true, iter1 != iter3);
+
+	//与默认构造的迭代器比较
+	EXPECT_EQ(true, iter != iter3);
+}
+
 
 

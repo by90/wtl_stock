@@ -28,6 +28,8 @@ public:
 
 	}
 	~parse_iterator(){};
+
+
 	self_type& operator=(const self_type&);
 
 
@@ -49,7 +51,13 @@ public:
 		return (*_first.ptr_ == *_next.ptr_);
 		
 	};
-	friend bool operator!=(const self_type&, const self_type&);
+	friend bool operator!=(const self_type& _first, const self_type& _next)
+	{
+		if (!_first.ptr_ || !_next.ptr_) return (_first.ptr_ != _next.ptr_);
+
+		//如果都不是
+		return (*_first.ptr_ != *_next.ptr_);
+	}
 protected:
 	pointer ptr_ = nullptr;//初始化为nullptr，表示end
 	value_type value_;//仅在构造函数中使用
