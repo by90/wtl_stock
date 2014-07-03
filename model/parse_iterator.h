@@ -61,11 +61,15 @@ public:
 	self_type& operator++()
 	{
 		++value_;
+		if ((source_iterator_type)value_ >= end_)
+			value_ = {};
 		return *this;
 	}; //prefix increment
 	self_type operator++(int) //postfix increment后置++,必须传递一个对象出去，所以不用引用
 	{
 		++value_;//先加再构造临时对象
+		if ((source_iterator_type)value_ >= end_)
+			value_ = {};
 		self_type temp=*this; //将本对象传出 		
 		//++temp.value_; //返回的对象同样要加一，这样符合语义
 		return temp;
@@ -77,7 +81,7 @@ public:
 
 
 protected:
-	value_type value_;//仅在构造函数中使用
+	value_type value_ = {};//仅在构造函数中使用
 
 	//这里使用默认的{}来初始化，意味着传入迭代器应具备构造函数
 	source_iterator_type begin_ = {}; //传入迭代器的开始值

@@ -79,6 +79,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="base_parse.h" />
     <ClInclude Include="dad_parse_iterator.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="parse_iterator.h" />
