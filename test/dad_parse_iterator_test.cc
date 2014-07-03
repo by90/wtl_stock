@@ -99,9 +99,49 @@ TEST_F(DadParseIterator, begin)
 	EXPECT_FLOAT_EQ(79953076224.00F, p->quoteOfDad->amount);
 };
 
-TEST_F(DadParseIterator, end)
+TEST_F(DadParseIterator, end_test)
 {
 	dad_parse_iterator iter;
 	EXPECT_EQ(0, iter->idOfDad);
 	EXPECT_EQ(0, iter->quoteOfDad);
+};
+
+//++操作
+TEST_F(DadParseIterator, operator_increase_test)
+{
+	dad_parse_iterator p((char *)file_data, (char *)(file_data + 432), begin_value);
+	p++;
+	EXPECT_STREQ("SH000001", p->idOfDad->id);
+	EXPECT_STREQ("上证指数", p->idOfDad->title);
+	EXPECT_EQ((long)1402963200, (long)p->quoteOfDad->quoteTime);
+};
+
+//++操作改变id
+TEST_F(DadParseIterator, operator_increase_id_changed_test)
+{
+	dad_parse_iterator p((char *)file_data, (char *)(file_data + 432), begin_value);
+	++p;
+	++p; 
+	++p;//每只股票三条记录
+	EXPECT_STREQ("SH600000", p->idOfDad->id);
+	EXPECT_STREQ("浦发银行", p->idOfDad->title);
+	EXPECT_EQ((long)1402876800, (long)p->quoteOfDad->quoteTime);
+
+	p++;
+	p++;
+	p++;
+	EXPECT_STREQ("SZ000002", p->idOfDad->id);
+	EXPECT_STREQ("万  科Ａ", p->idOfDad->title);
+	EXPECT_EQ((long)1402876800, (long)p->quoteOfDad->quoteTime);
+
+	p++;
+	p++;
+	p++;
+
+	dad_parse_iterator const iter;
+	EXPECT_EQ(iter, p);
+
+	//到end后，再++，则什么都不做。
+	++p;
+	EXPECT_EQ(iter, p);
 };
