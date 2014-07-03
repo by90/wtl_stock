@@ -18,12 +18,15 @@ public:
 	//正常的构造函数
 	parse_iterator(source_iterator_type _begin, source_iterator_type _end, value_type &&_value):
 		begin_(_begin), end_(_end), value_(_value), ptr_(&value_)
+	{}
+	//iterator
+	parse_iterator() = default;//指示编译器生成默认的构造函数
+	//使用另一个迭代器构造
+	parse_iterator(const self_type& _another):
+		begin_(_another.begin_), end_(_another.end_), value_(_another.value_), ptr_(_another.ptr_)
 	{
 
 	}
-	//iterator
-	parse_iterator() = default;//指示编译器生成默认的构造函数
-	parse_iterator(const self_type&); //使用另一个迭代器构造
 	~parse_iterator(){};
 	self_type& operator=(const self_type&);
 

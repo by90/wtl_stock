@@ -86,17 +86,27 @@ swap(a,b)
 */
 
 //默认构造函数，由编译器生成，不用实现代码
-TEST_F(ParseIterator, default_construct_should_work)
+TEST_F(ParseIterator, construct_default)
 {
 	parse_iterator<int *, char *> iter;
 }
 
 //主要构造函数，传入两个迭代器和一个T类型的move
-TEST_F(ParseIterator, real_construct_should_work)
+TEST_F(ParseIterator, construct_regular)
 {
 	//默认构造函数，由编译器生成，不用实现代码
 	parse_iterator<int *, char *> iter(int_ptr,int_ptr+sizeof(int)*5,(int *)int_ptr );
 }
+//拷贝构造函数
+TEST_F(ParseIterator, construct_copy)
+{
+	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	parse_iterator<int *, char *> iter_copy(iter);
+	parse_iterator<int *, char *> iter_assign=iter;
+	EXPECT_EQ(iter,iter_copy);
+	EXPECT_EQ(iter, iter_assign);
+}
+
 
 //operator==
 TEST_F(ParseIterator, operator_equal)
@@ -118,15 +128,6 @@ TEST_F(ParseIterator, operator_equal)
 	//与默认构造的迭代器比较
 	EXPECT_EQ(false, iter == iter3);
 }
-
-////拷贝构造函数
-//TEST_F(ParseIterator, operator_copy_construct)
-//{
-//	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
-//
-//	parse_iterator<int *, char *> iter_copy(iter);
-//	parse_iterator<int *, char *> iter_assign=iter;
-//}
 
 
 
