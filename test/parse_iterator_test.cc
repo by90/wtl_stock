@@ -159,4 +159,33 @@ TEST_F(ParseIterator, operator_point)
 	EXPECT_EQ((int *)(int_ptr),*iter);
 }
 
+TEST_F(ParseIterator, operator_add)
+{
+	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	EXPECT_EQ(1, **iter);
+	++iter;
+	EXPECT_EQ(2, **iter);
+	++iter;
+	EXPECT_EQ(3, **iter);
+	++iter;
+	EXPECT_EQ(4, **iter);
+	++iter;
+	EXPECT_EQ(5, **iter);
+}
 
+TEST_F(ParseIterator, operator_postfix_increment)
+{
+	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
+	EXPECT_EQ(1, **iter);
+
+	iter++;
+	EXPECT_EQ(2, **iter);
+
+	auto iter1=(iter++); //iter1是新的独立对象
+	EXPECT_EQ(3, **iter); //iter被加1
+	EXPECT_EQ(3, **iter1);// iter1没有加..需要修改
+
+	++iter1;
+	EXPECT_EQ(4, **iter1);
+	EXPECT_EQ(3, **iter);
+}

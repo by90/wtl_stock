@@ -44,22 +44,35 @@ public:
 	{
 		return (_first.value_ != _next.value_);
 	}
-
-
+	
 	//*操作符
-	value_type  operator*() const
+	reference  operator*() //const不能使用refrence，直接返回影响性能，所以这里不用const
 	{
 		return value_;
 	};
 
-	self_type& operator++(); //prefix increment
-	self_type operator++(int); //postfix increment后置++
+	pointer operator->() const
+	{
+		return &value_;
+	};
+
+	self_type& operator++()
+	{
+		++value_;
+		return *this;
+	}; //prefix increment
+	self_type operator++(int) //postfix increment后置++,必须传递一个对象出去，所以不用引用
+	{
+		++value_;//先加再构造临时对象
+		self_type temp=*this; //将本对象传出 		
+		//++temp.value_; //返回的对象同样要加一，这样符合语义
+		return temp;
+	}
 
 	
 	friend void swap(self_type& lhs, self_type& rhs); //C++11 I think
 
-	//value_type operator*() const;
-	pointer operator->() const;
+
 
 protected:
 	value_type value_;//仅在构造函数中使用
