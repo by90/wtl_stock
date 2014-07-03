@@ -53,7 +53,7 @@ public:
 		return value_;
 	};
 
-	pointer operator->() const
+	pointer operator->() 
 	{
 		return &value_;
 	};
