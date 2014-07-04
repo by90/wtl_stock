@@ -67,8 +67,8 @@ TEST_F(ParseIterator, construct_copy)
 	parse_iterator<int *, char *> iter(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
 	parse_iterator<int *, char *> iter_copy(iter);
 	parse_iterator<int *, char *> iter_assign=iter;
-	EXPECT_EQ(iter,iter_copy);
-	EXPECT_EQ(iter, iter_assign);
+	EXPECT_EQ(true,(iter==iter_copy));
+	EXPECT_EQ(true,(iter==iter_assign));
 }
 
 
@@ -78,7 +78,7 @@ TEST_F(ParseIterator, operator_equal)
 	//两个nullptr比较，应相等
 	parse_iterator<int *, char *> iter;
 	parse_iterator<int *, char *> empty_iter;
-	EXPECT_EQ(iter, empty_iter);
+	EXPECT_EQ(true,(iter==empty_iter));
 
 	//两个相等的iterator
 	parse_iterator<int *, char *> iter1(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);
@@ -99,7 +99,7 @@ TEST_F(ParseIterator, operator_equal_not)
 	//两个nullptr比较，应相等
 	parse_iterator<int *, char *> iter;
 	parse_iterator<int *, char *> empty_iter;
-	EXPECT_EQ(iter, empty_iter);
+	EXPECT_EQ(true,iter==empty_iter);
 
 	//两个相等的iterator
 	parse_iterator<int *, char *> iter1(int_ptr, int_ptr + sizeof(int)* 5, (int *)int_ptr);

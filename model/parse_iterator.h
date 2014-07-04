@@ -36,15 +36,15 @@ public:
 	~parse_iterator() = default;
 
 	//==²Ù×÷·û
-	friend bool operator==(const self_type& _first, const self_type& _next)
+	bool operator==(const self_type& _next)
 	{
-		return (_first.value_ == _next.value_);
+		return (value_ == _next.value_);
 	};
 
 	//!=²Ù×÷·û
-	friend bool operator!=(const self_type& _first, const self_type& _next)
+	bool operator!=(const self_type& _next)
 	{
-		return (_first.value_ != _next.value_);
+		return (value_ != _next.value_);
 	}
 	
 	//*²Ù×÷·û
