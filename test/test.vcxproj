@@ -85,15 +85,19 @@
   <ItemGroup>
     <ClCompile Include="base_parse_test.cc" />
     <ClCompile Include="dad_parse_iterator_test.cc" />
+    <ClCompile Include="demo_c11\demo_encoding.cpp" />
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />
-    <ClCompile Include="stl_demo.cc" />
+    <ClCompile Include="demo_c11\demo_stl_algorithm.cc" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\model\model.vcxproj">
       <Project>{ebfdc7b4-80e1-49bd-ad05-e990320121e2}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="demo_c11\my_advance.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

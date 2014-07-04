@@ -36,6 +36,9 @@
     <ClInclude Include="base_parse.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="file_parse.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
