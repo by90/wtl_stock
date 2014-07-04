@@ -35,3 +35,12 @@ TEST_F(FileParse, shuld_support_loop_for_default)
 	}
 	EXPECT_EQ(0, j);
 }
+
+//默认构造函数，由编译器生成，不用实现代码
+TEST_F(FileParse, open)
+{
+	file_parse<int *, char *> container;
+	auto result=container.open("test.dad");
+	EXPECT_TRUE(result);
+
+}
