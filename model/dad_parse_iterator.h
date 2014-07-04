@@ -61,9 +61,15 @@ public:
 		return *this;
 	};
 
-	friend bool operator==(const self_type& _first, const self_type& _next)
+	//覆盖，基类不能是virtual
+	bool  operator==(const self_type& _next) 
 	{
-		return (_first.value_.quoteOfDad == _next.value_.quoteOfDad);
+		return (value_.quoteOfDad == _next.value_.quoteOfDad);
+	};
+
+	bool  operator!=(const self_type& _next)
+	{
+		return (value_.quoteOfDad != _next.value_.quoteOfDad);
 	};
 };
 
