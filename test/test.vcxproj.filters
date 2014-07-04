@@ -36,6 +36,15 @@
     <ClCompile Include="demo_c11\demo_stl_algorithm.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_c11\demo_stl_array.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\wtl_polymorphism.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">

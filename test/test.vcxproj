@@ -86,6 +86,9 @@
     <ClCompile Include="base_parse_test.cc" />
     <ClCompile Include="dad_parse_iterator_test.cc" />
     <ClCompile Include="demo_c11\demo_encoding.cpp" />
+    <ClCompile Include="demo_c11\demo_stl_array.cc" />
+    <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc" />
+    <ClCompile Include="demo_c11\wtl_polymorphism.cc" />
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />

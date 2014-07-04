@@ -6,7 +6,7 @@
 using namespace std;
 
 //通过my_Advance理解算法和迭代器
-TEST(StlDemo, using_traits_in_algorithm)
+TEST(demo, using_traits_in_algorithm)
 {
 	//1.使用指针：两个int指针间的距离
 	int intPtr[]={ 1, 2, 3, 4, 5 };
