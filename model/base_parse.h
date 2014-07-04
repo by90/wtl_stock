@@ -1,11 +1,11 @@
 #include "parse_iterator.h"
 #ifndef base_parse_h
 #define base_parse_h
-template <typename T,typename source_iterator_type = char *>
+template <typename T, typename source_iterator_type = char *, typename Iter = parse_iterator<T, source_iterator_type>>
 class base_parse
 {
 public:
-	using iterator = parse_iterator<T, source_iterator_type>;
+	using iterator = Iter;
 	base_parse(source_iterator_type data, size_t size, T beginValue) :
 		block_(data), size_(size), begin_(beginValue)
 	{}

@@ -9,8 +9,8 @@
 
 using namespace std;
 
-template <typename T, typename source_iterator_type = char *>
-class file_parse :public base_parse<T,source_iterator_type>
+template <typename T, typename source_iterator_type = char *, typename Iter = parse_iterator<T, source_iterator_type>>
+class file_parse :public base_parse<T,source_iterator_type,Iter>
 {
 public:
 	file_parse() = default;
