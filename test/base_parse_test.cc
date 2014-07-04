@@ -63,3 +63,15 @@ TEST_F(BaseParse, should_support_range_based_loop)
 	}
 	EXPECT_EQ(5, j);
 }
+
+//Ó¦Ö§³Örange_based loop
+TEST_F(BaseParse, should_support_loop_for_default)
+{
+	base_parse<int *, char *> container;
+	int j = 0;
+	for (auto i : container)
+	{
+		j++;
+	}
+	EXPECT_EQ(0, j);
+}
