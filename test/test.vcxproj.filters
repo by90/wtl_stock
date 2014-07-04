@@ -48,6 +48,9 @@
     <ClCompile Include="demo_c11\file_parse_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="dad_file_parse_test.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">

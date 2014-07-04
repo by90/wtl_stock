@@ -84,6 +84,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="base_parse_test.cc" />
+    <ClCompile Include="dad_file_parse_test.cc" />
     <ClCompile Include="dad_parse_iterator_test.cc" />
     <ClCompile Include="demo_c11\demo_encoding.cpp" />
     <ClCompile Include="demo_c11\demo_stl_array.cc" />

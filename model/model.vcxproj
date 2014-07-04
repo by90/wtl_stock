@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="base_parse.h" />
+    <ClInclude Include="dad_file_parse.h" />
     <ClInclude Include="dad_parse_iterator.h" />
     <ClInclude Include="file_parse.h" />
     <ClInclude Include="model.h" />
