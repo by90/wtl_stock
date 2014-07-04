@@ -22,6 +22,7 @@ protected:
 TEST_F(DadFileParse, construct_default)
 {
 	dad_file_parse container;
+	EXPECT_TRUE(container.end() == container.begin());
 }
 
 //默认构造的实例，同样能够支持遍历
@@ -29,10 +30,10 @@ TEST_F(DadFileParse, shuld_support_loop_for_default)
 {
 	dad_file_parse container;
 	int j = 0;
-	//for (auto i : container)
-	//{
-	//	j++;
-	//}
+	for (auto i : container)
+	{
+		j++;
+	}
 	EXPECT_EQ(0, j);
 }
 
