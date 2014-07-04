@@ -21,7 +21,7 @@ public:
 	{
 		return iterator();
 	}
-public:
+protected:
 	source_iterator_type block_ = {};   //内部维护一个char *对象，我们从该对象获取ValueType对象。
 	size_t size_=0;
 	T begin_ = {};
