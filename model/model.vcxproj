@@ -98,6 +98,7 @@ if not exist "$(TargetDir)sqlite3.dll" copy $(SolutionDir)lib\sqlite3.dll $(Targ
     <ClInclude Include="dad_parse_iterator.h" />
     <ClInclude Include="db.h" />
     <ClInclude Include="file_parse.h" />
+    <ClInclude Include="global.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="parse_iterator.h" />
     <ClInclude Include="stdafx.h" />
@@ -112,6 +113,7 @@ if not exist "$(TargetDir)sqlite3.dll" copy $(SolutionDir)lib\sqlite3.dll $(Targ
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="global.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
