@@ -41,12 +41,8 @@ private:
 		sqlite3 *db = NULL;
 		int rc = 0;
 		rc = sqlite3_open_v2(_default.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-		if (rc != SQLITE_OK)
-		{
-			sqlite3_close_v2(db);
-			return true;
-		}
-		return false;
+		sqlite3_close_v2(db);
+		return (rc == SQLITE_OK);
 	}
 };
 
