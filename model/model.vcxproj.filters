@@ -42,6 +42,9 @@
     <ClInclude Include="dad_file_parse.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="db.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

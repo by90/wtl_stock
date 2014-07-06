@@ -82,6 +82,7 @@
     <ClInclude Include="base_parse.h" />
     <ClInclude Include="dad_file_parse.h" />
     <ClInclude Include="dad_parse_iterator.h" />
+    <ClInclude Include="db.h" />
     <ClInclude Include="file_parse.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="parse_iterator.h" />
