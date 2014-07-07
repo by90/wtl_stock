@@ -92,10 +92,12 @@
     <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc" />
     <ClCompile Include="demo_c11\file_parse_test.cc" />
     <ClCompile Include="demo_c11\wtl_polymorphism.cc" />
+    <ClCompile Include="demo_singleton\singleton_v1_test.cpp" />
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
     <ClCompile Include="parse_iterator_test.cc" />
     <ClCompile Include="demo_c11\demo_stl_algorithm.cc" />
+    <ClCompile Include="demo_singleton\singleton_v1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\model\model.vcxproj">
@@ -104,6 +106,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h" />
+    <ClInclude Include="demo_singleton\singleton_v1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

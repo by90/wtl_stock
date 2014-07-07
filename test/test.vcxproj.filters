@@ -54,9 +54,18 @@
     <ClCompile Include="db_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_singleton\singleton_v1.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_singleton\singleton_v1_test.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="demo_singleton\singleton_v1.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
