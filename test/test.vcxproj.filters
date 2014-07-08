@@ -60,6 +60,9 @@
     <ClCompile Include="demo_singleton\singleton_v1_test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_c11\faq_iterator_as_point.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">
