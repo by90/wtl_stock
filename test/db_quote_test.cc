@@ -37,6 +37,7 @@ class dbQuoteTest : public ::testing::Test
 protected:
 	virtual void SetUp()
 	{
+		_unlink("test.db");
 	}
 
 	virtual void TearDown()
@@ -52,5 +53,6 @@ TEST_F(dbQuoteTest, import)
 		(quote_of_dad *)(dad_data + 16 + 32)
 	}),end;
 	DbQuote quote_;
-	quote_.bulk_insert(p,end);
+	int rc=quote_.bulk_insert(p,end);
+	EXPECT_EQ(9,rc); //Ê×´ÎÎª0
 }
