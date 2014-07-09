@@ -3,4 +3,4 @@
 #include "db.h"
 
 
-MODEL_API std::string db::default_;
+MODEL_API std::string db::default_="";

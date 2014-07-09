@@ -1,9 +1,10 @@
 #include "stdafx.h"
+#define Model_API
 #include "global.h"
 #include "sqlite/sqlite3.h"
 namespace global
 {
-	bool create_default_database(const char * path)
+Model_API bool create_default_database(const char * path)
 	{
 		sqlite3 *db = NULL;
 		int rc = sqlite3_open_v2(path, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);

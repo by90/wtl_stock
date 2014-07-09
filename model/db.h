@@ -36,7 +36,7 @@ public:
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
 
 		//如果反过来转换:conv.from_bytes(narrowStr);
-		return set_default(conv.to_bytes(_default));
+		return set_default(conv.to_bytes(_default), create_database);
 	}
 
 private:
@@ -46,8 +46,9 @@ private:
 	{
 		sqlite3 *db = NULL;
 		int rc = 0;
-		rc = sqlite3_open_v2(_default.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
-		sqlite3_close_v2(db);
+		rc = sqlite3_open_v2(_default.c_str(), &db, SQLITE_OPEN_READWRITE , NULL);
+		if (db)
+			sqlite3_close_v2(db);
 		return (rc == SQLITE_OK);
 	}
 };
