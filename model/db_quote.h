@@ -5,6 +5,7 @@
 #include "sqlite/sqlite3.h"
 #include "db.h"
 #include "dad_parse_iterator.h"
+#include "global.h"
 struct sqlite3_stmt;
 
 class DbQuote
@@ -25,6 +26,7 @@ public:
 		
 		//1.确保数据库打开：
 		sqlite3 *default_db=nullptr;
+		db::set_default("test.db", global::create_default_database);
 		int rc = sqlite3_open_v2(db::default_.c_str(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		if (rc != SQLITE_OK)
 		{
@@ -43,6 +45,7 @@ public:
 		rc = sqlite3_prepare_v2(default_db, insert_sql, -1, &pStmt, 0);
 		if (rc)
 		{
+			auto p = sqlite3_errmsg(default_db);
 			fprintf(stderr, "Error: %s\n", sqlite3_errmsg(default_db));
 			if (pStmt) sqlite3_finalize(pStmt);
 			sqlite3_close_v2(default_db);

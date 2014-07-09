@@ -18,7 +18,7 @@ namespace global
 			"[High] FLOAT,"
 			"[Low] FLOAT,"
 			"[Close] FLOAT,"
-			"[Volume] FLOAT"
+			"[Volume] FLOAT,"
 			"[Amount] FLOAT,"
 			"CONSTRAINT[] PRIMARY KEY([Id], [QuoteTime]));"
 			"CREATE TABLE if not exists[Stock]("
