@@ -1,6 +1,7 @@
-#include "parse_iterator.h"
+
 #ifndef dad_parse_iterator_h
 #define dad_parse_iterator_h
+#include "parse_iterator.h"
 
 //Dad文件的证卷代码、名称对照表结构
 struct id_of_dad

@@ -1,14 +1,20 @@
+#ifndef db_h
+#define db_h
 #include <string>
 #include <codecvt>
 #include <fstream>
 #include "sqlite/sqlite3.h"
 #include <functional>
-#ifndef db_h
-#define db_h
-class db
+#ifdef MODEL_EXPORTS
+#define MODEL_API __declspec(dllexport)
+#else
+#define MODEL_API __declspec(dllimport)
+#endif
+
+MODEL_API class db
 {
 public:
-	static std::string default_;
+	MODEL_API static std::string default_;
 	static bool set_default(std::string _default,std::function<bool(const char *)> create_database=nullptr)
 	{
 		default_ = _default;
@@ -45,7 +51,4 @@ private:
 		return (rc == SQLITE_OK);
 	}
 };
-
-std::string db::default_="";
-
 #endif

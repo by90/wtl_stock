@@ -1,6 +1,10 @@
 #include "gtest/gtest.h"
 #include "parse_iterator.h"
 #include "dad_parse_iterator.h" 
+#include <time.h>
+#include <cstdlib>
+#include <stdio.h>
+#include <chrono>
 
 //作为测试数据
 const char file_data[432]{
@@ -88,6 +92,52 @@ TEST_F(DadParseIterator, begin)
 	EXPECT_STREQ("上证指数", p->idOfDad->title);
 
 	EXPECT_EQ((long)1402876800, (long)p->quoteOfDad->quoteTime);
+
+
+	//关于时间，format为string，只能透过tm，使用strftime()
+	//time_point只能转换成time_t，而不能变成tm
+	//因此localtime_s,localtime32_s,localtime_64s，这三个非标准函数不得不用。
+	//换句话说，这类问题应封装起来，以便将来简单的解决兼容性问题
+	//我们设定namespace stdmore...用来封装这些，提供stdmore::to_tm()函数。
+
+	//日期转换问题：
+	//注意，无论win32还是x64，time_t默认都定义为64位，是为了解决2038年问题
+	//但Dad文件中，time_t是32位，也就是4个字节
+
+	EXPECT_EQ(8u, sizeof(time_t));
+
+	//注意：localtime不可用，localtime_s并非c++标准。
+	char szbuffer[32] = { 0 };
+	time_t t = p->quoteOfDad->quoteTime;
+	struct tm ptm = { 0 };
+	
+	localtime_s(&ptm, &t);
+	
+	std::strftime(szbuffer, sizeof(szbuffer), "%Y-%m-%d %H:%M:%S", &ptm);
+	EXPECT_STREQ("2014-06-16 08:00:00",szbuffer);
+
+	auto from_timet=std::chrono::system_clock::from_time_t(t); //从time_t获取
+	
+	
+	//std::chrono::duration<long> x; //duration表示一个时间周期
+	//std::chrono::time_point<int> i; //time_potint表示一个时间点
+	//std::chrono::clock  //
+	//std::mktime
+	/*msdn内容：Both the 32 - bit and 64 - bit versions ofgmtime, mktime, mkgmtime, and localtimeall
+		use a single tm structure per thread for the conversion.Each call to one of these
+		routines destroys the result of the previous call.
+	*/
+	//time_t tmBegin = 1351118531;    //2012-10-25 06:42:11 
+	//time_t tmEnd = 1402876800;    //2014-06-24 00:00:00 
+	//tm* ptmBegin = localtime(&tmBegin);
+	//tm* ptmEnd = localtime(&tmEnd);
+	//char ctmBegin[26], ctmEnd[26];
+	//std::strftime(ctmBegin, 26, "%Y%m%d%H%M%S", ptmBegin);
+	//EXPECT_STREQ("20140624000000",ctmBegin);
+	//在vs2013中,localtime不可使用，因为多线程情况下是不安全的
+	//使用localtime_s，但这个并非c++ 11标准
+	
+
 
 	//使用精度比较浮点数
 	EXPECT_TRUE(fabs(2070.70f - (*p).quoteOfDad->open) < std::numeric_limits<float>::epsilon());

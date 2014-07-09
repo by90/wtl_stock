@@ -1,10 +1,12 @@
+#ifndef parse_iterator_h
+#define parse_iterator_h
+
 #include <iterator>
 #include <functional>
 #include <istream>
 
 //头文件不能在宏之后定义？
-#ifndef parse_iterator_h
-#define parse_iterator_h
+
 //基于迭代器的迭代器
 //由于source_iterator_type可指定默认值，我们需要放在后面
 //T是要解析出来的类型
