@@ -63,6 +63,12 @@ public:
 		{
 			sqlite3_bind_text(pStmt, 1, current->idOfDad->id, sizeof(current->idOfDad->id), SQLITE_TRANSIENT);
 			sqlite3_bind_int(pStmt, 2, current->quoteOfDad->quoteTime);
+			sqlite3_bind_double(pStmt, 3, current->quoteOfDad->open);
+			sqlite3_bind_double(pStmt, 4, current->quoteOfDad->high);
+			sqlite3_bind_double(pStmt, 5, current->quoteOfDad->low);
+			sqlite3_bind_double(pStmt, 6, current->quoteOfDad->close);
+			sqlite3_bind_double(pStmt, 7, current->quoteOfDad->volume);
+			sqlite3_bind_double(pStmt, 8, current->quoteOfDad->amount);
 			//执行
 			sqlite3_step(pStmt);
 			rc = sqlite3_reset(pStmt); //重置，下次循环重新执行
