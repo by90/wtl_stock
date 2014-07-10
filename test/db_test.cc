@@ -28,14 +28,14 @@ protected:
 TEST_F(dbTest, set_default_test)
 {
 	auto rc = db::set_default("test.db");
-	EXPECT_STREQ("test.db", db::default_.c_str());
+	EXPECT_STREQ("test.db", db::default());
 }
 
 //db类的静态函数set_default使用wstring
 TEST_F(dbTest, set_default_wstring_test)
 {
 	auto rc = db::set_default(L"wtest.db");
-	EXPECT_STREQ("wtest.db", db::default_.c_str());
+	EXPECT_STREQ("wtest.db", db::default());
 }
 
 //db类的静态函数set_default

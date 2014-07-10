@@ -27,7 +27,7 @@ public:
 		//1.确保数据库打开：
 		sqlite3 *default_db=nullptr;
 		db::set_default("test.db", global::create_default_database);
-		int rc = sqlite3_open_v2(db::default_.c_str(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
+		int rc = sqlite3_open_v2(db::default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		if (rc != SQLITE_OK)
 		{
 			sqlite3_close_v2(default_db);

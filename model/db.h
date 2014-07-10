@@ -11,45 +11,17 @@
 #define MODEL_API __declspec(dllimport)
 #endif
 
-MODEL_API class db
+class MODEL_API db
 {
 public:
-	MODEL_API static std::string default_;
-	static bool set_default(std::string _default,std::function<bool(const char *)> create_database=nullptr)
-	{
-		default_ = _default;
+	
+	static bool set_default(const char *_default, std::function<bool(const char *)> create_database = nullptr);
 
-		//判断文件是否存在，fstream的方法仍然是打开是否正常
-		//因此直接略过，用数据库是否正常打开，来判断。
-		if (!is_exist(default_))
-		{
-			if (create_database!=nullptr)
-				return create_database(default_.c_str());
-			return false;
-		}
-		return true;
-
-	}
-	static bool set_default(std::wstring _default, std::function<bool(std::string)> create_database = nullptr)
-	{
-		//定义一个转换器
-		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-
-		//如果反过来转换:conv.from_bytes(narrowStr);
-		return set_default(conv.to_bytes(_default), create_database);
-	}
-
+	static bool set_default(const wchar_t *_default, std::function<bool(const char *)> create_database = nullptr);
+	static const char *default();
 private:
+	static bool is_exist(const char *_default);
+	static std::string default_; //使用default_
 
-	//注意，即使包括一个0字节的同名文件，check也会返回false
-	static bool is_exist(std::string _default)
-	{
-		sqlite3 *db = NULL;
-		int rc = 0;
-		rc = sqlite3_open_v2(_default.c_str(), &db, SQLITE_OPEN_READWRITE , NULL);
-		if (db)
-			sqlite3_close_v2(db);
-		return (rc == SQLITE_OK);
-	}
 };
 #endif
