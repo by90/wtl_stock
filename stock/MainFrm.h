@@ -71,7 +71,7 @@ public:
 
 		CreateSimpleStatusBar();
 
-		m_hWndClient = m_view.Create(m_hWnd);
+		m_hWndClient;  m_view.Create(m_hWnd);
 
 		UIAddToolBar(hWndToolBar);
 		UISetCheck(ID_VIEW_TOOLBAR, 1);
