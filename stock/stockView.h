@@ -14,14 +14,27 @@ public:
 		return CWindow::IsDialogMessage(pMsg);
 	}
 
+	//init_dialog、show都只运行一次。
 	BEGIN_MSG_MAP(CStockView)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		MESSAGE_HANDLER(WM_SIZE, OnSize)
+		//MESSAGE_HANDLER(WM_SHOWWINDOW, OnShow)
+		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
+		//MESSAGE_HANDLER(WM_SIZE, OnSize)
 	END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
 		CenterWindow(GetParent());
 		return TRUE;
+	}
+
+	LRESULT OnShow(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
+		SetMsgHandled(FALSE);
+		return 1;
+	}
+
+	LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
+		SetMsgHandled(FALSE);
+		return true;
 	}
 	LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled){
 		CenterWindow(GetParent());
