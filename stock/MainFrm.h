@@ -41,6 +41,7 @@ public:
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
+		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -72,6 +73,7 @@ public:
 			//m_view.LockWindowUpdate(FALSE);
 			m_view.CenterWindow(m_hWnd);
 			m_view.ShowWindow(SW_SHOW);
+			UpdateLayout();
 		}
 		bHandled = False;
 		return 1;
@@ -109,12 +111,11 @@ public:
 		AddSimpleReBarBand(hWndCmdBar);
 		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
-		CreateSimpleStatusBar();
-		
-		m_view.Create(m_hWnd);
+		CreateSimpleStatusBar();		
+		m_hWndClient=m_view.Create(m_hWnd);
+		m_view.CenterWindow(m_hWnd);
+		//如果使用CDialogResize，可以设置DlgCtrlId
 		//m_view.SetDlgCtrlID(m_view.IDD);
-
-
 		UIAddToolBar(hWndToolBar);
 		UISetCheck(ID_VIEW_TOOLBAR, 1);
 		UISetCheck(ID_VIEW_STATUS_BAR, 1);
@@ -126,6 +127,69 @@ public:
 		pLoop->AddIdleHandler(this);
 		
 		return 0;
+	}
+
+	//m_hWndClient未占据整个框架客户区，框架大小改变时状态栏会出现残痕
+	//简单的方式是，始终令m_hWndClent为空，不使用它
+	//覆盖UpdateLayout是较好的方式
+	void UpdateLayout(BOOL bResizeBars = TRUE)
+	{
+		RECT rect = { 0 };
+		GetClientRect(&rect); //获取整个应用的客户区rect，这只是除去窗口的标题、边框之后，剩下的窗体工作区域
+
+		// position bars and offset their dimensions
+		UpdateBarsPosition(rect, bResizeBars);  //该rect减去菜单、工具栏、状态栏所占区域
+		//此处得到的rect是全部客户区，可以在这个范围内居中显示
+
+		//步骤1：不修改m_hWndClient的大小
+		//如果不要铺满视图，则注释掉下面的语句，会出现状态栏残痕，这是UpdateBarsPosition要处理的
+		// resize client window
+		//if (m_hWndClient != NULL) //这里将客户区铺满。如果注释掉，则大小变化的时候，状态栏会出现异常，前面部分区域没有消除
+		//	::SetWindowPos(m_hWndClient, NULL, rect.left, rect.top,
+		//	rect.right - rect.left, rect.bottom - rect.top,
+		//	SWP_NOZORDER | SWP_NOACTIVATE);
+	}
+
+	void UpdateBarsPosition(RECT& rect, BOOL bResizeBars = TRUE)
+	{
+		// resize toolbar
+		if (m_hWndToolBar != NULL && ((DWORD)::GetWindowLong(m_hWndToolBar, GWL_STYLE) & WS_VISIBLE))
+		{
+			if (bResizeBars != FALSE)
+			{
+				::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0); //相当于调用函数，消息执行完后才执行下一条
+				::InvalidateRect(m_hWndToolBar, NULL, TRUE);
+			}
+			RECT rectTB = { 0 };
+			::GetWindowRect(m_hWndToolBar, &rectTB);
+			rect.top += rectTB.bottom - rectTB.top;
+		}
+
+		// resize status bar
+		if (m_hWndStatusBar != NULL && ((DWORD)::GetWindowLong(m_hWndStatusBar, GWL_STYLE) & WS_VISIBLE))
+		{
+
+			//这里没让原来区域失效，因为铺满地窗体将覆盖它，但我们若没有铺满窗体，则这里必须同样失效。
+			if (bResizeBars != FALSE)
+			{
+				::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
+				::InvalidateRect(m_hWndStatusBar, NULL, TRUE); //步骤2：增加此行代码，另原来的状态栏区域失效
+			}
+
+
+			RECT rectSB = { 0 };
+			::GetWindowRect(m_hWndStatusBar, &rectSB);
+			rect.bottom -= rectSB.bottom - rectSB.top;
+		}
+	}
+
+	//基类的OnEraseBackground，禁止了默认的背景擦除，造成当视图未铺满整个客户区，我们改变窗口大小
+	//状态栏和先前显示的视图将出现残痕。单纯将视图和框架颜色设为一致不解决问题。
+	//这里直接调用默认的处理，同时该消息不往下传递(bHandled默认为ture),基类的消息映射虽然链接
+	//但不再能收到消息。
+	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		return DefWindowProc(uMsg, wParam, lParam);
 	}
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
