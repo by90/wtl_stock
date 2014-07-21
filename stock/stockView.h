@@ -23,8 +23,13 @@ public:
 	END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
-		CenterWindow(GetParent());
+		//CenterWindow(GetParent());
 		return TRUE;
+	}
+
+	virtual void OnFinalMessage(HWND /*hWnd*/)
+	{
+		delete this;
 	}
 // Handler prototypes (uncomment arguments if needed):
 //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

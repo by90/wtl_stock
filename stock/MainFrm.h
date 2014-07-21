@@ -74,7 +74,7 @@ public:
 			//m_view->LockWindowUpdate(FALSE);
 			m_view->CenterWindow(m_hWnd);
 			m_view->ShowWindow(SW_SHOW);
-			UpdateLayout();
+			//UpdateLayout();
 		}
 		bHandled = False;
 		return 1;
