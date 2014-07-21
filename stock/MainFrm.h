@@ -13,7 +13,7 @@ class CMainFrame :
 public:
 	DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
 
-	CStockView m_view;
+	CWindow *m_view=NULL;
 	CCommandBarCtrl m_CmdBar;
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
@@ -21,7 +21,8 @@ public:
 		if(CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
 			return TRUE;
 
-		return m_view.PreTranslateMessage(pMsg);
+		return FALSE;
+		//return m_view->PreTranslateMessage(pMsg);
 	}
 
 	virtual BOOL OnIdle()
@@ -55,10 +56,10 @@ public:
 	//因此在此时机将对话框隐藏，避免onsize之前完成重绘
 	LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		MINMAXINFO * info = (MINMAXINFO *)lParam;
-		if (m_view.IsWindow())
+		//MINMAXINFO * info = (MINMAXINFO *)lParam;
+		if (m_hWndClient && m_view->IsWindow())
 		{
-			m_view.ShowWindow(SW_HIDE);
+			m_view->ShowWindow(SW_HIDE);
 		}
 		bHandled = false; //如此设置，则后续的消息接收器会处理
 		return TRUE;
@@ -68,11 +69,11 @@ public:
 	//由于我们隐藏了对话框，因此该对话框的绘制并未进行，在此改变位置一次绘制，就不会闪烁
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if (m_view.IsWindow())
+		if (m_hWndClient && m_view->IsWindow())
 		{
-			//m_view.LockWindowUpdate(FALSE);
-			m_view.CenterWindow(m_hWnd);
-			m_view.ShowWindow(SW_SHOW);
+			//m_view->LockWindowUpdate(FALSE);
+			m_view->CenterWindow(m_hWnd);
+			m_view->ShowWindow(SW_SHOW);
 			UpdateLayout();
 		}
 		bHandled = False;
@@ -84,9 +85,9 @@ public:
 	//在这里只需要重新显示该对话框即可，因为大小未变，本来也是居中的，这里无需再处理
 	LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		if (m_view.IsWindow() && !m_view.IsWindowVisible())
+		if (m_hWndClient && m_view->IsWindow() && !m_view->IsWindowVisible())
 		{
-			m_view.ShowWindow(SW_SHOW);
+			m_view->ShowWindow(SW_SHOW);
 		}
 		bHandled = False;
 		return 1;
@@ -111,11 +112,14 @@ public:
 		AddSimpleReBarBand(hWndCmdBar);
 		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
-		CreateSimpleStatusBar();		
-		m_hWndClient=m_view.Create(m_hWnd);
-		m_view.CenterWindow(m_hWnd);
+		CreateSimpleStatusBar();
+
+		m_view = ShowView<CStockView>();
+		//m_hWndClient=m_view->Create(m_hWnd);
+
+		m_view->CenterWindow(m_hWnd);
 		//如果使用CDialogResize，可以设置DlgCtrlId
-		//m_view.SetDlgCtrlID(m_view.IDD);
+		//m_view->SetDlgCtrlID(m_view->IDD);
 		UIAddToolBar(hWndToolBar);
 		UISetCheck(ID_VIEW_TOOLBAR, 1);
 		UISetCheck(ID_VIEW_STATUS_BAR, 1);
@@ -145,6 +149,27 @@ public:
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		return DefWindowProc(uMsg, wParam, lParam);
+	}
+
+	//显示视图
+	template <class T>
+	CWindow * ShowView()
+	{
+		if (::IsWindow(m_hWndClient))
+		{
+			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
+				return m_view;
+			::DestroyWindow(m_hWndClient);
+			m_hWndClient = NULL;
+		}
+
+		T* pView = new T;
+		m_hWndClient = pView->Create(m_hWnd);
+		pView->SetDlgCtrlID(pView->IDD);
+
+		//如果需要支持CWindow视图：
+		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
+		return (CWindow *)pView;
 	}
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
