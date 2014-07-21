@@ -140,53 +140,8 @@ public:
 		// position bars and offset their dimensions
 		UpdateBarsPosition(rect, bResizeBars);  //该rect减去菜单、工具栏、状态栏所占区域
 		//此处得到的rect是全部客户区，可以在这个范围内居中显示
-
-		//步骤1：不修改m_hWndClient的大小
-		//如果不要铺满视图，则注释掉下面的语句，会出现状态栏残痕，这是UpdateBarsPosition要处理的
-		// resize client window
-		//if (m_hWndClient != NULL) //这里将客户区铺满。如果注释掉，则大小变化的时候，状态栏会出现异常，前面部分区域没有消除
-		//	::SetWindowPos(m_hWndClient, NULL, rect.left, rect.top,
-		//	rect.right - rect.left, rect.bottom - rect.top,
-		//	SWP_NOZORDER | SWP_NOACTIVATE);
 	}
 
-	void UpdateBarsPosition(RECT& rect, BOOL bResizeBars = TRUE)
-	{
-		// resize toolbar
-		if (m_hWndToolBar != NULL && ((DWORD)::GetWindowLong(m_hWndToolBar, GWL_STYLE) & WS_VISIBLE))
-		{
-			if (bResizeBars != FALSE)
-			{
-				::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0); //相当于调用函数，消息执行完后才执行下一条
-				::InvalidateRect(m_hWndToolBar, NULL, TRUE);
-			}
-			RECT rectTB = { 0 };
-			::GetWindowRect(m_hWndToolBar, &rectTB);
-			rect.top += rectTB.bottom - rectTB.top;
-		}
-
-		// resize status bar
-		if (m_hWndStatusBar != NULL && ((DWORD)::GetWindowLong(m_hWndStatusBar, GWL_STYLE) & WS_VISIBLE))
-		{
-
-			//这里没让原来区域失效，因为铺满地窗体将覆盖它，但我们若没有铺满窗体，则这里必须同样失效。
-			if (bResizeBars != FALSE)
-			{
-				::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
-				::InvalidateRect(m_hWndStatusBar, NULL, TRUE); //步骤2：增加此行代码，另原来的状态栏区域失效
-			}
-
-
-			RECT rectSB = { 0 };
-			::GetWindowRect(m_hWndStatusBar, &rectSB);
-			rect.bottom -= rectSB.bottom - rectSB.top;
-		}
-	}
-
-	//基类的OnEraseBackground，禁止了默认的背景擦除，造成当视图未铺满整个客户区，我们改变窗口大小
-	//状态栏和先前显示的视图将出现残痕。单纯将视图和框架颜色设为一致不解决问题。
-	//这里直接调用默认的处理，同时该消息不往下传递(bHandled默认为ture),基类的消息映射虽然链接
-	//但不再能收到消息。
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		return DefWindowProc(uMsg, wParam, lParam);
