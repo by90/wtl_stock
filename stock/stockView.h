@@ -17,6 +17,7 @@ public:
 	//init_dialog、show都只运行一次。
 	BEGIN_MSG_MAP(CStockView)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		//MESSAGE_HANDLER(WM_SHOWWINDOW, OnShow)
 		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
 		//MESSAGE_HANDLER(WM_SIZE, OnSize)
@@ -25,6 +26,12 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
 		//CenterWindow(GetParent());
 		return TRUE;
+	}
+
+	LRESULT OnForwardMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&	bHandled)
+	{
+		LPMSG pMsg = (LPMSG)lParam;
+		return PreTranslateMessage(pMsg);
 	}
 
 	virtual void OnFinalMessage(HWND /*hWnd*/)

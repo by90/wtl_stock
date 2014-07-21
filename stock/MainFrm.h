@@ -21,8 +21,10 @@ public:
 		if(CFrameWindowImpl<CMainFrame>::PreTranslateMessage(pMsg))
 			return TRUE;
 
+		//向视图发送WM_FORWARDMSG消息，视图如需截获消息，就响应，否则不用响应。
+		if (m_hWndClient != NULL)
+			return ::SendMessage(m_hWndClient, WM_FORWARDMSG, 0, (LPARAM)pMsg);
 		return FALSE;
-		//return m_view->PreTranslateMessage(pMsg);
 	}
 
 	virtual BOOL OnIdle()
