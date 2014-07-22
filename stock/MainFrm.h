@@ -74,7 +74,7 @@ public:
 		if (m_hWndClient && m_view->IsWindow())
 		{
 			//m_view->LockWindowUpdate(FALSE);
-			m_view->CenterWindow(m_hWnd);
+			//m_view->CenterWindow(m_hWnd);
 			m_view->ShowWindow(SW_SHOW);
 			//UpdateLayout();
 		}
@@ -82,6 +82,17 @@ public:
 		return 1;
 	}
 
+	//Win32获取左上角相对父窗口的坐标
+	void GetWindowPos(HWND hWnd, int *x, int *y)
+	{
+		HWND hWndParent = ::GetParent(hWnd);
+		POINT p = { 0 };
+
+		::MapWindowPoints(hWnd, hWndParent, &p, 1);
+
+		(*x) = p.x;
+		(*y) = p.y;
+	}
 	//补丁：拖动窗体，未改变大小的情况下，由于OnGetMinMaxInfo隐藏了对话框，且onsize显示
 	//该对话框的代码没有执行，此时对话框会消失。
 	//在这里只需要重新显示该对话框即可，因为大小未变，本来也是居中的，这里无需再处理
@@ -146,6 +157,19 @@ public:
 		// position bars and offset their dimensions
 		UpdateBarsPosition(rect, bResizeBars);  //该rect减去菜单、工具栏、状态栏所占区域
 		//此处得到的rect是全部客户区，可以在这个范围内居中显示
+
+		//现在我们获取
+		RECT clientRect = { 0 };
+		if (!m_view)
+			return;
+		m_view->GetClientRect(&clientRect); //这里仅获得大小
+
+		int left = rect.left+((rect.right - rect.left) - (clientRect.right - clientRect.left)) / 2;
+		int top = rect.top + ((rect.bottom - rect.top) - (clientRect.bottom - clientRect.top)) / 2;
+
+		if (m_hWndClient != NULL)
+			::SetWindowPos(m_hWndClient, NULL, left, top,	-1, -1,
+			SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 	}
 
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -168,7 +192,7 @@ public:
 		T* pView = new T;
 		m_hWndClient = pView->Create(m_hWnd);
 		pView->SetDlgCtrlID(pView->IDD);
-
+	   
 		//如果需要支持CWindow视图：
 		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
 		return (CWindow *)pView;
