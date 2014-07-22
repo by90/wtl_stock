@@ -166,10 +166,16 @@ public:
 
 		int left = rect.left+((rect.right - rect.left) - (clientRect.right - clientRect.left)) / 2;
 		int top = rect.top + ((rect.bottom - rect.top) - (clientRect.bottom - clientRect.top)) / 2;
+		int nowLeft, nowTop;
+		GetWindowPos(m_hWndClient, &nowLeft, &nowTop);
 
-		if (m_hWndClient != NULL)
-			::SetWindowPos(m_hWndClient, NULL, left, top,	-1, -1,
-			SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+		//这样，启动的时候，执行一次；每次大小变更，执行一次。
+		//奇怪的是，退出的时候...也执行一次。
+		if (m_hWndClient != NULL && (nowLeft!=left || nowTop!=top))
+		{
+			::SetWindowPos(m_hWndClient, NULL, left, top, -1, -1,
+				SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+		}
 	}
 
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
