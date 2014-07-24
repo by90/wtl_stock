@@ -92,25 +92,23 @@ public:
 
 	}
 	LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-	{
-		
+	{		
 		if (wParam == SC_MAXIMIZE || wParam==SC_RESTORE)
 		{
-			ATLTRACE("最大化消息:wParam %u,%u,lParam: %u,%u \n",
+			ATLTRACE("最大化或恢复消息:wParam %u,%u,lParam: %u,%u \n",
 				LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));
-			MessageBox(L"点击了最大化按钮");
+			//MessageBox(L"点击了最大化或恢复按钮");
 			ShowChild(FALSE);
-			MessageBox(L"最大化消息：开始默认处理");
+			//MessageBox(L"最大化或恢复消息：开始默认处理");
 			//LRESULT result = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 			LRESULT result = DefWindowProc(uMsg, wParam, lParam);
 
 			
 			AtlTrace("最大化消息：结束默认处理 \n");
-			MessageBox(L"最大化消息：默认处理结束,现在看看能否显示子窗体");
+			//MessageBox(L"最大化消息：默认处理结束,现在看看能否显示子窗体");
 			
 			//这里多余，因为必定会执行OnSize，从而会执行UpdateChild
-			//ShowChild(TRUE);
-			
+			//ShowChild(TRUE);			
 		}
 		else
 		{
@@ -147,7 +145,7 @@ public:
 	//因此在此时机将对话框隐藏，避免onsize之前完成重绘
 	LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		MessageBox(L"进入OnGetMinMaxInfo");
+		//MessageBox(L"进入OnGetMinMaxInfo");
 		//MINMAXINFO * info = (MINMAXINFO *)lParam;
 		bHandled = false; //如此设置，则后续的消息接收器会处理
 		return TRUE;
@@ -155,7 +153,7 @@ public:
 
 	LRESULT OnWindowPosChanging(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		//MessageBox(L"位置正在改变：WM_WINDOWPOSCHANGING");
+		////MessageBox(L"位置正在改变：WM_WINDOWPOSCHANGING");
 		ATLTRACE("OnWindowPosChanging:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
 			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
 		bHandled = false; //如此设置，则后续的消息接收器会处理
@@ -165,7 +163,7 @@ public:
 
 	LRESULT OnNCCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-			//MessageBox(L"计算系统区大小：OnNCCalcSize");
+			////MessageBox(L"计算系统区大小：OnNCCalcSize");
 			bHandled = false; //如此设置，则后续的消息接收器会处理
 			return TRUE;
 	}
@@ -181,14 +179,14 @@ public:
 	{
 		ATLTRACE("OnWindowPosChanged:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
 			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
-		MessageBox(L"位置已改变：WM_WINDOWPOSCHANGED");
+		//MessageBox(L"位置已改变：WM_WINDOWPOSCHANGED");
 		bHandled = false; //如此设置，则后续的消息接收器会处理
 		return TRUE;
 	}
 
 	LRESULT OnMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		//MessageBox(L"移动:WM_MOVE");
+		////MessageBox(L"移动:WM_MOVE");
 		ATLTRACE("WM_MOVE:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
 			wParam,LOWORD(wParam), HIWORD(wParam),lParam,LOWORD(lParam), HIWORD(lParam));
 		bHandled = false; //如此设置，则后续的消息接收器会处理
@@ -215,7 +213,7 @@ public:
 			int x, y;
 			//GetWindowPos(m_hWndClient, &x, &y);
 			AtlTrace("进入onsize x=%u,y=%u,right=%u,bottom=%u \n", rect.left,rect.top,rect.right,rect.bottom);
-			MessageBox(L"进入Onsize！");
+			//MessageBox(L"进入Onsize！");
 			//m_view->LockWindowUpdate(FALSE);
 			//m_view->CenterWindow(m_hWnd);
 			//m_view->ShowWindow(SW_SHOW);
@@ -298,7 +296,7 @@ public:
 	{
 		if (m_view)
 		{
-			//MessageBox(L"进入UpdateLayout");
+			////MessageBox(L"进入UpdateLayout");
 			
 		AtlTrace("UpdateLayout start \n");
 		RECT rect = { 0 };
@@ -323,7 +321,7 @@ public:
 			if (m_hWndClient != NULL && (nowLeft != left || nowTop != top))
 			{
 				AtlTrace("UpdateLayout:SetWindowPos \n");
-				//MessageBox(L"UpdateLayout:准备SetWindowPos \n");
+				////MessageBox(L"UpdateLayout:准备SetWindowPos \n");
 
 				if (!m_view->IsWindowVisible())
 				{
@@ -339,7 +337,7 @@ public:
 
 			}
 		}
-		MessageBox(L"UpdateLayout:结束\n");
+		//MessageBox(L"UpdateLayout:结束\n");
 		AtlTrace("UpdateLayout end \n");
 	}
 
