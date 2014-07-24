@@ -44,6 +44,12 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)		
 		MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
+		MESSAGE_HANDLER(WM_NCCALCSIZE, OnNCCalcSize)
+		MESSAGE_HANDLER(WM_NCPAINT, OnPaint)
+		
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChanging)
+		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
+		MESSAGE_HANDLER(WM_MOVE, OnMove)
 
 		MESSAGE_HANDLER(WM_ENTERSIZEMOVE, OnEnterSizeMove)
 		MESSAGE_HANDLER(WM_EXITSIZEMOVE, OnExitSizeMove)
@@ -52,7 +58,6 @@ public:
 
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SIZING, OnSizing)
-		MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
 		
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
@@ -63,40 +68,59 @@ public:
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
 
+	HMENU m_menu =NULL;
+	void ShowChild(bool bShow=true)
+	{
+		if (m_menu == NULL && this->IsWindow())
+			m_menu = GetMenu();
+
+		//SetRedraw(False)，则后面所有的更新都被忽略
+		//LockWindowUpdate,后面的更新有效，解锁后显示
+		if (bShow) LockWindowUpdate();
+		::ShowWindow(m_hWndClient, bShow?SW_SHOW:SW_HIDE);
+		::ShowWindow(m_hWndToolBar, bShow ? SW_SHOW : SW_HIDE);
+		::ShowWindow(m_hWndStatusBar, bShow ? SW_SHOW : SW_HIDE);
+		::SetMenu(m_hWnd,bShow?m_menu:NULL);
+		if (bShow){
+			::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0);
+			::InvalidateRect(m_hWndToolBar, NULL, TRUE);
+			::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
+			::InvalidateRect(m_hWndToolBar, NULL, TRUE);
+			LockWindowUpdate(false);
+			this->UpdateWindow();
+		}
+
+	}
 	LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		if (wParam == SC_MAXIMIZE)
+		
+		if (wParam == SC_MAXIMIZE || wParam==SC_RESTORE)
 		{
-			ATLTRACE("最大化消息：点击按钮后。uMsg: %u, wParam LOWORD: %u, HIWORD: %u\n", uMsg, LOWORD
-				(wParam), HIWORD(wParam));
+			ATLTRACE("最大化消息:wParam %u,%u,lParam: %u,%u \n",
+				LOWORD(wParam), HIWORD(wParam), LOWORD(lParam), HIWORD(lParam));
 			MessageBox(L"点击了最大化按钮");
+			ShowChild(FALSE);
+			MessageBox(L"最大化消息：开始默认处理");
+			//LRESULT result = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+			LRESULT result = DefWindowProc(uMsg, wParam, lParam);
+
+			
+			AtlTrace("最大化消息：结束默认处理 \n");
+			MessageBox(L"最大化消息：默认处理结束,现在看看能否显示子窗体");
+			
+			//这里多余，因为必定会执行OnSize，从而会执行UpdateChild
+			//ShowChild(TRUE);
+			
 		}
 		else
 		{
-			ATLTRACE("uMsg: %u, wParam LOWORD: %u, HIWORD: %u\n lParam LOWORD: %u, HIWORD: %u\n", uMsg, LOWORD
-				(wParam), HIWORD(wParam, LOWORD(lParam), HIWORD(lParam)));
 			return DefWindowProc(uMsg, wParam, lParam);
-			//return ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 		}
-		//AtlTrace("最大化消息:调用默认处理 \n");
-		m_view->ShowWindow(SW_HIDE);
-		//::ShowWindow( m_CmdBar.m_hWnd, SW_HIDE);
-		//::ShowWindow(m_hWndToolBar, SW_HIDE);
-		//::ShowWindow(m_hWndStatusBar, SW_HIDE);
-		//this->ShowWindow(SW_HIDE);
-		MessageBox(L"最大化消息：开始默认处理");
-
-		//LRESULT result = DefWindowProc(uMsg, wParam, lParam);
-		LRESULT result = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
-		MessageBox(L"最大化消息：结束默认处理");
-		//UpdateLayout1();
-		//AtlTrace("最大化消息：结束默认处理 \n");
-		
-		return result;
 	}
 
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
+
 		AtlTrace("WM_ERASEBKGND \n");
 		return DefWindowProc(uMsg, wParam, lParam);
 	}
@@ -104,9 +128,9 @@ public:
 	LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		AtlTrace("WM_PAINT \n");
-		//SetMsgHandled(FALSE);
 		return DefWindowProc(uMsg, wParam, lParam);
 	}
+
 	LRESULT OnEnterSizeMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		AtlTrace("WM_ENTERSIZEMOVE \n\r");
@@ -125,27 +149,65 @@ public:
 	{
 		MessageBox(L"进入OnGetMinMaxInfo");
 		//MINMAXINFO * info = (MINMAXINFO *)lParam;
-		if (m_hWndClient && m_view->IsWindow())
-		{
-			//this->SetRedraw(False);
-		}
-		//LockWindowUpdate(true);
-		
 		bHandled = false; //如此设置，则后续的消息接收器会处理
 		return TRUE;
 	}
 
+	LRESULT OnWindowPosChanging(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		//MessageBox(L"位置正在改变：WM_WINDOWPOSCHANGING");
+		ATLTRACE("OnWindowPosChanging:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
+		bHandled = false; //如此设置，则后续的消息接收器会处理
+		return TRUE;
+	}
+	
+
+	LRESULT OnNCCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+			//MessageBox(L"计算系统区大小：OnNCCalcSize");
+			bHandled = false; //如此设置，则后续的消息接收器会处理
+			return TRUE;
+	}
+
+	LRESULT OnNCPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		ATLTRACE("WM_NCPAINT:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
+		return DefWindowProc(uMsg, wParam, lParam);
+	}
+
+	LRESULT OnWindowPosChanged(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		ATLTRACE("OnWindowPosChanged:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
+		MessageBox(L"位置已改变：WM_WINDOWPOSCHANGED");
+		bHandled = false; //如此设置，则后续的消息接收器会处理
+		return TRUE;
+	}
+
+	LRESULT OnMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+	{
+		//MessageBox(L"移动:WM_MOVE");
+		ATLTRACE("WM_MOVE:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam,LOWORD(wParam), HIWORD(wParam),lParam,LOWORD(lParam), HIWORD(lParam));
+		bHandled = false; //如此设置，则后续的消息接收器会处理
+		return TRUE;
+	}
+
+
 	LRESULT OnSizing(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		AtlTrace("WM_SIZING \n");
+		ATLTRACE("WM_SIZING:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
 		return TRUE;
 	}
 	//此时大小改变完成，且窗体的各子窗体也正常的绘制
 	//由于我们隐藏了对话框，因此该对话框的绘制并未进行，在此改变位置一次绘制，就不会闪烁
 	LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{	
-		
-		AtlTrace("WM_SIZE \n");
+		ATLTRACE("WM_SIZE:wParam %u(%u,%u),lParam: %u(%u,%u) \n",
+			wParam, LOWORD(wParam), HIWORD(wParam), lParam, LOWORD(lParam), HIWORD(lParam));
 		if (m_hWndClient && m_view->IsWindow())
 		{
 			RECT rect;
@@ -157,20 +219,8 @@ public:
 			//m_view->LockWindowUpdate(FALSE);
 			//m_view->CenterWindow(m_hWnd);
 			//m_view->ShowWindow(SW_SHOW);
-			UpdateLayout1();
-
-
-			//m_view->SetRedraw(TRUE);
-			//MessageBox(L"开始重画");
-			//AtlTrace("Start Redraw x=%d,y=%d \n", x, y);
-			//this->SetRedraw();
-			//this->RedrawWindow();
-			//AtlTrace("End Redraw x=%d,y=%d \n", x, y);
-			//m_view->LockWindowUpdate(FALSE);
+			UpdateChild();
 		}
-		//LockWindowUpdate(FALSE);
-		
-		//UpdateWindow();
 
 		bHandled = TRUE;
 		return 1;
@@ -179,15 +229,7 @@ public:
 	//补丁：拖动窗体，未改变大小的情况下，由于OnGetMinMaxInfo隐藏了对话框，且onsize显示
 	//该对话框的代码没有执行，此时对话框会消失。
 	//在这里只需要重新显示该对话框即可，因为大小未变，本来也是居中的，这里无需再处理
-	LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
-	{
-		if (m_hWndClient && m_view->IsWindow() && !m_view->IsWindowVisible())
-		{
-			//m_view->ShowWindow(SW_SHOW);
-		}
-		bHandled = False;
-		return 1;
-	}
+
 
 	//Win32获取左上角相对父窗口的坐标
 	void GetWindowPos(HWND hWnd, int *x, int *y)
@@ -249,39 +291,15 @@ public:
 
 	}
 
-	void UpdateBarsPosition(RECT& rect, BOOL bResizeBars = TRUE)
-	{
-		// resize toolbar
-		if (m_hWndToolBar != NULL && ((DWORD)::GetWindowLong(m_hWndToolBar, GWL_STYLE) & WS_VISIBLE))
-		{
-			if (bResizeBars != FALSE)
-			{
-				::SendMessage(m_hWndToolBar, WM_SIZE, 0, 0);
-				::InvalidateRect(m_hWndToolBar, NULL, TRUE);
-			}
-			RECT rectTB = { 0 };
-			::GetWindowRect(m_hWndToolBar, &rectTB);
-			rect.top += rectTB.bottom - rectTB.top;
-		}
-
-		// resize status bar
-		if (m_hWndStatusBar != NULL && ((DWORD)::GetWindowLong(m_hWndStatusBar, GWL_STYLE) & WS_VISIBLE))
-		{
-			if (bResizeBars != FALSE)
-				::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
-			RECT rectSB = { 0 };
-			::GetWindowRect(m_hWndStatusBar, &rectSB);
-			rect.bottom -= rectSB.bottom - rectSB.top;
-		}
-	}
-
 	//m_hWndClient未占据整个框架客户区，框架大小改变时状态栏会出现残痕
 	//简单的方式是，始终令m_hWndClent为空，不使用它
 	//覆盖UpdateLayout是较好的方式
-	void UpdateLayout1(BOOL bResizeBars = TRUE)
+	void UpdateChild(BOOL bResizeBars = TRUE)
 	{
 		if (m_view)
 		{
+			//MessageBox(L"进入UpdateLayout");
+			
 		AtlTrace("UpdateLayout start \n");
 		RECT rect = { 0 };
 		GetClientRect(&rect); //获取整个应用的客户区rect，这只是除去窗口的标题、边框之后，剩下的窗体工作区域
@@ -305,29 +323,23 @@ public:
 			if (m_hWndClient != NULL && (nowLeft != left || nowTop != top))
 			{
 				AtlTrace("UpdateLayout:SetWindowPos \n");
-				MessageBox(L"UpdateLayout:准备SetWindowPos \n");
+				//MessageBox(L"UpdateLayout:准备SetWindowPos \n");
 
 				if (!m_view->IsWindowVisible())
 				{
-					m_view->ShowWindow(SW_SHOW);
+					ShowChild(TRUE);
+					//m_view->ShowWindow(SW_SHOW);
 					//::ShowWindow(m_CmdBar.m_hWnd, SW_SHOW);
 					//::ShowWindow(m_hWndToolBar, SW_SHOW);
 					//::ShowWindow(m_hWndStatusBar, SW_SHOW);
 				}
 
 				m_view->SetWindowPos(NULL, left, top, -1, -1,
-					SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+					SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
 
-				
-				MessageBox(L"UpdateLayout:结束SetWindowPos，准备显示视图和工具栏 \n");
-
-
-				//this->LockWindowUpdate(False);
-				MessageBox(L"UpdateLayout:SetWindowPos结束 \n");
-				//::SetWindowPos(m_hWndClient, NULL, left, top, -1, -1,
-				//	SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 			}
 		}
+		MessageBox(L"UpdateLayout:结束\n");
 		AtlTrace("UpdateLayout end \n");
 	}
 
