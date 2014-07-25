@@ -15,6 +15,7 @@ public:
 
 	CWindow *m_view=NULL;
 	CCommandBarCtrl m_CmdBar;
+	RECT m_rateRect ;
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -74,7 +75,7 @@ public:
 	//left,top：左上角坐标，大于0为固定数值，-1到-100表示按rcArea宽度和高度的百分比。
 	//width,height：宽度和高度，大于0为固定数值，等于0则维持不变
 	//函数先计算大小，再确定左上角的位置
-	void CalcRect(RECT rcArea, RECT rcRate, RECT &rcChild, bool mode = FALSE)
+	void CalcRect(RECT rcArea, RECT rcRate, RECT &rcChild, bool mode = TRUE)
 	{
 		//初始化：宽度和高度
 		int widthArea = rcArea.right - rcArea.left + 1;
@@ -139,8 +140,30 @@ public:
 			LockWindowUpdate(false);
 			this->UpdateWindow();
 		}
-
 	}
+
+	//显示视图
+	template <class T>
+	CWindow * ShowView(RECT rcRate = {0,0,0,0})
+	{
+		if (::IsWindow(m_hWndClient))
+		{
+			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
+				return m_view;
+			::DestroyWindow(m_hWndClient);
+			m_hWndClient = NULL;
+		}
+
+		m_rateRect = rcRate;
+		T* pView = new T;
+		m_hWndClient = pView->Create(m_hWnd);
+		pView->SetDlgCtrlID(pView->IDD);
+
+		//如果需要支持CWindow视图：
+		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
+		return (CWindow *)pView;
+	}
+
 	LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{		
 		if (wParam == SC_MAXIMIZE || wParam==SC_RESTORE)
@@ -313,7 +336,7 @@ public:
 
 		CreateSimpleStatusBar();
 
-		m_view = ShowView<CStockView>();
+		m_view = ShowView<CStockView>({-50,-50,0,0});
 		
 		//m_hWndClient=m_view->Create(m_hWnd);
 
@@ -358,32 +381,27 @@ public:
 
 		//现在我们获取
 		RECT clientRect = { 0 };
+		m_view->GetClientRect(&clientRect); //这里仅获得大小
 
-			m_view->GetClientRect(&clientRect); //这里仅获得大小
-
-			int left = rect.left + ((rect.right - rect.left) - (clientRect.right - clientRect.left)) / 2;
-			int top = rect.top + ((rect.bottom - rect.top) - (clientRect.bottom - clientRect.top)) / 2;
 			int nowLeft, nowTop;
-			GetWindowPos(m_hWndClient, &nowLeft, &nowTop);
+			GetWindowPos(m_hWndClient, &nowLeft, &nowTop); //得到现在的坐标
+			
 
 			//这样，启动的时候，执行一次；每次大小变更，执行一次。
 			//奇怪的是，退出的时候...也执行一次。
-			if (m_hWndClient != NULL && (nowLeft != left || nowTop != top))
+			if (m_hWndClient != NULL)
 			{
 				AtlTrace("UpdateLayout:SetWindowPos \n");
 				////MessageBox(L"UpdateLayout:准备SetWindowPos \n");
 
 				if (!m_view->IsWindowVisible())
-				{
 					ShowChild(TRUE);
-					//m_view->ShowWindow(SW_SHOW);
-					//::ShowWindow(m_CmdBar.m_hWnd, SW_SHOW);
-					//::ShowWindow(m_hWndToolBar, SW_SHOW);
-					//::ShowWindow(m_hWndStatusBar, SW_SHOW);
-				}
 
-				m_view->SetWindowPos(NULL, left, top, -1, -1,
-					SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
+				//显示了工具栏状态栏后再计算，否则会漏掉
+				CalcRect(rect, m_rateRect, clientRect);
+
+				m_view->SetWindowPos(NULL,clientRect.left,clientRect.top,
+					clientRect.right-clientRect.left+1,clientRect.bottom-clientRect.top+1, SWP_NOZORDER | SWP_NOACTIVATE );
 
 			}
 		}
@@ -393,26 +411,7 @@ public:
 
 
 
-	//显示视图
-	template <class T>
-	CWindow * ShowView()
-	{
-		if (::IsWindow(m_hWndClient))
-		{
-			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
-				return m_view;
-			::DestroyWindow(m_hWndClient);
-			m_hWndClient = NULL;
-		}
-
-		T* pView = new T;
-		m_hWndClient = pView->Create(m_hWnd);
-		pView->SetDlgCtrlID(pView->IDD);
-	   
-		//如果需要支持CWindow视图：
-		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
-		return (CWindow *)pView;
-	}
+	
 
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
