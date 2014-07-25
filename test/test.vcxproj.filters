@@ -66,6 +66,9 @@
     <ClCompile Include="db_quote_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ui_layout_test.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">
