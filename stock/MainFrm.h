@@ -371,17 +371,7 @@ public:
 		{
 			////MessageBox(L"进入UpdateLayout");
 			
-		AtlTrace("UpdateLayout start \n");
-		RECT rect = { 0 };
-		GetClientRect(&rect); //获取整个应用的客户区rect，这只是除去窗口的标题、边框之后，剩下的窗体工作区域
 
-		// position bars and offset their dimensions
-		UpdateBarsPosition(rect, bResizeBars);  //该rect减去菜单、工具栏、状态栏所占区域
-		//此处得到的rect是全部客户区，可以在这个范围内居中显示
-
-		//现在我们获取
-		RECT clientRect = { 0 };
-		m_view->GetClientRect(&clientRect); //这里仅获得大小
 
 			int nowLeft, nowTop;
 			GetWindowPos(m_hWndClient, &nowLeft, &nowTop); //得到现在的坐标
@@ -396,6 +386,17 @@ public:
 
 				if (!m_view->IsWindowVisible())
 					ShowChild(TRUE);
+
+				AtlTrace("UpdateLayout start \n");
+				RECT rect = { 0 };
+				GetClientRect(&rect); //获取整个应用的客户区rect，这只是除去窗口的标题、边框之后，剩下的窗体工作区域
+
+				UpdateBarsPosition(rect, bResizeBars);  //该rect减去菜单、工具栏、状态栏所占区域
+				//此处得到的rect是全部客户区，可以在这个范围内居中显示
+
+				//现在我们获取
+				RECT clientRect = { 0 };
+				m_view->GetClientRect(&clientRect); //这里仅获得大小
 
 				//显示了工具栏状态栏后再计算，否则会漏掉
 				CalcRect(rect, m_rateRect, clientRect);
