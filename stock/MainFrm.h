@@ -138,7 +138,9 @@ public:
 			::SendMessage(m_hWndStatusBar, WM_SIZE, 0, 0);
 			::InvalidateRect(m_hWndToolBar, NULL, TRUE);
 			LockWindowUpdate(false);
-			this->UpdateWindow();
+
+			//解锁即更新，没有必要显示的paint
+			//this->UpdateWindow();
 		}
 	}
 
