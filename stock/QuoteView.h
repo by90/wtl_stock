@@ -5,11 +5,11 @@
 #pragma once
 #include "CCtlColor.h"
 
-class CStockView : public CDialogImpl<CStockView>
-	, public CCtlColored<CStockView>
+class CQuoteView : public CDialogImpl<CQuoteView>
+	, public CCtlColored<CQuoteView>
 {
 public:
-	enum { IDD = IDD_HOME_BOX};
+	enum { IDD = IDD_QUOTE_BOX };
 
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -17,12 +17,12 @@ public:
 	}
 
 	//init_dialog、show都只运行一次。
-	BEGIN_MSG_MAP(CStockView)
+	BEGIN_MSG_MAP(CQuoteView)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
-		CHAIN_MSG_MAP(CCtlColored<CStockView>)
+		CHAIN_MSG_MAP(CCtlColored<CQuoteView>)
 		//MESSAGE_HANDLER(WM_SHOWWINDOW, OnShow)
 		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
 		//MESSAGE_HANDLER(WM_SIZE, OnSize)
@@ -38,7 +38,7 @@ public:
 		SetTextBackGround(bkColor);  // Lightish kind of blue (Four)
 		SetTextColor(RGB(0X60, 0, 0)); // Dark red   
 
-		
+
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 		return TRUE;
 	}
@@ -53,10 +53,10 @@ public:
 	{
 		delete this;
 	}
-// Handler prototypes (uncomment arguments if needed):
-//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+	// Handler prototypes (uncomment arguments if needed):
+	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 	LRESULT OnEraseBackground(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		//AtlTrace("View:WM_ERASEBKGND \n");

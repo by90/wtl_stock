@@ -4,6 +4,7 @@
 
 #pragma once
 #include <atltypes.h>
+#include "QuoteView.h"
 
 class CMainFrame : 
 	public CFrameWindowImpl<CMainFrame>, 
@@ -65,6 +66,8 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SIZING, OnSizing)
 		
+		COMMAND_ID_HANDLER(ID_HOME_VIEW, OnHomeView)
+		COMMAND_ID_HANDLER(ID_QUOTE_VIEW, OnQuoteView)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_FILE_NEW, OnFileNew)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
@@ -256,11 +259,14 @@ public:
 		//如果要在按钮右侧显示文字，加上| TBSTYLE_LIST
 		//HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST);
 
+
+		//改成平面风格(如果未选rebar)
+		//CToolBarCtrl tool = m_hWndToolBar;
+		//tool.ModifyStyle(0, TBSTYLE_FLAT); //这里debug assert error,工具栏iswindow判断未通过
+
 		//按钮增加文字
 		AddToolbarButtonText(hWndToolBar, ID_HOME_PAGE, _T("主页"));
 		AddToolbarButtonText(hWndToolBar, ID_IMPORT_PAGE, _T("导入行情"));
-
-		
 
 		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 		AddSimpleReBarBand(hWndCmdBar);
@@ -525,6 +531,22 @@ public:
 		return 0;
 	}
 
+	LRESULT OnHomeView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		m_view = ShowView<CStockView>({ -50, -50, 0, 0 });
+		UpdateChild();
+		//::ShowWindow(m_hWndClient, SW_SHOW);
+
+		return 0;
+	}	
+	LRESULT OnQuoteView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	{
+		m_view = ShowView<CQuoteView>({ -50, -50, 0, 0 });
+		UpdateChild();
+		//::ShowWindow(m_hWndClient, SW_SHOW);
+
+		return 0;
+	}
 	LRESULT OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
 		// TODO: add code to initialize document
