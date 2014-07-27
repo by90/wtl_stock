@@ -16,6 +16,7 @@ public:
 	CWindow *m_view=NULL;
 	CCommandBarCtrl m_CmdBar;
 	RECT m_rateRect ;
+	HBRUSH m_hDialogBrush;
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg)
 	{
@@ -32,6 +33,10 @@ public:
 	{
 		UIUpdateToolBar();
 		return FALSE;
+	}
+	~CMainFrame()
+	{
+		DeleteObject(m_hDialogBrush);
 	}
 
 	BEGIN_UPDATE_UI_MAP(CMainFrame)
@@ -71,6 +76,7 @@ public:
 
 	HMENU m_menu =NULL;
 
+	
 	//rcArea，整个区域
 	//left,top：左上角坐标，大于0为固定数值，-1到-100表示按rcArea宽度和高度的百分比。
 	//width,height：宽度和高度，大于0为固定数值，等于0则维持不变
@@ -125,6 +131,8 @@ public:
 		if (m_menu == NULL && this->IsWindow())
 			m_menu = GetMenu();
 
+
+
 		//SetRedraw(False)，则后面所有的更新都被忽略
 		//LockWindowUpdate,后面的更新有效，解锁后显示
 		if (bShow) LockWindowUpdate();
@@ -148,6 +156,12 @@ public:
 	template <class T>
 	CWindow * ShowView(RECT rcRate = {0,0,0,0})
 	{
+
+		//获取背景色
+		//HBRUSH bk = (HBRUSH)GetClassLong(m_hWnd, GCL_HBRBACKGROUND);
+		//LOGBRUSH brush;
+		//::GetObjectW(bk, sizeof(LOGBRUSH), &brush);
+
 		if (::IsWindow(m_hWndClient))
 		{
 			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
@@ -159,12 +173,87 @@ public:
 		m_rateRect = rcRate;
 		T* pView = new T;
 		m_hWndClient = pView->Create(m_hWnd);
+
+		//::SendMessage(m_hWndClient,WM_CTLCOLORDLG, (WPARAM)m_hDialogBrush, 0);
+		
+
+		
+		//如此修改颜色无效？
+		//SetClassLong(m_hWndClient, GCL_HBRBACKGROUND, brush.lbColor);
 		pView->SetDlgCtrlID(pView->IDD);
 
 		//如果需要支持CWindow视图：
 		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
 		return (CWindow *)pView;
 	}
+
+	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+	{
+		//this->SetFont();
+		//this->GetFont();
+		//this->GetWndClassInfo();
+		//this->GetDC() //获取窗口客户区的DC
+		//this->GetWindowDC(); //获取窗口的DC
+
+		//CFrameWndClassInfo demo = this->GetWndClassInfo();
+		//HBRUSH bk = (HBRUSH)::GetClassLong(m_hWnd, GCL_HBRBACKGROUND);
+
+
+
+		//设置框架背景色为护眼色
+		//此处有内存泄漏吗？
+		m_hDialogBrush = CreateSolidBrush(RGB(204, 232, 207));
+
+		SetClassLong(m_hWnd, GCL_HBRBACKGROUND, (LONG)m_hDialogBrush);
+
+		//设置背景色后才能获取...因为之前并未设置
+		HBRUSH bk = (HBRUSH)GetClassLong(m_hWnd, GCL_HBRBACKGROUND);
+		LOGBRUSH brush;
+		::GetObjectW(bk, sizeof(LOGBRUSH), &brush);
+		COLORREF bkColor = brush.lbColor;
+		int r = GetRValue(bkColor);
+		int g = GetGValue(bkColor);
+		int b = GetBValue(bkColor);
+
+		this->ModifyStyle(0, WS_CLIPCHILDREN); //修改样式,不理睬子窗口覆盖的部分
+		AtlTrace("WM_CREATE start \n");
+		// create command bar window
+		HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
+		// attach menu
+		m_CmdBar.AttachMenu(GetMenu());
+		// load command bar images
+		m_CmdBar.LoadImages(IDR_MAINFRAME);
+		// remove old menu
+		SetMenu(NULL);
+
+		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+
+		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
+		AddSimpleReBarBand(hWndCmdBar);
+		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+
+		CreateSimpleStatusBar();
+
+		m_view = ShowView<CStockView>({ -50, -50, 0, 0 });
+
+		//m_hWndClient=m_view->Create(m_hWnd);
+
+		//m_view->CenterWindow(m_hWnd);
+		//如果使用CDialogResize，可以设置DlgCtrlId
+		//m_view->SetDlgCtrlID(m_view->IDD);
+		UIAddToolBar(hWndToolBar);
+		UISetCheck(ID_VIEW_TOOLBAR, 1);
+		UISetCheck(ID_VIEW_STATUS_BAR, 1);
+
+		// register object for message filtering and idle updates
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+		pLoop->AddIdleHandler(this);
+		AtlTrace("WM_CREATE end \n");
+		return 0;
+	}
+
 
 	LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{		
@@ -317,46 +406,6 @@ public:
 	}
 
 
-	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		//this->ModifyStyle(0, WS_CLIPCHILDREN); //修改样式没有效果
-		AtlTrace("WM_CREATE start \n");
-		// create command bar window
-		HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
-		// attach menu
-		m_CmdBar.AttachMenu(GetMenu());
-		// load command bar images
-		m_CmdBar.LoadImages(IDR_MAINFRAME);
-		// remove old menu
-		SetMenu(NULL);
-
-		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
-
-		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-		AddSimpleReBarBand(hWndCmdBar);
-		AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
-
-		CreateSimpleStatusBar();
-
-		m_view = ShowView<CStockView>({-50,-50,0,0});
-		
-		//m_hWndClient=m_view->Create(m_hWnd);
-
-		//m_view->CenterWindow(m_hWnd);
-		//如果使用CDialogResize，可以设置DlgCtrlId
-		//m_view->SetDlgCtrlID(m_view->IDD);
-		UIAddToolBar(hWndToolBar);
-		UISetCheck(ID_VIEW_TOOLBAR, 1);
-		UISetCheck(ID_VIEW_STATUS_BAR, 1);
-
-		// register object for message filtering and idle updates
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->AddMessageFilter(this);
-		pLoop->AddIdleHandler(this);
-		AtlTrace("WM_CREATE end \n");
-		return 0;
-	}
 
 	//不执行
 	void UpdateLayout(BOOL bResizeBars = TRUE)

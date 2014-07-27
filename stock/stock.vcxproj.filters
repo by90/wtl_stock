@@ -41,6 +41,9 @@
     <ClInclude Include="base_dialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CCtlColor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="stock.rc">
