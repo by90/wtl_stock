@@ -345,6 +345,14 @@ public:
 	{
 		//MessageBox(L"进入OnGetMinMaxInfo");
 		//MINMAXINFO * info = (MINMAXINFO *)lParam;
+
+		LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+		// change the values in the size structure to desired values
+		lpMMI->ptMinTrackSize.x = 800; // min width
+		lpMMI->ptMinTrackSize.y = 600; // min height
+		//lpMMI->ptMaxTrackSize.x = 600; // max width
+		//lpMMI->ptMaxTrackSize.y = 450; // max height
+		return 0;
 		bHandled = false; //如此设置，则后续的消息接收器会处理
 		return TRUE;
 	}
