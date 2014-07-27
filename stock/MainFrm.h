@@ -187,6 +187,31 @@ public:
 		return (CWindow *)pView;
 	}
 
+
+	void AddToolbarButtonText(HWND hWndToolBar, UINT nID, LPCTSTR lpsz)
+	{
+		CToolBarCtrl toolbar(hWndToolBar);
+		// Set extended style
+		if ((toolbar.GetExtendedStyle() & TBSTYLE_EX_MIXEDBUTTONS) !=
+			TBSTYLE_EX_MIXEDBUTTONS)
+			toolbar.SetExtendedStyle(toolbar.GetExtendedStyle() |
+			TBSTYLE_EX_MIXEDBUTTONS);
+		// Get the button index
+		int nIndex = toolbar.CommandToIndex(nID);
+		TBBUTTON tb;
+		memset(&tb, 0, sizeof(tb));
+		toolbar.GetButton(nIndex, &tb);
+		// Add the string to the main toolbar list
+		//std::wstring str(lpsz, _tcslen(lpsz) + 1);
+		int nStringID = toolbar.AddStrings(lpsz);
+		// Alter the button style
+		tb.iString = nStringID;
+		tb.fsStyle |= TBSTYLE_AUTOSIZE | BTNS_SHOWTEXT;
+		// Delete and re-insert the button
+		toolbar.DeleteButton(nIndex);
+		toolbar.InsertButton(nIndex, &tb);
+	}
+
 	LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	{
 		//this->SetFont();
@@ -226,7 +251,16 @@ public:
 		// remove old menu
 		SetMenu(NULL);
 
+		//默认是在按钮下方显示文字
 		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+		//如果要在按钮右侧显示文字，加上| TBSTYLE_LIST
+		//HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE | TBSTYLE_LIST);
+
+		//按钮增加文字
+		AddToolbarButtonText(hWndToolBar, ID_HOME_PAGE, _T("主页"));
+		AddToolbarButtonText(hWndToolBar, ID_IMPORT_PAGE, _T("导入行情"));
+
+		
 
 		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 		AddSimpleReBarBand(hWndCmdBar);
