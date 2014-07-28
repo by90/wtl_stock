@@ -50,6 +50,9 @@
     <ClInclude Include="MultiViewFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="atlddxEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="stock.rc">
