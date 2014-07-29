@@ -24,7 +24,7 @@ bool db::set_default(const wchar_t *_default, std::function<bool(const char *)> 
 {
 	//定义一个转换器
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	auto temp=conv.to_bytes(_default);
+	auto temp=conv.to_bytes(_default);//如果反过来转换:conv.from_bytes(narrowStr);
     auto rc = set_default(temp.c_str(), create_database);
 
 	//default指针指到temp.c_str()
@@ -32,7 +32,7 @@ bool db::set_default(const wchar_t *_default, std::function<bool(const char *)> 
 	//然后default_指向的内容没了
 	//然后default_是乱码
 
-	//如果反过来转换:conv.from_bytes(narrowStr);
+	
 	return rc;
 }
 const char *db::default()

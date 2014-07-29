@@ -77,7 +77,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		//NOTIFY_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
-		COMMAND_HANDLER(IDC_EDIT_PATH,EN_KILLFOCUS,OnEditChanged)
+		COMMAND_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
 
 		COMMAND_HANDLER(IDC_BUTTON_SELECT, BN_CLICKED, OnClickedButtonSelect)
 		COMMAND_HANDLER(IDC_BUTTON_INSTALL, BN_CLICKED, OnClickedButtonInstall)
@@ -164,7 +164,8 @@ public:
 		//default:
 		//	break;
 		//}
-		DoDataExchange(true, wID);
+		if (wNotifyCode == EN_KILLFOCUS)
+			DoDataExchange(true, wID);
 		return 0;
 	}
 

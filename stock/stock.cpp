@@ -13,6 +13,8 @@
 #include "stockView.h"
 #include "aboutdlg.h"
 #include "MainFrm.h"
+#include "db.h"
+#include "global.h"
 
 CAppModule _Module;
 
@@ -53,6 +55,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
 
+	db::set_default(L"quote.db", global::create_default_database);
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
