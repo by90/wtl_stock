@@ -5,27 +5,33 @@
 #pragma once
 #include "CCtlColor.h"
 #include "atlddxEx.h"
+#include <atlctrls.h>
 #include <string>
 #include <functional>
 #include <chrono>
 #include <thread>
 #include <atlddx.h>
 
+
+
 class CQuoteView;
 class CQuoteViewModel
 {
 public:
-	std::wstring m_path;
+	std::wstring m_path; //选取的文件路径
+	bool working = FALSE; //是否正在工作
+	bool isValidFile = FALSE; //选中的文件是否合法
 
 	void import(std::function<void(int)> func)
 	{
-
+		working = True;
 		for (int i = 0; i < 100; i++)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			func(i);
 			//Sleep(100);//win32写法
 		}
+
 	}
 
 	void open(HWND hwnd)
@@ -49,10 +55,11 @@ class CQuoteView : public CDialogImpl<CQuoteView>
 	, public CCtlColored<CQuoteView>
 {
 public:
-
+	
 	CQuoteViewModel model;
 	CProgressBarCtrl m_progressBar;
-
+	CEdit m_pathctrl;
+	
 	enum { IDD = IDD_QUOTE_BOX };
 
 	BOOL PreTranslateMessage(MSG* pMsg)
@@ -69,13 +76,13 @@ public:
 	BEGIN_MSG_MAP(CQuoteView)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
+		//NOTIFY_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
+		COMMAND_HANDLER(IDC_EDIT_PATH,EN_KILLFOCUS,OnEditChanged)
 
 		COMMAND_HANDLER(IDC_BUTTON_SELECT, BN_CLICKED, OnClickedButtonSelect)
 		COMMAND_HANDLER(IDC_BUTTON_INSTALL, BN_CLICKED, OnClickedButtonInstall)
 		CHAIN_MSG_MAP(CCtlColored<CQuoteView>)
-		//MESSAGE_HANDLER(WM_SHOWWINDOW, OnShow)
-		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
-		//MESSAGE_HANDLER(WM_SIZE, OnSize)
+
 	END_MSG_MAP()
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
@@ -86,12 +93,18 @@ public:
 		LOGBRUSH brush;
 		::GetObjectW(bk, sizeof(LOGBRUSH), &brush);
 		DWORD bkColor = brush.lbColor;
+
+		//SetTextColor(::GetSysColor(COLOR_WINDOWTEXT)); 
+		//SetBkBrush(bk);
+		
 		SetTextBackGround(bkColor);  // Lightish kind of blue (Four)
-		SetTextColor(RGB(0X60, 0, 0)); // Dark red   
+		SetTextColor(RGB(0, 0, 0)); // Dark red 
+		
 
 
 		model.m_path = L"测试DDX";
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
+		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 		DoDataExchange(FALSE);
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 		return TRUE;
@@ -121,6 +134,8 @@ public:
 			if (::IsWindow(m_progressBar.m_hWnd))
 			{
 				m_progressBar.SetPos(now + 1);
+				if (now == 100)
+					model.working = False;
 			}
 		});
 		t.detach(); //从主线程分离后执行
@@ -136,6 +151,22 @@ public:
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+
+	LRESULT OnEditChanged(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
+	//LRESULT OnEditChanged(int idCtrl, LPNMHDR pnmh, BOOL& /*bHandled*/)
+	{
+		//512=EN_KILLFOCUS WID=1004即控件的id，hwnd是控件的hwnd
+		//switch (pnmh->code)
+		//{
+		//case EN_CHANGE:
+		//	DoDataExchange(TRUE, IDC_EDIT_PATH); //如果改变，将改变的结果转给变量
+		//	break;
+		//default:
+		//	break;
+		//}
+		DoDataExchange(true, wID);
+		return 0;
+	}
 
 };
 
