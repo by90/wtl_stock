@@ -11,19 +11,30 @@
 #include <chrono>
 #include <thread>
 #include <atlddx.h>
-
-
+#include "db_quote.h"
+#include "dad_file_parse.h"
 
 class CQuoteView;
 class CQuoteViewModel
 {
 public:
+	
 	std::wstring m_path; //选取的文件路径
 	bool working = FALSE; //是否正在工作
 	bool isValidFile = FALSE; //选中的文件是否合法
 
+	//两个相关的业务类
+	DbQuote quote;
+	dad_file_parse parser;
+
 	void import(std::function<void(int)> func)
 	{
+		if (!parser.open(""))
+		{
+			MessageBox(0,_T("你选中的文件，不是Dad行情文件"),L"文件格式不对",0);
+			return;
+		}
+		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
 		working = True;
 		for (int i = 0; i < 100; i++)
 		{
