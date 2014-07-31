@@ -53,7 +53,7 @@ public:
 	*/
 
 	//打开时才读取，因为判断格式合法性无需载入全部文件
-	bool open(const char *filename)
+	bool open(const wchar_t *filename)
 	{
 	    std::ifstream in(filename, std::ios::in | std::ios::binary);
 		if (in)

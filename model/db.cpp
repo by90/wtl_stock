@@ -1,13 +1,25 @@
 #include "stdafx.h"
 #define MODEL_EXPORTS
 #include "db.h"
-
+#include <stdlib.h>
+#include <stdio.h>
 
 std::string db::default_="";
 
 bool db::set_default(const char *_default, std::function<bool(const char *)> create_database)
 {
-	default_ = _default;
+	
+
+	char exeFullPath[MAX_PATH]; // MAX_PATH在WINDEF.h中定义了，等于260
+	memset(exeFullPath, 0, MAX_PATH);
+
+	GetModuleFileNameA(NULL, exeFullPath, MAX_PATH);
+	char *p = strrchr(exeFullPath, '\\');
+	*p = 0x00;
+
+	default_.append(exeFullPath);
+	default_.append(_default);
+	//default_ =  _default;
 
 	//判断文件是否存在，fstream的方法仍然是打开是否正常
 	//因此直接略过，用数据库是否正常打开，来判断。

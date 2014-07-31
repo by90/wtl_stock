@@ -40,7 +40,7 @@ TEST_F(FileParse, shuld_support_loop_for_default)
 TEST_F(FileParse, open)
 {
 	file_parse<int *, char *> container;
-	auto result=container.open("test.dad");
+	auto result=container.open(L"test.dad");
 	EXPECT_TRUE(result);
 
 }

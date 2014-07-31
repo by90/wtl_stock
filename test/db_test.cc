@@ -19,14 +19,14 @@ protected:
 ////db类的静态函数set_default
 TEST_F(dbTest, set_default_test)
 {
-	auto rc = db::set_default("ctest.db");
+	auto rc = db::set_default("ctest.db",global::create_default_database);
 	EXPECT_STREQ("ctest.db", db::default());
 }
 
 //db类的静态函数set_default使用wstring
 TEST_F(dbTest, set_default_wstring_test)
 {
-	auto rc = db::set_default(L"wtest.db");
+	auto rc = db::set_default(L"wtest.db",global::create_default_database);
 	EXPECT_STREQ("wtest.db", db::default());
 }
 

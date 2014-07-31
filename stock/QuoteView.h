@@ -29,19 +29,24 @@ public:
 
 	void import(std::function<void(int)> func)
 	{
-		if (!parser.open(""))
+		if (!parser.open(m_path.c_str()))
 		{
 			MessageBox(0,_T("你选中的文件，不是Dad行情文件"),L"文件格式不对",0);
 			return;
 		}
+		if (parser.m_quote_count <= 0)
+		{
+			MessageBox(0, _T("你选中的文件，没有行情数据"), L"文件格式不对", 0);
+			return;
+		}
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
 		working = True;
-		for (int i = 0; i < 100; i++)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			func(i);
-			//Sleep(100);//win32写法
-		}
+		//for (int i = 0; i < 100; i++)
+		//{
+		//	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		//	func(i);
+		//	//Sleep(100);//win32写法
+		//}
 
 	}
 
@@ -141,11 +146,13 @@ public:
 
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
+
 		std::thread t(&CQuoteViewModel::import, &model, [this](int now){
 			if (::IsWindow(m_progressBar.m_hWnd))
 			{
-				m_progressBar.SetPos(now + 1);
-				if (now == 100)
+			    	
+				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
+				if (now == model.parser.m_quote_count)
 					model.working = False;
 			}
 		});

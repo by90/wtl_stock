@@ -26,7 +26,7 @@ public:
 		
 		//1.确保数据库打开：
 		sqlite3 *default_db=nullptr;
-		db::set_default("test.db", global::create_default_database);
+		//db::set_default("quote.db", global::create_default_database);
 		int rc = sqlite3_open_v2(db::default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		if (rc != SQLITE_OK)
 		{
@@ -39,7 +39,7 @@ public:
 
 		//2.设置sql
 		sqlite3_stmt *pStmt = NULL;
-		const char *insert_sql = "insert into Quote values(?, ?, ?, ?, ?, ?, ?,?)";
+		const char *insert_sql = "INSERT INTO QUOTE VALUES(?, ?, ?, ?, ?, ?, ?,?)";
 
 		//3.prepare
 		rc = sqlite3_prepare_v2(default_db, insert_sql, -1, &pStmt, 0);
@@ -70,11 +70,14 @@ public:
 			sqlite3_bind_double(pStmt, 7, current->quoteOfDad->volume);
 			sqlite3_bind_double(pStmt, 8, current->quoteOfDad->amount);
 			//执行
-			sqlite3_step(pStmt);
-			rc = sqlite3_reset(pStmt); //重置，下次循环重新执行
-			if (rc != SQLITE_OK){
+			rc = sqlite3_step(pStmt);
+			
+			if (rc != SQLITE_DONE && rc!=SQLITE_OK){
+
+				
 				return 0;
 			}
+			sqlite3_reset(pStmt); //重置，下次循环重新执行
 			if ((insert_nums%period) == 0 && (func != nullptr))
 				func(insert_nums);
 			++insert_nums;			
