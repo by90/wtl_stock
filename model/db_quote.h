@@ -18,7 +18,7 @@ public:
 	//加入回调函数,回调函数的频次(N条汇报一次，N%汇报一次)
 	template <typename T>
 	//typedef const std::enable_if<std::is_base_of<std::iterator, T>::value, T>::type 
-	size_t bulk_insert(T _begin, T _end, int period=2000, std::function<void(int)> func=nullptr)
+	size_t bulk_insert(T _begin, T _end, int period=2000, std::function<void(const char *,int)> func=nullptr)
 	{
 		//这里用static assert,编译器，调用的时候若不是指向结构的指针，则不能通过编译
 		//这同样表示：不能编译出不合法的实际函数...起到了与enable_if相似的作用
@@ -26,11 +26,13 @@ public:
 		
 		//1.确保数据库打开：
 		sqlite3 *default_db=nullptr;
-
 		int rc = sqlite3_open_v2(db::default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		if (rc != SQLITE_OK)
 		{
-			sqlite3_close_v2(default_db);
+			auto p = sqlite3_errmsg(default_db);
+			func(p, 0);
+			if (default_db)
+				sqlite3_close_v2(default_db);
 			return 0;
 		}
 		//此时数据库已经打开，使用default_db
@@ -39,16 +41,17 @@ public:
 
 		//2.设置sql
 		sqlite3_stmt *pStmt = NULL;
-		const char *insert_sql = "INSERT INTO QUOTE VALUES(?, ?, ?, ?, ?, ?, ?,?)";
+		const char *insert_sql = "INSERT OR IGNORE INTO QUOTE VALUES(?, ?, ?, ?, ?, ?, ?,?)";
 
 		//3.prepare
 		rc = sqlite3_prepare_v2(default_db, insert_sql, -1, &pStmt, 0);
 		if (rc)
 		{
 			auto p = sqlite3_errmsg(default_db);
-			fprintf(stderr, "Error: %s\n", sqlite3_errmsg(default_db));
+			func(p, 0);
 			if (pStmt) sqlite3_finalize(pStmt);
-			sqlite3_close_v2(default_db);
+			if (default_db)
+				sqlite3_close_v2(default_db);
 			return 0;
 		}//此时已经prepare成功
 
@@ -73,13 +76,15 @@ public:
 			rc = sqlite3_step(pStmt);
 			
 			if (rc != SQLITE_DONE && rc!=SQLITE_OK){
-
-				
+				auto p = sqlite3_errmsg(default_db);
+				func(p, 0);
+				if (default_db)
+					sqlite3_close_v2(default_db);
 				return 0;
 			}
 			sqlite3_reset(pStmt); //重置，下次循环重新执行
 			if ((insert_nums%period) == 0 && (func != nullptr))
-				func(insert_nums);
+				func(nullptr,insert_nums);
 			++insert_nums;			
 		}
 		//5.提交事务
@@ -91,7 +96,7 @@ public:
 		sqlite3_close_v2(default_db);
 		//7.返回插入的数量
 		if (func != nullptr)
-			func(insert_nums);
+			func(nullptr,insert_nums);
 		return insert_nums;
 	}
 };

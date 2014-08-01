@@ -27,7 +27,7 @@ public:
 	DbQuote quote;
 	dad_file_parse parser;
 
-	void import(std::function<void(int)> func)
+	void import(std::function<void(const char *,int)> func)
 	{
 		if (!parser.open(m_path.c_str()))
 		{
@@ -147,10 +147,13 @@ public:
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 
-		std::thread t(&CQuoteViewModel::import, &model, [this](int now){
-			if (::IsWindow(m_progressBar.m_hWnd))
+		std::thread t(&CQuoteViewModel::import, &model, [this](const char *err,int now){
+			if (err)
 			{
-			    	
+				MessageBoxA(m_hWnd, err, "导入过程出错", 0);
+			}
+			else if (::IsWindow(m_progressBar.m_hWnd))
+			{			    	
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
 					model.working = False;
