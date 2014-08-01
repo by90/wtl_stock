@@ -26,7 +26,7 @@ public:
 		
 		//1.确保数据库打开：
 		sqlite3 *default_db=nullptr;
-		//db::set_default("quote.db", global::create_default_database);
+
 		int rc = sqlite3_open_v2(db::default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		if (rc != SQLITE_OK)
 		{

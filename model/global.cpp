@@ -4,10 +4,32 @@
 #include "sqlite/sqlite3.h"
 namespace global
 {
-	MODEL_API const char * default_path = ".\\quote.db";
-Model_API bool create_default_database(const char * path)
+	//默认的数据库名称
+	//MODEL_API const char * default_db_name = ".\\quote.db";
+	
+	//默认的数据库全路径名称
+	MODEL_API std::string default_db_path = {};
+	
+	//获取默认的数据库全路径名称
+	MODEL_API const char * GetDefaultDb()
 	{
+		if (default_db_path.empty())
+		{
+			char exeFullPath[MAX_PATH] = { 0 }; // MAX_PATH在WINDEF.h中定义了，等于260
+			GetModuleFileNameA(NULL, exeFullPath, MAX_PATH);
+			
+			char *p = strrchr(exeFullPath, '\\'); 
+			*p = 0x00; //去掉最后文件名
 
+			default_db_path.append(exeFullPath);
+			default_db_path.append("quote.db");
+		}
+		return default_db_path.c_str();
+	}
+
+	//创建默认的数据库
+	Model_API bool create_default_database(const char * path)
+	{
 		sqlite3 *db = NULL;
 		int rc = sqlite3_open_v2(path, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
 		char * pErrMsg = 0;
