@@ -22,7 +22,7 @@ namespace global
 			*p = 0x00; //去掉最后文件名
 
 			default_db_path.append(exeFullPath);
-			default_db_path.append("quote.db");
+			default_db_path.append("\\quote.db");
 		}
 		return default_db_path.c_str();
 	}

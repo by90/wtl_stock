@@ -31,7 +31,7 @@ public:
 	{
 		if (!parser.open(m_path.c_str()))
 		{
-			MessageBox(0,_T("你选中的文件，不是Dad行情文件"),L"文件格式不对",0);
+			MessageBox(0,_T("您选中的文件，不是Dad行情文件"),L"文件格式不对",0);
 			return;
 		}
 		if (parser.m_quote_count <= 0)
@@ -118,7 +118,7 @@ public:
 		
 
 
-		model.m_path = L"测试DDX";
+		model.m_path = L"";
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 		DoDataExchange(FALSE);
