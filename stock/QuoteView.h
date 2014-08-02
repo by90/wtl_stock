@@ -18,7 +18,15 @@ class CQuoteView;
 class CQuoteViewModel
 {
 public:
-	
+	enum class State
+	{
+		init,
+		selected,
+		pending,
+		complete,
+	};
+
+	State m_state = State::init;
 	std::wstring m_path; //选取的文件路径
 	bool working = FALSE; //是否正在工作
 	bool isValidFile = FALSE; //选中的文件是否合法
@@ -69,6 +77,10 @@ public:
 class CQuoteView : public CDialogImpl<CQuoteView>
 	, public CWinDataExchangeEx<CQuoteView>
 	, public CCtlColored<CQuoteView>
+
+	,public CUpdateUI<CQuoteView>  //为对话框启用UpdateUI
+	,public CMessageFilter
+	,public CIdleHandler
 {
 public:
 	
@@ -82,6 +94,13 @@ public:
 	{
 		return CWindow::IsDialogMessage(pMsg);
 	}
+
+	BEGIN_UPDATE_UI_MAP(CMainDlg)
+
+		UPDATE_ELEMENT(IDC_BUTTON_INSTALL, UPDUI_CHILDWINDOW)
+
+	END_UPDATE_UI_MAP()
+
 
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
@@ -101,9 +120,36 @@ public:
 
 	END_MSG_MAP()
 
+
+	void SetVisible(CQuoteViewModel::State state)
+	{
+		switch (state)
+		{
+		case CQuoteViewModel::State::init:
+		{
+			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), true);
+			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), true);
+
+			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+
+			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_HIDE);
+			
+
+		}
+			break;
+		}
+
+	}
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
 
-		
+		SetVisible(model.m_state);
 		//获取背景色
 		HBRUSH bk = (HBRUSH)GetClassLong(GetParent(), GCL_HBRBACKGROUND);
 		LOGBRUSH brush;
@@ -123,8 +169,26 @@ public:
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 		DoDataExchange(FALSE);
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
+
+
+		//以下，为对话框启用UpdateUI
+		CMessageLoop* pLoop = _Module.GetMessageLoop();
+		ATLASSERT(pLoop != NULL);
+		pLoop->AddMessageFilter(this);
+		pLoop->AddIdleHandler(this);
+		UIAddChildWindowContainer(m_hWnd);
+
+
 		return TRUE;
 	}
+
+	BOOL CQuoteView::OnIdle()
+	{
+		UIUpdateChildWindows();
+		return FALSE;
+	}
+
+
 
 	LRESULT OnForwardMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&	bHandled)
 	{
@@ -146,7 +210,7 @@ public:
 
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-
+		UIEnable(IDC_BUTTON_INSTALL, true);
 		std::thread t(&CQuoteViewModel::import, &model, [this](const char *err,int now){
 			if (err)
 			{
