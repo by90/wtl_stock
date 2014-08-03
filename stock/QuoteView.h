@@ -38,10 +38,12 @@ public:
 	dad_file_parse parser;
 
 	void import(std::function<void(const char *,int)> func)
-	{
+	{	
+		m_state = CQuoteViewModel::State::pending;
 		parser.open(m_path.c_str());
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
-		m_state = CQuoteViewModel::State::pending;
+		
+		
 
 		//for (int i = 0; i < 100; i++)
 		//{
@@ -262,7 +264,7 @@ public:
 		model.m_state = CQuoteViewModel::State::pending;
 		SetVisible(CQuoteViewModel::State::pending);
 		wostringstream info;
-		info << L"共" << model.parser.m_quote_count << L"条记录"<<L"正在安装...";
+		info << L"共" << model.parser.m_quote_count << L"条记录，正在安装...";
 		model.m_info.clear();
 		model.m_info.append(info.str());
 		SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
@@ -277,11 +279,13 @@ public:
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
 				{
-					model.m_info.append(L"...完成！");
+					model.m_info.append(L"完成！");
+					
 					model.m_state = CQuoteViewModel::State::complete;
 					SetVisible(CQuoteViewModel::State::complete);
 
 					SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
+					model.parser.close(); //安装完毕后，清除缓存的Dad文件
 				}
 			}
 		});

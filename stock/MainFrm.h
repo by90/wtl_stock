@@ -130,7 +130,7 @@ public:
 
 	LRESULT OnQuoteView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		m_view = ShowView<CQuoteView>({ -50, -50, 0, 0 });
+		m_view = ShowView<CQuoteView>({ -50, -50, 0, 0 },true,false);
 		UpdateChild();
 		//::ShowWindow(m_hWndClient, SW_SHOW);
 

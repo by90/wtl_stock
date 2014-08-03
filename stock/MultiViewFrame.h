@@ -1,6 +1,7 @@
 #ifndef multi_view_frame_h
 #define multi_view_frame_h
 #pragma once
+#include <map>
 /*
 1.切换视图
 2.相对于主窗体的位置显示视图
@@ -155,25 +156,42 @@ public:
 		}
 	}
 
+
+	std::map<int, CWindow *> m_views;
 	//显示视图
 	template <class T>
-	CWindow * ShowView(RECT rcRate = { 0, 0, 0, 0 },bool rateMode=TRUE)
+	CWindow * ShowView(RECT rcRate = { 0, 0, 0, 0 },bool rateMode=TRUE,bool autoDelete=true)
 	{
-		if (::IsWindow(m_hWndClient))
+		if (::IsWindow(m_hWndClient) )
 		{
 			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
 				return m_view;
-			::DestroyWindow(m_hWndClient);
-			m_hWndClient = NULL;
-		}
+			if (!m_views[::GetDlgCtrlID(m_hWndClient)]) //如果当前视图在列表中不存在
+			{
+				::DestroyWindow(m_hWndClient);
+				m_hWndClient = NULL;
+			}
+			else
+				::ShowWindow(m_hWndClient, SW_HIDE);
+		}//此时，前一窗口或销毁或隐藏
 
 		m_rateRect = rcRate;
 		m_rateMode = rateMode;
+
+		if (m_views[T::IDD]) //如果本视图已经创建
+		{
+			m_hWndClient = m_views[T::IDD]->m_hWnd;
+			::ShowWindow(m_views[T::IDD]->m_hWnd, SW_SHOW);
+			return m_views[T::IDD];
+		}
 
 		T* pView = new T;
 		m_hWndClient = pView->Create(m_hWnd);
 		pView->SetDlgCtrlID(pView->IDD);
 
+		//如果不准备自动删除，则加入到视图列表
+		if (!autoDelete)
+			m_views[T::IDD] = pView;
 		//如果需要支持CWindow视图：
 		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
 		return (CWindow *)pView;

@@ -18,6 +18,11 @@ public:
 		base_parse({}, {}, beginValue)
 	{}
 
+	~file_parse()
+	{
+		if (this->block_) free(block_);
+	}
+
 	/*//使用c风格的文件读写，是最快的方案
 	size_t open(wstring filename)
 	{
@@ -73,6 +78,15 @@ public:
 
 		//不要抛出异常
 		//throw(errno);
+	}
+
+	void close()
+	{
+		if (this->block_)
+		{
+			free(block_); //free仅仅释放内存，未将block_设为null
+			block_ = nullptr;
+		}
 	}
 protected:
 	string path_ = {};
