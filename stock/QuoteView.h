@@ -12,6 +12,7 @@
 #include <thread>
 #include <atlddx.h>
 #include "db_quote.h"
+#include <sstream>
 #include "dad_file_parse.h"
 
 class CQuoteView;
@@ -28,7 +29,8 @@ public:
 
 	State m_state = State::init;
 	std::wstring m_path; //选取的文件路径
-	bool working = FALSE; //是否正在工作
+	std::wstring m_info=L"请选择文件";
+
 	bool isValidFile = FALSE; //选中的文件是否合法
 
 	//两个相关的业务类
@@ -39,7 +41,8 @@ public:
 	{
 		parser.open(m_path.c_str());
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
-		working = True;
+		m_state = CQuoteViewModel::State::pending;
+
 		//for (int i = 0; i < 100; i++)
 		//{
 		//	std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -69,9 +72,15 @@ public:
 		auto oldState = m_state;
 		//如果文件合法
 		if (parser.check(m_path.c_str()))
+		{
 			m_state = CQuoteViewModel::State::selected;
+			m_info = L" ";
+		}
 		else
+		{
 			m_state = CQuoteViewModel::State::init;
+			m_info = L"您选择的文件，格式不对";
+		}
 		return (m_state != oldState);
 	}
 };
@@ -95,6 +104,7 @@ public:
 
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
+		DDX_TEXT(IDC_STATIC_INFO,model.m_info)
 		//DDX_TEXT(IDC_STATIC_ALLQUOTE, model.m_path)
 		//DDX_TEXT(IDC_EDIT_PATH, model.m_path)
 	END_DDX_MAP()
@@ -121,16 +131,10 @@ public:
 			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), true);
 			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), true);
 
-			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE);  //安装按钮不可用
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_HIDE);
+
 		}
 			break;
 
@@ -139,16 +143,10 @@ public:
 			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), true);
 			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), true);
 
-			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_SHOW); //安装按钮不可见
+			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), TRUE); 
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_HIDE);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_HIDE);
+
 		}
 			break;
 
@@ -157,16 +155,10 @@ public:
 			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), FALSE);
 			::EnableWindow(GetDlgItem(IDC_EDIT_PATH),FALSE);
 
-			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE);  //安装按钮不可见
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_SHOW);
-			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_SHOW);
+
 		}
 			break;
 
@@ -175,16 +167,10 @@ public:
 			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), TRUE);
 			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), TRUE);
 
-			//::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+			//::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE); //安装按钮不可见
 
 			//::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_SHOW);
-			//::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_SHOW);
+
 		}
 			break;
 		}
@@ -238,10 +224,12 @@ public:
 		model.open(m_hWnd);
 		if (temp != model.m_path)
 		{
+			
 			DoDataExchange(false, IDC_EDIT_PATH);
 			//仅在init或selected状态执行
 			if (model.is_state_changed())
 				SetVisible(model.m_state);
+			DoDataExchange(FALSE, IDC_STATIC_INFO);
 		}
 		return 0;
 	}
@@ -254,10 +242,15 @@ public:
 			GetDlgItemText(IDC_EDIT_PATH, temp,MAX_PATH);
 			if (temp != model.m_path)
 			{
+				
 				DoDataExchange(true, wID);
 				//仅在init或selected状态执行
 				if (model.is_state_changed())
+				{
 					SetVisible(model.m_state);
+					
+				}
+				DoDataExchange(FALSE, IDC_STATIC_INFO);
 			}
 		}
 		return 0;
@@ -268,6 +261,11 @@ public:
 	{
 		model.m_state = CQuoteViewModel::State::pending;
 		SetVisible(CQuoteViewModel::State::pending);
+		wostringstream info;
+		info << L"共" << model.parser.m_quote_count << L"条记录"<<L"正在安装...";
+		model.m_info.clear();
+		model.m_info.append(info.str());
+		SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 
 		std::thread t(&CQuoteViewModel::import, &model, [this](const char *err,int now){
 			if (err)
@@ -275,12 +273,15 @@ public:
 				MessageBoxA(m_hWnd, err, "导入过程出错", 0);
 			}
 			else if (::IsWindow(m_progressBar.m_hWnd))
-			{			    	
+			{	
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
 				{
+					model.m_info.append(L"...完成！");
 					model.m_state = CQuoteViewModel::State::complete;
 					SetVisible(CQuoteViewModel::State::complete);
+
+					SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 				}
 			}
 		});
