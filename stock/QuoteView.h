@@ -37,16 +37,7 @@ public:
 
 	void import(std::function<void(const char *,int)> func)
 	{
-		if (!parser.open(m_path.c_str()))
-		{
-			MessageBox(0,_T("您选中的文件，不是Dad行情文件"),L"文件格式不对",0);
-			return;
-		}
-		if (parser.m_quote_count <= 0)
-		{
-			MessageBox(0, _T("你选中的文件，没有行情数据"), L"文件格式不对", 0);
-			return;
-		}
+		parser.open(m_path.c_str());
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
 		working = True;
 		//for (int i = 0; i < 100; i++)
@@ -72,15 +63,22 @@ public:
 			//m_view->DoDataExchange(false);//将数据交还给
 		}
 	}
+
+	bool is_state_changed()
+	{
+		auto oldState = m_state;
+		//如果文件合法
+		if (parser.check(m_path.c_str()))
+			m_state = CQuoteViewModel::State::selected;
+		else
+			m_state = CQuoteViewModel::State::init;
+		return (m_state != oldState);
+	}
 };
 
 class CQuoteView : public CDialogImpl<CQuoteView>
 	, public CWinDataExchangeEx<CQuoteView>
 	, public CCtlColored<CQuoteView>
-
-	,public CUpdateUI<CQuoteView>  //为对话框启用UpdateUI
-	,public CMessageFilter
-	,public CIdleHandler
 {
 public:
 	
@@ -94,13 +92,6 @@ public:
 	{
 		return CWindow::IsDialogMessage(pMsg);
 	}
-
-	BEGIN_UPDATE_UI_MAP(CMainDlg)
-
-		UPDATE_ELEMENT(IDC_BUTTON_INSTALL, UPDUI_CHILDWINDOW)
-
-	END_UPDATE_UI_MAP()
-
 
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
@@ -140,8 +131,60 @@ public:
 			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_HIDE);
 			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_HIDE);
 			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_HIDE);
-			
+		}
+			break;
 
+		case CQuoteViewModel::State::selected:
+		{
+			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), true);
+			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), true);
+
+			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_SHOW); //安装按钮不可见
+
+			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_HIDE);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_HIDE);
+		}
+			break;
+
+		case CQuoteViewModel::State::pending:
+		{
+			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), FALSE);
+			::EnableWindow(GetDlgItem(IDC_EDIT_PATH),FALSE);
+
+			::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+
+			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_SHOW);
+			::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_SHOW);
+		}
+			break;
+
+		case CQuoteViewModel::State::complete:
+		{
+			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), TRUE);
+			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), TRUE);
+
+			//::ShowWindow(GetDlgItem(IDC_BUTTON_INSTALL), SW_HIDE); //安装按钮不可见
+
+			//::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_FIRST), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_COUNT), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_SECOND), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_CURRENT), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_THIRD), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_TIME), SW_SHOW);
+			//::ShowWindow(GetDlgItem(IDC_STATIC_FOURTH), SW_SHOW);
 		}
 			break;
 		}
@@ -171,21 +214,8 @@ public:
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 
 
-		//以下，为对话框启用UpdateUI
-		CMessageLoop* pLoop = _Module.GetMessageLoop();
-		ATLASSERT(pLoop != NULL);
-		pLoop->AddMessageFilter(this);
-		pLoop->AddIdleHandler(this);
-		UIAddChildWindowContainer(m_hWnd);
-
 
 		return TRUE;
-	}
-
-	BOOL CQuoteView::OnIdle()
-	{
-		UIUpdateChildWindows();
-		return FALSE;
 	}
 
 
@@ -203,14 +233,42 @@ public:
 
 	LRESULT OnClickedButtonSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		model.open(0);
-		DoDataExchange(false, IDC_EDIT_PATH);//将数据交还给
+		wchar_t temp[MAX_PATH] = { 0 };
+		GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
+		model.open(m_hWnd);
+		if (temp != model.m_path)
+		{
+			DoDataExchange(false, IDC_EDIT_PATH);
+			//仅在init或selected状态执行
+			if (model.is_state_changed())
+				SetVisible(model.m_state);
+		}
+		return 0;
+	}
+	LRESULT OnEditChanged(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
+	{
+		//512=EN_KILLFOCUS WID=1004即控件的id，hwnd是控件的hwnd
+		if (wNotifyCode == EN_KILLFOCUS)
+		{
+			wchar_t temp[MAX_PATH] = { 0 };
+			GetDlgItemText(IDC_EDIT_PATH, temp,MAX_PATH);
+			if (temp != model.m_path)
+			{
+				DoDataExchange(true, wID);
+				//仅在init或selected状态执行
+				if (model.is_state_changed())
+					SetVisible(model.m_state);
+			}
+		}
 		return 0;
 	}
 
+
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		UIEnable(IDC_BUTTON_INSTALL, true);
+		model.m_state = CQuoteViewModel::State::pending;
+		SetVisible(CQuoteViewModel::State::pending);
+
 		std::thread t(&CQuoteViewModel::import, &model, [this](const char *err,int now){
 			if (err)
 			{
@@ -220,7 +278,10 @@ public:
 			{			    	
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
-					model.working = False;
+				{
+					model.m_state = CQuoteViewModel::State::complete;
+					SetVisible(CQuoteViewModel::State::complete);
+				}
 			}
 		});
 		t.detach(); //从主线程分离后执行
@@ -237,22 +298,7 @@ public:
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
-	LRESULT OnEditChanged(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
-	//LRESULT OnEditChanged(int idCtrl, LPNMHDR pnmh, BOOL& /*bHandled*/)
-	{
-		//512=EN_KILLFOCUS WID=1004即控件的id，hwnd是控件的hwnd
-		//switch (pnmh->code)
-		//{
-		//case EN_CHANGE:
-		//	DoDataExchange(TRUE, IDC_EDIT_PATH); //如果改变，将改变的结果转给变量
-		//	break;
-		//default:
-		//	break;
-		//}
-		if (wNotifyCode == EN_KILLFOCUS)
-			DoDataExchange(true, wID);
-		return 0;
-	}
+
 
 };
 
