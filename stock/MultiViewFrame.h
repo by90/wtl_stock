@@ -31,6 +31,17 @@ public:
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
 
+	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		//删除m_views里保存的视图
+		for (auto p : m_views)
+		{
+			if ((p.second) && ::IsWindow(p.second->m_hWnd))
+				::DestroyWindow(p.second->m_hWnd);
+		}
+		bHandled = FALSE;
+		return 1;
+	}
 	LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
 		LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
@@ -166,7 +177,8 @@ public:
 		{
 			if (::GetDlgCtrlID(m_hWndClient) == T::IDD)
 				return m_view;
-			if (!m_views[::GetDlgCtrlID(m_hWndClient)]) //如果当前视图在列表中不存在
+			if (m_views.find(::GetDlgCtrlID(m_hWndClient))==m_views.end()) //返回迭代器，为空表示未找到？
+			//if (!m_views[::GetDlgCtrlID(m_hWndClient)]) //如果当前视图在列表中不存在
 			{
 				::DestroyWindow(m_hWndClient);
 				m_hWndClient = NULL;
@@ -178,7 +190,7 @@ public:
 		m_rateRect = rcRate;
 		m_rateMode = rateMode;
 
-		if (m_views[T::IDD]) //如果本视图已经创建
+		if (m_views.find(T::IDD)!=m_views.end()) //如果本视图已经创建
 		{
 			m_view = m_views[T::IDD];
 			m_hWndClient = m_view->m_hWnd;
