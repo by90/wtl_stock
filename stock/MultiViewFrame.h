@@ -180,20 +180,23 @@ public:
 
 		if (m_views[T::IDD]) //如果本视图已经创建
 		{
-			m_hWndClient = m_views[T::IDD]->m_hWnd;
-			::ShowWindow(m_views[T::IDD]->m_hWnd, SW_SHOW);
-			return m_views[T::IDD];
+			m_view = m_views[T::IDD];
+			m_hWndClient = m_view->m_hWnd;
+			::ShowWindow(m_view->m_hWnd, SW_SHOW);
+			UpdateChild();
+			return m_view;
 		}
 
 		T* pView = new T;
 		m_hWndClient = pView->Create(m_hWnd);
 		pView->SetDlgCtrlID(pView->IDD);
-
+		m_view = pView;
 		//如果不准备自动删除，则加入到视图列表
 		if (!autoDelete)
 			m_views[T::IDD] = pView;
 		//如果需要支持CWindow视图：
 		//m_hWndClient = pView->Create(m_hWnd, NULL, NULL, 0, 0, IDD);
+		UpdateChild();
 		return (CWindow *)pView;
 	}
 

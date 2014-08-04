@@ -121,8 +121,7 @@ public:
 
 	LRESULT OnHomeView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		m_view = ShowView<CStockView>({ -50, -50, 0, 0 });
-		UpdateChild();
+		ShowView<CStockView>({ -50, -50, 0, 0 });
 		//::ShowWindow(m_hWndClient, SW_SHOW);
 
 		return 0;
@@ -130,8 +129,8 @@ public:
 
 	LRESULT OnQuoteView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		m_view = ShowView<CQuoteView>({ -50, -50, 0, 0 },true,false);
-		UpdateChild();
+		ShowView<CQuoteView>({ -50, -50, 0, 0 },true,false);
+		
 		//::ShowWindow(m_hWndClient, SW_SHOW);
 
 		return 0;

@@ -64,7 +64,7 @@ public:
 			_T("所有文件 (*.*)\0*.*\0Dad文件 (*.Dad)\0*.exe\0Dat文件 (*.dat)\0\0"));
 		if (dlg.DoModal() == IDOK)
 		{
-			m_path = dlg.m_szFileName;
+			m_path = dlg.m_szFileName;			
 			//m_view->DoDataExchange(false);//将数据交还给
 		}
 	}

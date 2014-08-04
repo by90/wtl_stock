@@ -33,7 +33,7 @@ public:
 		reader.seekg(0, ios::beg); //回到文件第一个字节
 		std::shared_ptr<char> ptr(new char[16], [](char* ptr){delete[] ptr; });
 		char *buffer = ptr.get();
-		reader.read(buffer, 16); //将全部文件读取到内存
+		reader.read(buffer, 16); //将最初16个字节读入
 		reader.close();
 
 		flag = *(long *)buffer;
