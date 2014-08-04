@@ -12,7 +12,7 @@ using namespace std;
 class dad_file_parse :public file_parse<parse_of_dad, char *, dad_parse_iterator>
 {
 public:
-	
+	 
 	//检查文件是否合法，且获取股票数量和日线数量
 	bool check(const wchar_t *filename)
 	{

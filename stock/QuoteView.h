@@ -61,7 +61,7 @@ public:
 		LPCTSTR pfileName = m_path.empty() ? NULL : m_path.c_str();
 
 		CFileDialog dlg(TRUE, NULL, pfileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-			_T("所有文件 (*.*)\0*.*\0Dad文件 (*.Dad)\0*.exe\0Dat文件 (*.dat)\0\0"));
+			_T("所有文件 (*.*)\0*.*\0Dad文件 (*.Dad)\0*.exe\0Dat文件 (*.dat)\0\0"),hwnd);
 		if (dlg.DoModal() == IDOK)
 		{
 			m_path = dlg.m_szFileName;			
@@ -135,7 +135,9 @@ public:
 
 			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE);  //安装按钮不可用
 
+			
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
+			m_progressBar.SetPos(0);//先设为0，再隐藏
 
 		}
 			break;
@@ -148,6 +150,7 @@ public:
 			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), TRUE); 
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
+			m_progressBar.SetPos(0);//先设为0，再隐藏
 
 		}
 			break;
@@ -180,7 +183,7 @@ public:
 	}
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/){
 
-		SetVisible(model.m_state);
+		
 		//获取背景色
 		HBRUSH bk = (HBRUSH)GetClassLong(GetParent(), GCL_HBRBACKGROUND);
 		LOGBRUSH brush;
@@ -190,24 +193,20 @@ public:
 		//SetTextColor(::GetSysColor(COLOR_WINDOWTEXT)); 
 		//SetBkBrush(bk);
 		
-		SetTextBackGround(bkColor);  // Lightish kind of blue (Four)
-		SetTextColor(RGB(0, 0, 0)); // Dark red 
-		
+		SetTextBackGround(bkColor); 
+		SetTextColor(RGB(0, 0, 0)); 
 
 
 		model.m_path = L"";
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
+
+		SetVisible(model.m_state);
 		DoDataExchange(FALSE);
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
-
-
-
 		return TRUE;
 	}
-
-
-
+	
 	LRESULT OnForwardMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&	bHandled)
 	{
 		LPMSG pMsg = (LPMSG)lParam;
@@ -249,8 +248,7 @@ public:
 				//仅在init或selected状态执行
 				if (model.is_state_changed())
 				{
-					SetVisible(model.m_state);
-					
+					SetVisible(model.m_state);					
 				}
 				DoDataExchange(FALSE, IDC_STATIC_INFO);
 			}
