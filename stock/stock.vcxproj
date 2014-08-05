@@ -117,6 +117,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="stock.cpp" />
+    <ClCompile Include="ThreadTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stockView.h" />
+    <ClInclude Include="ThreadTask.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="stock.rc" />

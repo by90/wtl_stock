@@ -14,6 +14,7 @@
 #include "db_quote.h"
 #include <sstream>
 #include "dad_file_parse.h"
+#include "ThreadTask.h"
 
 class CQuoteView;
 class CQuoteViewModel
@@ -96,6 +97,7 @@ public:
 	CQuoteViewModel model;
 	CProgressBarCtrl m_progressBar;
 	CEdit m_pathctrl;
+	std::thread::id  import_id;
 	
 	enum { IDD = IDD_QUOTE_BOX };
 
@@ -191,8 +193,7 @@ public:
 		DWORD bkColor = brush.lbColor;
 
 		//SetTextColor(::GetSysColor(COLOR_WINDOWTEXT)); 
-		//SetBkBrush(bk);
-		
+		//SetBkBrush(bk);		
 		SetTextBackGround(bkColor); 
 		SetTextColor(RGB(0, 0, 0)); 
 
@@ -267,7 +268,9 @@ public:
 		model.m_info.append(info.str());
 		SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 
-		std::thread t(&CQuoteViewModel::import, &model, [this](const char *err,int now){
+		
+		std::thread *t;
+		t=new thread(&CQuoteViewModel::import, &model, [this,t](const char *err,int now){
 			if (err)
 			{
 				MessageBoxA(m_hWnd, err, "导入过程出错", 0);
@@ -284,24 +287,19 @@ public:
 
 					SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 					model.parser.close(); //安装完毕后，清除缓存的Dad文件
+					ThreadTask::Remove(import_id);
 				}
 			}
 		});
-		t.detach(); //从主线程分离后执行
+		import_id = t->get_id();
+		ThreadTask::Add(import_id, L"导入行情");
+		t->detach(); //从主线程分离后执行
 		//t.join();//等待子线程执行完毕再执行下一条语句
-
-		//model.import([this](int now){
-		//	CProgressBarCtrl bar = GetDlgItem(IDC_PROGRESS_IMPORT);//注意，仅仅是使用进度条
-		//	bar.SetPos(now + 1);
-		//});
 		return 0;
 	}
 	// Handler prototypes (uncomment arguments if needed):
 	//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 	//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
-
-
-
 };
 

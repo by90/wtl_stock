@@ -2,6 +2,7 @@
 #define multi_view_frame_h
 #pragma once
 #include <map>
+#include "ThreadTask.h"
 /*
 1.切换视图
 2.相对于主窗体的位置显示视图
@@ -28,9 +29,22 @@ public:
 		MESSAGE_HANDLER(WM_SIZE, OnSize)
 		MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
+		MESSAGE_HANDLER(WM_CLOSE, OnClose)
 		CHAIN_MSG_MAP(CFrameWindowImpl<CMainFrame>)
 	END_MSG_MAP()
 
+	LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+	{
+		if (!ThreadTask::is_empty())
+		{
+			wstring MessageContent =L"正在执行后台任务："; 
+			MessageContent.append(ThreadTask::thread_map.begin()->second);
+			MessageBoxW(MessageContent.c_str(), L"此时不可退出！", 0);
+			return 1;
+		}
+		bHandled = FALSE;
+		return 0;
+	}
 	LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
 		//删除m_views里保存的视图
