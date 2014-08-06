@@ -105,6 +105,7 @@ if not exist "$(TargetDir)sqlite3.dll" copy $(SolutionDir)lib\sqlite3.dll $(Targ
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stdmore.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="db.cpp" />

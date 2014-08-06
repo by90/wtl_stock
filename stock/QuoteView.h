@@ -15,6 +15,7 @@
 #include <sstream>
 #include "dad_file_parse.h"
 #include "ThreadTask.h"
+#include "timer.h"
 
 class CQuoteView;
 class CQuoteViewModel
@@ -268,9 +269,11 @@ public:
 		model.m_info.append(info.str());
 		SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 
+		timer time_used;
+		time_used.reset();
 		
 		std::thread *t;
-		t=new thread(&CQuoteViewModel::import, &model, [this,t](const char *err,int now){
+		t=new thread(&CQuoteViewModel::import, &model, [this,t,time_used](const char *err,int now){
 			if (err)
 			{
 				MessageBoxA(m_hWnd, err, "导入过程出错", 0);
@@ -280,7 +283,18 @@ public:
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
 				{
-					model.m_info.append(L"完成！");
+					model.m_info.append(L"完成,耗时");
+					wstringstream ss;
+					ss << L"完成,耗时";
+					auto used = time_used.elapsed_seconds();
+					if (used <= 0)
+						ss << L"不足1秒!";
+					else
+						if (used >=60)
+							ss << used / 60 << L"分" << used % 60 << L"秒!";
+						else 
+							ss << used << L"秒!";
+					model.m_info.append(ss.str());
 					
 					model.m_state = CQuoteViewModel::State::complete;
 					SetVisible(CQuoteViewModel::State::complete);

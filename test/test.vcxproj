@@ -88,6 +88,7 @@
     <ClCompile Include="dad_parse_iterator_test.cc" />
     <ClCompile Include="db_quote_test.cc" />
     <ClCompile Include="db_test.cc" />
+    <ClCompile Include="demo_c11\demo_chrono.cc" />
     <ClCompile Include="demo_c11\demo_encoding.cpp" />
     <ClCompile Include="demo_c11\demo_stl_array.cc" />
     <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc" />
