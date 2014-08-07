@@ -5,7 +5,7 @@
 namespace stdmore
 {
 	
-
+ 
 
 	//localtime_r返回的是指针,localtime_s返回的是错误号typedef int errno_t，两者参数次序亦颠倒。
 	//我们使用引用,但何种错误对我们意义不大,简单使用bool返回是否成功即可。
@@ -17,6 +17,21 @@ namespace stdmore
 #else
 		return (localtime_r(&from, &to)!=nullptr); // POSIX 
 #endif
+	}
+
+	//将time_t转换为字符串
+	//will_replace默认为假，则将结果追加到target，若为真，则返回转换后的字符串。
+	inline size_t  __cdecl time_to_wstring(std::time_t &&source,const wchar_t  *format,std::wstring &out_string,bool will_replace=false)
+	{
+		if (will_replace)
+			out_string.clear();
+		wchar_t buffer[MAX_PATH] = { 0 };
+		std::tm  tm_buffer;
+		size_t result;
+		stdmore::localtime(std::move(source), tm_buffer);
+		result=std::wcsftime(buffer, MAX_PATH - 1, format, &tm_buffer);
+		out_string += buffer;
+		return result;
 	}
 
 	//直接转换为日期

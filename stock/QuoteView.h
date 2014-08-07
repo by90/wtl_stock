@@ -86,23 +86,9 @@ public:
 			m_state = CQuoteViewModel::State::selected;
 			m_info = L" ";
 			m_opened = L"文件含";
-			if (parser.m_start_date != 0)
-			{
-				std::tm start_tm;
-				stdmore::localtime((time_t)parser.m_start_date, start_tm);
-				wchar_t buffer[MAX_PATH] = { 0 };
-				std::wcsftime(buffer, MAX_PATH - 1, L"%Y-%m-%d", &start_tm);
-				m_opened += buffer;
-			}
+			stdmore::time_to_wstring((time_t)parser.m_start_date, L"%Y-%m-%d",m_opened);
 			m_opened += L"到";
-			if (parser.m_end_date != 0)
-			{
-				std::tm end_tm;
-				stdmore::localtime((time_t)parser.m_end_date, end_tm);
-				wchar_t end_buffer[MAX_PATH] = { 0 };
-				std::wcsftime(end_buffer, MAX_PATH - 1, L"%Y-%m-%d", &end_tm);
-				m_opened += end_buffer;
-			}
+			stdmore::time_to_wstring((time_t)parser.m_end_date, L"%Y-%m-%d", m_opened);
 			m_opened += L"的数据";
 		}
 		else

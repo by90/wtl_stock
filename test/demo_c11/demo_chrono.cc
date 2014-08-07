@@ -50,6 +50,7 @@ TEST(demo, chrono_to_string)
 	//时间转字符串：size_t strftime( char *strDest, size_t maxsize, const char *format, co
 	//转换成time_point
 	std::chrono::steady_clock::time_point first_time_point = chrono::system_clock::from_time_t(firstTime);
+	std::string d;
 	auto first_string=std::put_time(std::localtime(&firstTime), "%Y-%m-%d %X");
 	//EXPECT_STREQ("2014-01-01 09:00:00",first_string);
 }
