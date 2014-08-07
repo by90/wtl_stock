@@ -34,12 +34,49 @@ public:
 		std::shared_ptr<char> ptr(new char[16], [](char* ptr){delete[] ptr; });
 		char *buffer = ptr.get();
 		reader.read(buffer, 16); //将最初16个字节读入
-		reader.close();
 
 		flag = *(long *)buffer;
 		this->m_stock_count = *(unsigned long *)(buffer + 8);
 		this->m_quote_count = (unsigned long)(size_ - 16 - 32 - m_stock_count * 32) / 32;
-		return (flag == DadFlag && (((size_ - 16) % 32) == 0));
+		bool result=(flag == DadFlag && (((size_ - 16) % 32) == 0));
+		
+		if (result)
+		{
+
+			//此时开始获取最大、最小日期
+			int id_line = 0;//最多读3次
+			size_t position = 48;
+			long current_date = 0;
+			m_start_date = 0;
+			m_end_date = 0;
+			while (id_line < 3)
+			{
+				reader.seekg(position, ios::beg); //指向第一条记录
+				reader.read((char *)(&current_date), 4);
+				if (current_date == -1)
+				{
+					++id_line;
+
+				}
+				else
+				{
+					if (m_start_date == 0 || m_start_date > current_date)
+						m_start_date = current_date;
+					if (m_end_date == 0 || m_end_date < current_date)
+						m_end_date = current_date;
+				}
+				position += 32;
+				if (position >= size_)
+				{
+					result = false;
+					break;
+				}
+			}
+		}
+
+		
+		reader.close();
+		return result;
 	}
 	bool open(const wchar_t *filename)
 	{
@@ -69,6 +106,7 @@ public:
 	}
 
 	size_t m_stock_count=0, m_quote_count=0;
+	unsigned long m_start_date=0, m_end_date=0;//日线文件中的起止日期，由check判定。
 
 	
 };

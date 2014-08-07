@@ -16,6 +16,8 @@
 #include "dad_file_parse.h"
 #include "ThreadTask.h"
 #include "timer.h"
+#include "stdmore.h"
+#include <iomanip>
 
 class CQuoteView;
 class CQuoteViewModel
@@ -31,7 +33,10 @@ public:
 
 	State m_state = State::init;
 	std::wstring m_path; //选取的文件路径
-	std::wstring m_info=L"请选择文件";
+	std::wstring m_info=L"";
+	std::wstring m_saved = L"";
+	std::wstring m_opened = L"";
+	
 
 	bool isValidFile = FALSE; //选中的文件是否合法
 
@@ -41,6 +46,7 @@ public:
 
 	void import(std::function<void(const char *,int)> func)
 	{	
+		
 		m_state = CQuoteViewModel::State::pending;
 		parser.open(m_path.c_str());
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
@@ -79,11 +85,30 @@ public:
 		{
 			m_state = CQuoteViewModel::State::selected;
 			m_info = L" ";
+			m_opened = L"文件含";
+			if (parser.m_start_date != 0)
+			{
+				std::tm start_tm;
+				stdmore::localtime((time_t)parser.m_start_date, start_tm);
+				wchar_t buffer[MAX_PATH] = { 0 };
+				std::wcsftime(buffer, MAX_PATH - 1, L"%Y-%m-%d", &start_tm);
+				m_opened += buffer;
+			}
+			m_opened += L"到";
+			if (parser.m_end_date != 0)
+			{
+				std::tm end_tm;
+				stdmore::localtime((time_t)parser.m_end_date, end_tm);
+				wchar_t end_buffer[MAX_PATH] = { 0 };
+				std::wcsftime(end_buffer, MAX_PATH - 1, L"%Y-%m-%d", &end_tm);
+				m_opened += end_buffer;
+			}
+			m_opened += L"的数据";
 		}
 		else
 		{
 			m_state = CQuoteViewModel::State::init;
-			m_info = L"您选择的文件，格式不对";
+			m_opened = L"您选择的文件，格式不对";
 		}
 		return (m_state != oldState);
 	}
@@ -110,8 +135,8 @@ public:
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
 		DDX_TEXT(IDC_STATIC_INFO,model.m_info)
-		//DDX_TEXT(IDC_STATIC_ALLQUOTE, model.m_path)
-		//DDX_TEXT(IDC_EDIT_PATH, model.m_path)
+		DDX_TEXT(IDC_STATIC_SAVED, model.m_saved)
+		DDX_TEXT(IDC_STATIC_OPENED, model.m_opened)
 	END_DDX_MAP()
 	//init_dialog、show都只运行一次。
 	BEGIN_MSG_MAP(CQuoteView)
@@ -231,7 +256,11 @@ public:
 			DoDataExchange(false, IDC_EDIT_PATH);
 			//仅在init或selected状态执行
 			if (model.is_state_changed())
+			{				
 				SetVisible(model.m_state);
+			}
+
+			DoDataExchange(FALSE, IDC_STATIC_OPENED);
 			DoDataExchange(FALSE, IDC_STATIC_INFO);
 		}
 		return 0;
@@ -283,7 +312,7 @@ public:
 				m_progressBar.SetPos(now*100/model.parser.m_quote_count + 1);
 				if (now == model.parser.m_quote_count)
 				{
-					model.m_info.append(L"完成,耗时");
+					
 					wstringstream ss;
 					ss << L"完成,耗时";
 					auto used = time_used.elapsed_seconds();
