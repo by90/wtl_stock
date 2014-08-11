@@ -29,7 +29,7 @@ public:
 		}
 
 		reader.seekg(0, ios::end);//以文件尾定位,beg以文件首字节为0开始定位，cur以当前位置开始定位
-		this->size_ = reader.tellg();//得到文件大小
+		this->size_ =(size_t)reader.tellg();//得到文件大小
 		reader.seekg(0, ios::beg); //回到文件第一个字节
 		std::shared_ptr<char> ptr(new char[16], [](char* ptr){delete[] ptr; });
 		char *buffer = ptr.get();
@@ -46,7 +46,7 @@ public:
 			//此时开始获取最大、最小日期
 			int id_line = 0;//最多读3次
 			size_t position = 48;
-			long current_date = 0;
+			unsigned long current_date = 0;
 			m_start_date = 0;
 			m_end_date = 0;
 			while (id_line < 3)

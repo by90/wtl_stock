@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#define MODEL_EXPORTS
 #include "db.h"
 #include <stdlib.h>
 #include <stdio.h>

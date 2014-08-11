@@ -44,7 +44,7 @@ namespace WTL
 			else if (bSave && bValidate) // validation
 			{
 				ATLASSERT(nLength > 0);
-				if (strText.size() > nLength)
+				if ((int)strText.size() > nLength)
 				{
 					_XData data;
 					data.nDataType = ddxDataText;

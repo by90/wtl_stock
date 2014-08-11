@@ -1,11 +1,12 @@
-#ifndef db_quote_h
-#define db_quote_h
-
 #include <algorithm>
 #include "sqlite/sqlite3.h"
 #include "db.h"
 #include "dad_parse_iterator.h"
 #include "global.h"
+
+#ifndef db_quote_h
+#define db_quote_h
+
 struct sqlite3_stmt;
 
 class DbQuote
@@ -13,6 +14,33 @@ class DbQuote
 public:
 	DbQuote()=default;
 	~DbQuote()=default;
+
+	//一次获取，全局
+	static MODEL_API long start_date, end_date; //非常量的静态成员，不能初始化
+
+	//获取已安装数据的起止日期
+	unsigned long *get_start_date()
+	{
+		static unsigned long start_date = 0;
+		return &start_date;
+	}
+
+	//获取已安装数据的起止日期
+	unsigned long *get_end_date()
+	{
+		static unsigned long end_date = 0;
+		return &end_date;
+	}
+
+	void get_date_range()
+	{
+		//获取两个指针，分别指向静态的变量
+		unsigned long *start = get_start_date();
+		unsigned long *end = get_end_date();
+		
+
+
+	}
 
 	//批量保存quote
 	//加入回调函数,回调函数的频次(N条汇报一次，N%汇报一次)
@@ -99,6 +127,8 @@ public:
 			func(nullptr,insert_nums);
 		return insert_nums;
 	}
+
+
 };
 
 

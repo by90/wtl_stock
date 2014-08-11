@@ -67,7 +67,6 @@ public:
 		std::wstring sDest;
 		//GETDLGITEMTEXTCSTRING(IDC_EDITSOURCE, sDest);
 		LPCTSTR pfileName = m_path.empty() ? NULL : m_path.c_str();
-
 		CFileDialog dlg(TRUE, NULL, pfileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 			_T("所有文件 (*.*)\0*.*\0Dad文件 (*.Dad)\0*.exe\0Dat文件 (*.dat)\0\0"),hwnd);
 		if (dlg.DoModal() == IDOK)

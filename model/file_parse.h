@@ -64,7 +64,7 @@ public:
 		if (in)
 		{			
 			in.seekg(0, std::ios::end);
-			this->size_=in.tellg();
+			this->size_=(size_t)in.tellg();
 			if (this->block_) free(block_);
 			//这里，若block_为其他类型迭代器，是否会出错???
 			block_ =(source_iterator_type) malloc(this->size_);

@@ -57,7 +57,7 @@ TEST_F(DadFileParse, open)
 	EXPECT_FLOAT_EQ(95939768.00F, p->quoteOfDad->volume);
 	EXPECT_FLOAT_EQ(79953076224.00F, p->quoteOfDad->amount);
 
-	p++;
+	++p;
 	EXPECT_STREQ("SH000001", p->idOfDad->id);
 	EXPECT_STREQ("上证指数", p->idOfDad->title);
 	EXPECT_EQ((long)1402963200, (long)p->quoteOfDad->quoteTime);

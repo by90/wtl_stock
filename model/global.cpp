@@ -1,15 +1,13 @@
 #include "stdafx.h"
-#define Model_API
 #include "global.h"
 #include "sqlite/sqlite3.h"
 namespace global
 {
-	//默认的数据库名称
-	//MODEL_API const char * default_db_name = ".\\quote.db";
 	
 	//默认的数据库全路径名称
 	MODEL_API std::string default_db_path = {};
-	
+	MODEL_API unsigned long begin_date = 0;
+	MODEL_API unsigned long end_date = 0;
 	//获取默认的数据库全路径名称
 	MODEL_API const char * GetDefaultDb()
 	{
@@ -28,7 +26,7 @@ namespace global
 	}
 
 	//创建默认的数据库
-	Model_API bool create_default_database(const char * path)
+	MODEL_API bool create_default_database(const char * path)
 	{
 		sqlite3 *db = NULL;
 		int rc = sqlite3_open_v2(path, &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);

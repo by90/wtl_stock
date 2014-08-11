@@ -101,6 +101,7 @@
     <ClCompile Include="parse_iterator_test.cc" />
     <ClCompile Include="demo_c11\demo_stl_algorithm.cc" />
     <ClCompile Include="demo_singleton\singleton_v1.cpp" />
+    <ClCompile Include="singleton_test.cc" />
     <ClCompile Include="ui_layout_test.cc" />
   </ItemGroup>
   <ItemGroup>
