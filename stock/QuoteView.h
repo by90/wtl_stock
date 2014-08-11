@@ -4,6 +4,7 @@
 
 #pragma once
 #include "CCtlColor.h"
+#include <atldlgs.h>
 #include "atlddxEx.h"
 #include <atlctrls.h>
 #include <string>
@@ -44,9 +45,47 @@ public:
 	DbQuote quote;
 	dad_file_parse parser;
 
+	void set_saved_string()
+	{
+		if (global::begin_date == 0)
+		{
+			if (parser.m_start_date != 0)
+				global::begin_date = parser.m_start_date;
+		}
+		else
+		{
+			if (parser.m_start_date < global::begin_date)
+				global::begin_date = parser.m_start_date;
+		}
+
+		if (global::end_date == 0)
+		{
+			if (parser.m_end_date != 0)
+				global::end_date = parser.m_end_date;
+		}
+		else
+		{
+			if (parser.m_end_date > global::end_date)
+				global::end_date = parser.m_end_date;
+		}
+
+		if (global::begin_date == 0 || global::end_date == 0)
+			m_saved = L"系统尚未安装数据";
+		else
+		{
+			m_saved.clear();
+			m_saved = L"系统已安装";
+			stdmore::time_to_wstring((time_t)global::begin_date, L"%Y-%m-%d", m_saved);
+			m_saved += L"到";
+			stdmore::time_to_wstring((time_t)global::end_date, L"%Y-%m-%d", m_saved);
+			m_saved += L"的数据";
+		}
+	}
+
+	
+
 	void import(std::function<void(const char *,int)> func)
 	{	
-		
 		m_state = CQuoteViewModel::State::pending;
 		parser.open(m_path.c_str());
 		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
@@ -213,6 +252,8 @@ public:
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 
+		model.set_saved_string();
+
 		SetVisible(model.m_state);
 		DoDataExchange(FALSE);
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
@@ -310,8 +351,12 @@ public:
 							ss << used << L"秒!";
 					model.m_info.append(ss.str());
 					
+					model.set_saved_string();
+
 					model.m_state = CQuoteViewModel::State::complete;
 					SetVisible(CQuoteViewModel::State::complete);
+
+					SetDlgItemTextW(IDC_STATIC_SAVED, model.m_saved.c_str());
 
 					SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
 					model.parser.close(); //安装完毕后，清除缓存的Dad文件
