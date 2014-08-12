@@ -109,7 +109,6 @@ if not exist "$(TargetDir)sqlite3.dll" copy $(SolutionDir)lib\sqlite3.dll $(Targ
     <ClInclude Include="timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="db.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
