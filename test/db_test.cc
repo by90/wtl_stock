@@ -19,15 +19,21 @@ protected:
 ////db类的静态函数set_default
 TEST_F(dbTest, set_default_test)
 {
-	auto rc = db::set_default("ctest.db",global::create_default_database);
-	EXPECT_STREQ("ctest.db", db::default());
+	auto rc = DbConnection::set_default("ctest.db",global::create_default_database);
+	EXPECT_STREQ("ctest.db", DbConnection::get_default());
 }
 
 //db类的静态函数set_default使用wstring
 TEST_F(dbTest, set_default_wstring_test)
 {
-	auto rc = db::set_default(L"wtest.db",global::create_default_database);
-	EXPECT_STREQ("wtest.db", db::default());
+	auto rc = DbConnection::set_default(L"wtest.db",global::create_default_database);
+	EXPECT_STREQ("wtest.db", DbConnection::get_default());
 }
 
+//db类的静态函数set_default使用wstring
+TEST_F(dbTest, db_construct_test)
+{
+	DbConnection db_not_exist("file"); //file数据库不存在
+	EXPECT_FALSE(db_not_exist());
+}
 

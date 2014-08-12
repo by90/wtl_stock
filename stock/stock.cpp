@@ -55,7 +55,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
 
-	db::set_default(global::GetDefaultDb(), global::create_default_database);
+	DbConnection::set_default(global::GetDefaultDb(), global::create_default_database);
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();

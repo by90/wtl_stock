@@ -75,6 +75,9 @@
     <ClCompile Include="singleton_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_c11\aligned_storage_demo.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_c11\my_advance.h">
