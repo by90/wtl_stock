@@ -19,26 +19,56 @@ public:
 	static MODEL_API long start_date, end_date; //非常量的静态成员，不能初始化
 
 	//获取已安装数据的起止日期
-	unsigned long *get_start_date()
+	unsigned long &get_start_date()
 	{
-		static unsigned long start_date = 0;
-		return &start_date;
+		static unsigned long start_date;
+		return start_date;
 	}
 
 	//获取已安装数据的起止日期
-	unsigned long *get_end_date()
+	unsigned long &get_end_date()
 	{
-		static unsigned long end_date = 0;
-		return &end_date;
+		static unsigned long end_date ;
+		return end_date;
 	}
 
-	void get_date_range()
+	//当回调不为为nullptr，则用T *返回结果
+	//当回调为nullptr，则直接用T的引用，在参数中返回结果
+	//这种体制可以抽象一下...
+	void get_date_range(unsigned long &start,unsigned long &end, std::function<void(const char *, int)> func = nullptr)
 	{
 		//获取两个指针，分别指向静态的变量
-		unsigned long *start = get_start_date();
-		unsigned long *end = get_end_date();
+		//unsigned long start = get_start_date();
+		//unsigned long end = get_end_date();
 		
+		sqlite3 *default_db = nullptr;
+		int rc = sqlite3_open_v2(DbConnection::get_default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
+	
+		//这里仍然应使用异常机制，抛出正常的错误信息，更为便捷。
+		//不能恢复的异常，才使用...当数据库不存在，可以创建，连接不存在，可以等待或重新连接，但各处都考虑实在麻烦
+		if (rc != SQLITE_OK)
+		{
+		}
 
+		sqlite3_stmt *pStmt = NULL;
+		const char *find_sql = "Select Min(QuoteTime),Max(QuoteTime) From Quote Where Id=?";
+		const char *code = "SH000001";
+		//3.prepare
+		rc = sqlite3_prepare_v2(default_db, find_sql, -1, &pStmt, 0);
+		int len = sizeof(code);
+		rc=sqlite3_bind_text(pStmt, 1, code,8 , SQLITE_TRANSIENT);
+		rc=sqlite3_step(pStmt); //执行
+		if (rc != SQLITE_DONE) //只要有数据，返回的就是SQLITE_ROW，如果结束则返回DONE
+		{
+			//错误
+		}
+		//SQLITE_NULL
+
+		start= sqlite3_column_int(pStmt, 0);
+		end = sqlite3_column_int(pStmt, 1);
+
+		sqlite3_finalize(pStmt);
+		sqlite3_close_v2(default_db);
 
 	}
 
@@ -92,7 +122,9 @@ public:
 		int insert_nums = 0;
 		for (auto current = _begin; current != _end; ++current)
 		{
-			sqlite3_bind_text(pStmt, 1, current->idOfDad->id, sizeof(current->idOfDad->id), SQLITE_TRANSIENT);
+			//保存了16位造成错误？？
+			//sqlite3_bind_text(pStmt, 1, current->idOfDad->id, sizeof(current->idOfDad->id), SQLITE_TRANSIENT);
+			sqlite3_bind_text(pStmt, 1, current->idOfDad->id, 8, SQLITE_TRANSIENT);
 			sqlite3_bind_int(pStmt, 2, current->quoteOfDad->quoteTime);
 			sqlite3_bind_double(pStmt, 3, current->quoteOfDad->open);
 			sqlite3_bind_double(pStmt, 4, current->quoteOfDad->high);

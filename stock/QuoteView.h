@@ -45,6 +45,12 @@ public:
 	DbQuote quote;
 	dad_file_parse parser;
 
+	void get_date_range()
+	{
+		quote.get_date_range(global::begin_date,global::end_date);
+		set_saved_string();
+
+	}
 	void set_saved_string()
 	{
 		if (global::begin_date == 0)
@@ -54,7 +60,7 @@ public:
 		}
 		else
 		{
-			if (parser.m_start_date < global::begin_date)
+			if (parser.m_start_date != 0 && parser.m_start_date< global::begin_date)
 				global::begin_date = parser.m_start_date;
 		}
 
@@ -65,7 +71,7 @@ public:
 		}
 		else
 		{
-			if (parser.m_end_date > global::end_date)
+			if (parser.m_end_date != 0 && parser.m_end_date> global::end_date)
 				global::end_date = parser.m_end_date;
 		}
 
@@ -252,7 +258,8 @@ public:
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 
-		model.set_saved_string();
+		model.get_date_range();
+		//model.set_saved_string();
 
 		SetVisible(model.m_state);
 		DoDataExchange(FALSE);

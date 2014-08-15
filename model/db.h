@@ -1,5 +1,3 @@
-#ifndef db_h
-#define db_h
 #include <string>
 #include <vector>
 #include <codecvt>
@@ -7,6 +5,10 @@
 #include "sqlite/sqlite3.h"
 #include <functional>
 #include <memory>
+#include <type_traits>
+#ifndef db_h
+#define db_h
+
 #ifdef MODEL_EXPORTS
 #define MODEL_API __declspec(dllexport)
 #else
@@ -86,6 +88,10 @@ public:
 		return (connection_ != nullptr);
 	};
 
+	std::shared_ptr<sqlite3> connection()
+	{
+		return connection_;
+	}
 private:
 	void initDbConnection(const char *filename = nullptr)
 	{
@@ -105,98 +111,6 @@ private:
 			connection = nullptr;
 		}
 	}
-
-//处理bind
-public:
-	/** sqlite3 statement wrapper for finalization **/
-	struct sql_statement {
-		//sqlite3_stmt *statement;
-		std::shared_ptr<sqlite3_stmt> statement = nullptr;
-		sql_statement() : statement(nullptr) {}
-		//~sql_statement() { sqlite3_finalize(statement); }
-	};
-
-	/** bind dummy function for empty argument lists **/
-	static bool bind(sqlite3_stmt *, const int) { return true; }
-
-	/** bind delegator function that will call a specialized bind_struct **/
-	template <typename T, typename... Args>
-	static bool bind(sqlite3_stmt *statement,
-		const int current, const T &first, const Args &... args)
-	{
-		return bind_struct<T, Args...>::f(statement, current,
-			first, args...);
-	}
-
-	/** most general bind_struct that relies on implicit string conversion **/
-	template <typename T, typename... Args>
-	struct bind_struct {
-		static bool f(sqlite3_stmt *statement, int current,
-			const T &first, const Args &... args)
-		{
-			std::stringstream ss;
-			ss << first;
-			if (sqlite3_bind_text(statement, current,
-				ss.str().data(), ss.str().length(),
-				SQLITE_TRANSIENT) != SQLITE_OK)
-			{
-				return false;
-			}
-			return bind(statement, current + 1, args...);
-		}
-	};
-
-	/** bind_struct for double values **/
-	template <typename... Args>
-	struct bind_struct<double, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			double first, const Args &... args)
-		{
-			if (sqlite3_bind_double(statement, current, first)
-				!= SQLITE_OK)
-			{
-				return false;
-			}
-			return bind(statement, current + 1, args...);
-		}
-	};
-
-	/** bind_struct for int values **/
-	template <typename... Args>
-	struct bind_struct<int, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			int first, const Args &... args)
-		{
-			if (sqlite3_bind_int(statement, current, first)
-				!= SQLITE_OK)
-			{
-				return false;
-			}
-			return bind(statement, current + 1, args...);
-		}
-	};
-
-	/** bind_struct for byte arrays **/
-	template <typename... Args>
-	struct bind_struct<std::vector<char>, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			const std::vector<char> &first, const Args &... args)
-		{
-			if (sqlite3_bind_blob(statement, current,
-				&first[0], first.size(),
-				SQLITE_TRANSIENT) != SQLITE_OK)
-			{
-				return false;
-			}
-			return bind(statement, current + 1, args...);
-		}
-	};
-
-
-
-
-
-
 };
 
 
@@ -204,8 +118,28 @@ public:
 class MODEL_API DbCommand
 {
 public:
-	sqlite3_stmt *stmt = nullptr;
+
+	//使用重载，处理ascii或unicode的sql文本，同样在编译期
+	DbCommand(DbConnection connection,char *sql)
+	{
+		sqlite3_stmt *stmt_buffer = 0;
+		sqlite3_prepare_v2(connection.connection().get(), sql, (int)strlen(sql), &stmt_buffer, 0);
+		//sqlite3_prepare16_v2
+		stmt = std::shared_ptr<sqlite3_stmt>(stmt_buffer, sqlite3_finalize);
+	}
+	DbCommand(DbConnection connection, wchar_t *sql)
+	{
+		sqlite3_stmt *stmt_buffer = 0;
+		sqlite3_prepare16_v2(connection.connection().get(), sql, (int)wcslen(sql), &stmt_buffer, 0);
+		//sqlite3_prepare16_v2
+		stmt =std::shared_ptr<sqlite3_stmt>(stmt_buffer, sqlite3_finalize);
+	}
+
+private:
+	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
+
 
 
 };
+
 #endif
