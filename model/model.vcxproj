@@ -97,6 +97,7 @@ if not exist "$(TargetDir)sqlite3.dll" copy $(SolutionDir)lib\sqlite3.dll $(Targ
     <ClInclude Include="dad_file_parse.h" />
     <ClInclude Include="dad_parse_iterator.h" />
     <ClInclude Include="db.h" />
+    <ClInclude Include="db_code.h" />
     <ClInclude Include="db_quote.h" />
     <ClInclude Include="file_parse.h" />
     <ClInclude Include="global.h" />

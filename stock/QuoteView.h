@@ -76,15 +76,15 @@ public:
 		}
 
 		if (global::begin_date == 0 || global::end_date == 0)
-			m_saved = L"系统尚未安装数据";
+			m_saved = L"已经安装：没有数据";
 		else
 		{
 			m_saved.clear();
-			m_saved = L"系统已安装";
+			m_saved = L"已经安装：";
 			stdmore::time_to_wstring((time_t)global::begin_date, L"%Y-%m-%d", m_saved);
 			m_saved += L"到";
 			stdmore::time_to_wstring((time_t)global::end_date, L"%Y-%m-%d", m_saved);
-			m_saved += L"的数据";
+			//m_saved += L"的数据";
 		}
 	}
 
@@ -129,16 +129,16 @@ public:
 		{
 			m_state = CQuoteViewModel::State::selected;
 			m_info = L" ";
-			m_opened = L"文件含";
+			m_opened = L"准备安装：";
 			stdmore::time_to_wstring((time_t)parser.m_start_date, L"%Y-%m-%d",m_opened);
 			m_opened += L"到";
 			stdmore::time_to_wstring((time_t)parser.m_end_date, L"%Y-%m-%d", m_opened);
-			m_opened += L"的数据";
+			//m_opened += L"的数据";
 		}
 		else
 		{
 			m_state = CQuoteViewModel::State::init;
-			m_opened = L"您选择的文件，格式不对";
+			m_opened = L"准备安装：您选的文件格式不对";
 		}
 		return (m_state != oldState);
 	}
