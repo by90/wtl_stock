@@ -3,7 +3,9 @@
 #include "sqlite/sqlite3.h"
 namespace global
 {
-	
+	//每只股票的id、代码属性、日线、权息数据
+	MODEL_API vector<Stock> StockSet;
+
 	//默认的数据库全路径名称
 	MODEL_API std::string default_db_path = {};
 	MODEL_API unsigned long begin_date = 0;

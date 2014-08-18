@@ -15,7 +15,24 @@
 #define MODEL_API __declspec(dllimport)
 #endif
 
-class sql;
+//class DbConnection;
+
+//数据库异常
+class DbException : public std::runtime_error {
+public:
+	//与连接无关
+	DbException(const char *error_message) : std::runtime_error(error_message)
+	{
+
+	}
+
+	//与连接有关
+	DbException(sqlite3 *sql_connection) : runtime_error(sqlite3_errmsg(sql_connection))
+	{
+
+	}
+};
+
 class DbConnection
 {
 //静态部分
@@ -64,14 +81,13 @@ private:
 
 //非静态部分
 public:
-	std::shared_ptr<sqlite3> connection_=nullptr;
-	bool conected_ = false;
-	//连接数据库
+	std::shared_ptr<sqlite3> Connection=nullptr;
+	bool Conected = false;	//连接数据库
 
 
 	DbConnection(const char *filename=nullptr)
 	{
-		initDbConnection(filename);
+		open(filename);
 	}
 
 	//这里不能使用=nullptr，否则出现重复的重载
@@ -79,36 +95,36 @@ public:
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
 		auto temp = conv.to_bytes(filename);//如果反过来转换:conv.from_bytes(narrowStr);
-		initDbConnection(temp.c_str());
+		open(temp.c_str());
 	}
 
 	//是否已连接
 	bool operator () ()
 	{
-		return (connection_ != nullptr);
+		return (Connection.get() != nullptr);
 	};
 
-	std::shared_ptr<sqlite3> connection()
-	{
-		return connection_;
+
+	std::string DbConnection::LastError() {
+		return std::string((char *)sqlite3_errmsg(Connection.get()));
 	}
 private:
-	void initDbConnection(const char *filename = nullptr)
+	void open(const char *filename = nullptr)
 	{
 		if (filename == nullptr)
 			filename = DbConnection::get_default();
-		sqlite3 *connection = nullptr;
-		int result = sqlite3_open_v2(filename, &connection, SQLITE_OPEN_READWRITE, nullptr);  // you can treat errors by throwing exceptions
+		sqlite3 *connection_buffer = nullptr;
+		int result = sqlite3_open_v2(filename, &connection_buffer, SQLITE_OPEN_READWRITE, nullptr);  // you can treat errors by throwing exceptions
 
 		if (result == SQLITE_OK)
 		{
-			connection_ = std::shared_ptr<sqlite3>(connection, sqlite3_close_v2);
+			Connection = std::shared_ptr<sqlite3>(connection_buffer, sqlite3_close_v2);
 		}
 		else
 		{
-			if (connection)
-				sqlite3_close_v2(connection);
-			connection = nullptr;
+			if (connection_buffer)
+				sqlite3_close_v2(connection_buffer);
+			//connection_buffer = nullptr;
 		}
 	}
 };
@@ -120,23 +136,60 @@ class MODEL_API DbCommand
 public:
 
 	//使用重载，处理ascii或unicode的sql文本，同样在编译期
-	DbCommand(DbConnection connection,char *sql)
+	DbCommand(DbConnection &_connection, char *sql) :connection_(_connection)
 	{
-		sqlite3_stmt *stmt_buffer = 0;
-		sqlite3_prepare_v2(connection.connection().get(), sql, (int)strlen(sql), &stmt_buffer, 0);
-		//sqlite3_prepare16_v2
-		stmt = std::shared_ptr<sqlite3_stmt>(stmt_buffer, sqlite3_finalize);
+		const char *tail = NULL;
+		sqlite3_stmt *stmt_ptr = 0;
+
+		//char *，其长度使用-1，string则用string的长度，wstring长度要乘以2
+		if (sqlite3_prepare_v2(connection_.Connection.get(), sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
+		{
+			//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
+			throw DbException(connection_.Connection.get());
+		}
+		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count = sqlite3_column_count(this->stmt.get());
 	}
-	DbCommand(DbConnection connection, wchar_t *sql)
+	DbCommand(DbConnection &connection, wchar_t *sql) :connection_(connection)
 	{
-		sqlite3_stmt *stmt_buffer = 0;
-		sqlite3_prepare16_v2(connection.connection().get(), sql, (int)wcslen(sql), &stmt_buffer, 0);
-		//sqlite3_prepare16_v2
-		stmt =std::shared_ptr<sqlite3_stmt>(stmt_buffer, sqlite3_finalize);
+		const wchar_t *tail = NULL;
+		sqlite3_stmt *stmt_ptr = 0;
+		if (sqlite3_prepare16_v2(connection_.Connection.get(), sql, -1, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
+		{
+			throw DbException(connection.Connection.get());
+		}
+		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count = sqlite3_column_count(this->stmt.get());
 	}
+	DbCommand(DbConnection &connection, std::string &sql) :connection_(connection)
+	{
+		const char *tail = NULL;
+		sqlite3_stmt *stmt_ptr = 0;
+		if (sqlite3_prepare_v2(connection.Connection.get(), sql.c_str(), (int)sql.length(), &stmt_ptr, &tail) != SQLITE_OK)
+		{
+			throw DbException(connection_.Connection.get());
+		}
+		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count = sqlite3_column_count(this->stmt.get());
+	}
+	DbCommand(DbConnection &connection, std::wstring &sql) :connection_(connection)
+	{
+		const wchar_t *tail = NULL;
+		sqlite3_stmt *stmt_ptr = 0;
+		//注意：wstring的长度要乘以2
+		if (sqlite3_prepare16_v2(connection_.Connection.get(), sql.c_str(), (int)sql.length() * 2, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
+		{
+			throw DbException(connection_.Connection.get());
+		}
+		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count = sqlite3_column_count(this->stmt.get());
+	}
+
 
 private:
 	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
+	DbConnection &connection_;
+	int column_count = 0;
 
 
 
