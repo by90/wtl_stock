@@ -105,8 +105,20 @@ public:
 	};
 
 
-	std::string DbConnection::LastError() {
+	std::string get_last_error() {
 		return std::string((char *)sqlite3_errmsg(Connection.get()));
+	}
+
+	long long get_last_id() {
+		if (!this->Connection.get()) throw DbException("Connection invalid");
+		return sqlite3_last_insert_rowid(Connection.get());
+	}
+
+	void DbConnection::set_timeout(int ms_number) {
+		if (!Connection.get()) throw DbException("Connection invalid");
+
+		if (sqlite3_busy_timeout(Connection.get(), ms_number) != SQLITE_OK)
+			throw DbException(Connection.get());
 	}
 private:
 	void open(const char *filename = nullptr)
@@ -115,7 +127,6 @@ private:
 			filename = DbConnection::get_default();
 		sqlite3 *connection_buffer = nullptr;
 		int result = sqlite3_open_v2(filename, &connection_buffer, SQLITE_OPEN_READWRITE, nullptr);  // you can treat errors by throwing exceptions
-
 		if (result == SQLITE_OK)
 		{
 			Connection = std::shared_ptr<sqlite3>(connection_buffer, sqlite3_close_v2);
@@ -124,6 +135,7 @@ private:
 		{
 			if (connection_buffer)
 				sqlite3_close_v2(connection_buffer);
+			throw DbException("unable to open database");
 			//connection_buffer = nullptr;
 		}
 	}
@@ -131,7 +143,7 @@ private:
 
 
 
-class MODEL_API DbCommand
+class DbCommand
 {
 public:
 
@@ -185,11 +197,95 @@ public:
 		this->column_count = sqlite3_column_count(this->stmt.get());
 	}
 
+	//Bind部分，使用变参模板处理
+
+	inline bool bind(const int) { return true; }
+	template <typename T, typename... Args>
+	inline bool bind(const int current, const T &first, const Args &... args)
+	{
+		return DbCommand::bind(this->stmt.get(),current,first,args...);
+	}
+
+	/** bind dummy function for empty argument lists **/
+	static	bool bind(sqlite3_stmt *statement, const int) { return true; }
+
+	/** bind delegator function that will call a specialized bind_struct **/
+	template <typename T, typename... Args>
+	static	bool bind(sqlite3_stmt *statement, const int current, const T &first, const Args &... args)
+	{
+		return bind_struct<T, Args...>::f(statement,current,first, args...);
+	}
 
 private:
 	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
 	DbConnection &connection_;
 	int column_count = 0;
+
+
+	//bind函数，分类型调用：
+	/** most general bind_struct that relies on implicit string conversion **/
+	template <typename T, typename... Args>
+	struct bind_struct {
+		static bool f(sqlite3_stmt *statement, int current,
+			const T &first, const Args &... args)
+		{
+			std::stringstream ss;
+			ss << first;
+			if (sqlite3_bind_text(statement, current,
+				ss.str().data(), ss.str().length(),
+				SQLITE_TRANSIENT) != SQLITE_OK)
+			{
+				return false;
+			}
+			return DbCommand::bind(statement,current + 1, args...);
+		}
+	};
+
+	/** bind_struct for double values **/
+	template <typename... Args>
+	struct bind_struct<double, Args...> {
+		static bool f(sqlite3_stmt *statement, int current,
+			double first, const Args &... args)
+		{
+			if (sqlite3_bind_double(statement, current, first)
+				!= SQLITE_OK)
+			{
+				return false;
+			}
+			return DbCommand::bind(statement, current + 1, args...);
+		}
+	};
+
+	/** bind_struct for int values **/
+	template <typename... Args>
+	struct bind_struct<int, Args...> {
+		static bool f(sqlite3_stmt *statement, int current,
+			int first, const Args &... args)
+		{
+			if (sqlite3_bind_int(statement, current, first)
+				!= SQLITE_OK)
+			{
+				return false;
+			}
+			return DbCommand::bind(statement, current + 1, args...);
+		}
+	};
+
+	/** bind_struct for byte arrays **/
+	template <typename... Args>
+	struct bind_struct<std::vector<char>, Args...> {
+		static bool f(sqlite3_stmt *statement, int current,
+			const std::vector<char> &first, const Args &... args)
+		{
+			if (sqlite3_bind_blob(statement, current,
+				&first[0], first.size(),
+				SQLITE_TRANSIENT) != SQLITE_OK)
+			{
+				return false;
+			}
+			return DbCommand::bind(statement, current + 1, args...);
+		}
+	};
 
 
 
