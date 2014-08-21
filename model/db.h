@@ -199,21 +199,66 @@ public:
 
 	//Bind部分，使用变参模板处理
 
+	//bind参数解析完毕后调用
 	inline bool bind(const int) { return true; }
+
+	//bind函数，分类型调用：
+	/** most general bind_struct that relies on implicit string conversion **/
 	template <typename T, typename... Args>
-	inline bool bind(const int current, const T &first, const Args &... args)
+	bool bind(int current, const T &first, const Args &... args)
 	{
-		return DbCommand::bind(this->stmt.get(),current,first,args...);
+		std::stringstream ss;
+		ss << first;
+		if (sqlite3_bind_text(stmt.get(), current,ss.str().data(), ss.str().length(),SQLITE_TRANSIENT) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
 	}
 
-	/** bind dummy function for empty argument lists **/
-	static	bool bind(sqlite3_stmt *statement, const int) { return true; }
-
-	/** bind delegator function that will call a specialized bind_struct **/
-	template <typename T, typename... Args>
-	static	bool bind(sqlite3_stmt *statement, const int current, const T &first, const Args &... args)
+	/** bind_struct for double values **/
+	template <typename... Args>
+	bool bind(int current, double first, const Args &... args)
 	{
-		return bind_struct<T, Args...>::f(statement,current,first, args...);
+		if (sqlite3_bind_double(stmt.get(), current, first)!= SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
+	/** bind_struct for int values **/
+	template <typename... Args>
+	bool bind(int current,int first, const Args &... args)
+	{
+		if (sqlite3_bind_int(stmt.get(), current, first)!= SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
+
+	/** bind_struct for byte arrays **/
+	template <typename... Args>
+	bool bind(int current, const std::vector<char> &first, const Args &... args)
+	{
+		if (sqlite3_bind_blob(stmt.get(), current,
+			&first[0], first.size(),
+			SQLITE_TRANSIENT) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(statement, current + 1, args...);
+	}
+
+	//执行无返回的Sql命令
+	//step后应返回Sqlite_done
+	bool ExecuteNonQuery()
+	{
+		int rc = sqlite3_step(stmt.get());
+		sqlite3_reset(stmt.get());
+		return (rc == SQLITE_DONE);
 	}
 
 private:
@@ -222,70 +267,7 @@ private:
 	int column_count = 0;
 
 
-	//bind函数，分类型调用：
-	/** most general bind_struct that relies on implicit string conversion **/
-	template <typename T, typename... Args>
-	struct bind_struct {
-		static bool f(sqlite3_stmt *statement, int current,
-			const T &first, const Args &... args)
-		{
-			std::stringstream ss;
-			ss << first;
-			if (sqlite3_bind_text(statement, current,
-				ss.str().data(), ss.str().length(),
-				SQLITE_TRANSIENT) != SQLITE_OK)
-			{
-				return false;
-			}
-			return DbCommand::bind(statement,current + 1, args...);
-		}
-	};
 
-	/** bind_struct for double values **/
-	template <typename... Args>
-	struct bind_struct<double, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			double first, const Args &... args)
-		{
-			if (sqlite3_bind_double(statement, current, first)
-				!= SQLITE_OK)
-			{
-				return false;
-			}
-			return DbCommand::bind(statement, current + 1, args...);
-		}
-	};
-
-	/** bind_struct for int values **/
-	template <typename... Args>
-	struct bind_struct<int, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			int first, const Args &... args)
-		{
-			if (sqlite3_bind_int(statement, current, first)
-				!= SQLITE_OK)
-			{
-				return false;
-			}
-			return DbCommand::bind(statement, current + 1, args...);
-		}
-	};
-
-	/** bind_struct for byte arrays **/
-	template <typename... Args>
-	struct bind_struct<std::vector<char>, Args...> {
-		static bool f(sqlite3_stmt *statement, int current,
-			const std::vector<char> &first, const Args &... args)
-		{
-			if (sqlite3_bind_blob(statement, current,
-				&first[0], first.size(),
-				SQLITE_TRANSIENT) != SQLITE_OK)
-			{
-				return false;
-			}
-			return DbCommand::bind(statement, current + 1, args...);
-		}
-	};
 
 
 

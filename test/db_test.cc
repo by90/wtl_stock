@@ -102,5 +102,9 @@ TEST_F(dbTest, db_insert_test)
 
 	//共有6个字段，如果只书写5个字段会触发异常
 	DbCommand cmd(conn, "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?)");
-	cmd.bind(2, "first", (int)1402876800,(double)12.10,(int)200);
+
+	//从2开始bind，因为第一个是自增长字段
+	//只bind 4个参数，最后一个blob字段没有bind
+	cmd.bind(2, "first", (int)1402876800,(double)100.10,(int)10);
+	cmd.ExecuteNonQuery();
 }
