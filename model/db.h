@@ -202,10 +202,39 @@ public:
 	//bind参数解析完毕后调用
 	inline bool bind(const int) { return true; }
 
+
+	//这里，使用整数、浮点数、其他情况来解包，这样整数版本可以同时处理int,unsigned int等
+	//同时，这样的重载，必须保证每个都有限定，否则会出现重载不明确的编译错误
+	//我们仅仅在函数返回值中，保留原来的类型，但加一个限制，以便编译器采纳此版本
+	template <typename Tint, typename... Args>
+	typename std::enable_if <std::is_integral<Tint>::value,bool>::type 
+	bind(int current, Tint first, const Args &... args)
+	{
+		if (sqlite3_bind_int(stmt.get(), current, first) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
+	/** bind_struct for double values **/
+	template <typename Tdouble, typename... Args>
+	typename std::enable_if <std::is_floating_point<Tdouble>::value,bool>::type
+	bind(int current,Tdouble first, const Args &... args)
+	{
+		//sqlite3_bind_int64()
+		if (sqlite3_bind_double(stmt.get(), current, first) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
 	//bind函数，分类型调用：
-	/** most general bind_struct that relies on implicit string conversion **/
-	template <typename T, typename... Args>
-	bool bind(int current, const T &first, const Args &... args)
+	/**当类型不能解析的时候，默认使用此函数bind，写入和读取均需要转换为字符串，因此性能低下**/
+	template <typename T,  typename... Args>
+	typename std::enable_if <!std::is_floating_point<T>::value && !std::is_integral<T>::value, bool>::type
+	bind(int current, T &first, const Args &... args)
 	{
 		std::stringstream ss;
 		ss << first;
@@ -216,28 +245,31 @@ public:
 		return bind(current + 1, args...);
 	}
 
-	/** bind_struct for double values **/
+	//bind const char[]
+	//使用const char *，则传入"first"之类的常量字符串，将不能识别
+	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	bool bind(int current, double first, const Args &... args)
+	bool bind(int current, const char first[], const Args &... args)
 	{
-		if (sqlite3_bind_double(stmt.get(), current, first)!= SQLITE_OK)
+		if (sqlite3_bind_text(stmt.get(), current, first, strlen(first), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
 		return bind(current + 1, args...);
 	}
 
-	/** bind_struct for int values **/
+	//bind const wchar_t[]
+	//长度要乘以2
 	template <typename... Args>
-	bool bind(int current,int first, const Args &... args)
+
+	bool bind(int current, const wchar_t first[], const Args &... args)
 	{
-		if (sqlite3_bind_int(stmt.get(), current, first)!= SQLITE_OK)
+		if (sqlite3_bind_text16(stmt.get(), current, first, wcslen(first)*2, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
 		return bind(current + 1, args...);
 	}
-
 
 	/** bind_struct for byte arrays **/
 	template <typename... Args>
@@ -265,11 +297,6 @@ private:
 	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
 	DbConnection &connection_;
 	int column_count = 0;
-
-
-
-
-
 
 };
 

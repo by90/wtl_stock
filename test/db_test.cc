@@ -105,6 +105,9 @@ TEST_F(dbTest, db_insert_test)
 
 	//从2开始bind，因为第一个是自增长字段
 	//只bind 4个参数，最后一个blob字段没有bind
-	cmd.bind(2, "first", (int)1402876800,(double)100.10,(int)10);
+	cmd.bind(2, "first", (unsigned long)1402876800,(double)100.10,(int)10);
+	cmd.ExecuteNonQuery();
+
+	cmd.bind(2, L"第二个", (int)1402876800, (double)200.20, (int)20);
 	cmd.ExecuteNonQuery();
 }
