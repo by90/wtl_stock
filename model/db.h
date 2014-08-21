@@ -142,6 +142,30 @@ private:
 };
 
 
+class Blob {
+public:
+	void *data;
+	int length;
+
+protected:
+	Blob(void *data, int length) : data(data), length(length) {
+	}
+};
+
+
+class StaticBlob : public Blob {
+public:
+	template<typename T>
+	StaticBlob(T *data, int length) : Blob((void*)data, length) { }
+};
+
+
+class TransientBlob : public Blob {
+public:
+	template<typename T>
+	TransientBlob(T *data, int length) : Blob((void*)data, length) { }
+};
+
 
 class DbCommand
 {
@@ -198,6 +222,16 @@ public:
 	}
 
 	//Bind部分，使用变参模板处理
+	//sqlite3的bind包括如下9个函数
+	//int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
+	//int sqlite3_bind_double(sqlite3_stmt*, int, double);
+	//int sqlite3_bind_int(sqlite3_stmt*, int, int);
+	//int sqlite3_bind_int64(sqlite3_stmt*, int, sqlite3_int64);
+	//int sqlite3_bind_null(sqlite3_stmt*, int);
+	//int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int n, void(*)(void*));
+	//int sqlite3_bind_text16(sqlite3_stmt*, int, const void*, int, void(*)(void*));
+	//int sqlite3_bind_value(sqlite3_stmt*, int, const sqlite3_value*);
+	//int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
 
 	//bind参数解析完毕后调用
 	inline bool bind(const int) { return true; }
@@ -207,7 +241,7 @@ public:
 	//同时，这样的重载，必须保证每个都有限定，否则会出现重载不明确的编译错误
 	//我们仅仅在函数返回值中，保留原来的类型，但加一个限制，以便编译器采纳此版本
 	template <typename Tint, typename... Args>
-	typename std::enable_if <std::is_integral<Tint>::value,bool>::type 
+	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)<8,bool>::type 
 	bind(int current, Tint first, const Args &... args)
 	{
 		if (sqlite3_bind_int(stmt.get(), current, first) != SQLITE_OK)
@@ -215,6 +249,17 @@ public:
 			return false;
 		}
 		return bind(current + 1, args...);
+	}
+
+	template <typename Tint, typename... Args>
+	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)>=8, bool>::type
+		bind(int current, Tint first, const Args &... args)
+	{
+			if (sqlite3_bind_int64(stmt.get(), current, first) != SQLITE_OK)
+			{
+				return false;
+			}
+			return bind(current + 1, args...);
 	}
 
 	/** bind_struct for double values **/
@@ -245,7 +290,7 @@ public:
 		return bind(current + 1, args...);
 	}
 
-	//bind const char[]
+	//bind const char[],char *也同样处理
 	//使用const char *，则传入"first"之类的常量字符串，将不能识别
 	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
@@ -261,7 +306,6 @@ public:
 	//bind const wchar_t[]
 	//长度要乘以2
 	template <typename... Args>
-
 	bool bind(int current, const wchar_t first[], const Args &... args)
 	{
 		if (sqlite3_bind_text16(stmt.get(), current, first, wcslen(first)*2, SQLITE_TRANSIENT) != SQLITE_OK)
@@ -271,17 +315,49 @@ public:
 		return bind(current + 1, args...);
 	}
 
-	/** bind_struct for byte arrays **/
+	//bind string
+	//使用const char *，则传入"first"之类的常量字符串，将不能识别
+	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	bool bind(int current, const std::vector<char> &first, const Args &... args)
+	bool bind(int current, std::string first, const Args &... args)
 	{
-		if (sqlite3_bind_blob(stmt.get(), current,
-			&first[0], first.size(),
-			SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text(stmt.get(), current, first.c_str(), first.length(), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(statement, current + 1, args...);
+		return bind(current + 1, args...);
+	}
+
+	//bind const wchar_t[]
+	//长度要乘以2
+	template <typename... Args>
+	bool bind(int current, std::wstring first, const Args &... args)
+	{
+		if (sqlite3_bind_text16(stmt.get(), current, first.c_str(), first.length()*2, SQLITE_TRANSIENT) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
+	//SQLITE_STATIC方式 blob
+	template <typename... Args>
+	void bind(int current, StaticBlob value, const Args &... args) {
+		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
+	}
+
+	//bind SQLITE_TRANSIENT 形式的Blob
+	template <typename... Args>
+	void bind(int current, TransientBlob value, const Args &... args) {
+		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_TRANSIENT) != SQLITE_OK)
+		{
+			return false;
+		}
+		return bind(current + 1, args...);
 	}
 
 	//执行无返回的Sql命令
@@ -297,7 +373,6 @@ private:
 	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
 	DbConnection &connection_;
 	int column_count = 0;
-
 };
 
 #endif
