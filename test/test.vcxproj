@@ -88,14 +88,15 @@
     <ClCompile Include="dad_parse_iterator_test.cc" />
     <ClCompile Include="db_quote_test.cc" />
     <ClCompile Include="db_test.cc" />
-    <ClCompile Include="demo_c11\aligned_storage_demo.cc" />
+    <ClCompile Include="demo_c11\demo_aligned_storage.cc" />
     <ClCompile Include="demo_c11\demo_chrono.cc" />
     <ClCompile Include="demo_c11\demo_encoding.cpp" />
+    <ClCompile Include="demo_c11\demo_rvalue_references.cc" />
     <ClCompile Include="demo_c11\demo_stl_array.cc" />
     <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc" />
-    <ClCompile Include="demo_c11\faq_iterator_as_point.cc" />
-    <ClCompile Include="demo_c11\file_parse_test.cc" />
-    <ClCompile Include="demo_c11\wtl_polymorphism.cc" />
+    <ClCompile Include="demo_c11\demo_iterator_as_point.cc" />
+    <ClCompile Include="file_parse_test.cc" />
+    <ClCompile Include="demo_c11\demo_wtl_polymorphism.cc" />
     <ClCompile Include="demo_singleton\singleton_v1_test.cpp" />
     <ClCompile Include="gtest_main.cc" />
     <ClCompile Include="gtest_demo.cc" />
@@ -111,7 +112,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="demo_c11\my_advance.h" />
+    <ClInclude Include="demo_c11\demo_traits_algorithm.h" />
     <ClInclude Include="demo_singleton\singleton_v1.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

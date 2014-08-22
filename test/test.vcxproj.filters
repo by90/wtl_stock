@@ -42,12 +42,6 @@
     <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\wtl_polymorphism.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\file_parse_test.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="dad_file_parse_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -58,9 +52,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="demo_singleton\singleton_v1_test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\faq_iterator_as_point.cc">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="db_quote_test.cc">
@@ -75,15 +66,27 @@
     <ClCompile Include="singleton_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\aligned_storage_demo.cc">
+    <ClCompile Include="demo_c11\demo_rvalue_references.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_iterator_as_point.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="file_parse_test.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_wtl_polymorphism.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_aligned_storage.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="demo_c11\my_advance.h">
+    <ClInclude Include="demo_singleton\singleton_v1.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="demo_singleton\singleton_v1.h">
+    <ClInclude Include="demo_c11\demo_traits_algorithm.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
