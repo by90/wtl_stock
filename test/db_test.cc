@@ -101,7 +101,7 @@ TEST_F(dbTest, db_insert_test)
 	DbConnection conn;
 
 	//共有6个字段，如果只书写5个字段会触发异常
-	DbCommand cmd(conn, "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?)");
+	DbCommand cmd=conn.get_command( "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?)");
 
 	//从2开始bind，因为第一个是自增长字段
 	//只bind 4个参数，最后一个blob字段没有bind

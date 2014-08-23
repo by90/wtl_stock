@@ -11,6 +11,9 @@
 #include <string>  
 #include <hash_map>
 
+#ifndef global_h
+#define global_h
+
 using namespace std;
 
 //股票市场Enum
@@ -93,4 +96,4 @@ namespace global
 	extern MODEL_API unsigned long end_date; //已保存数据的起止日期
 	extern MODEL_API vector<Stock> StockSet;
 };
-
+#endif
