@@ -241,17 +241,74 @@ public:
 		return (rc == SQLITE_DONE);
 	}
 
+	//读取，中止函数
+	void read(int idx)
+	{
+
+	}
+
+	//整数
+	template <typename Tint, typename... Args>
+	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)<8, void>::type
+	read(int idx,Tint &first, Args &... args)
+	{
+		first = sqlite3_column_int(stmt.get(), idx);
+		read(idx + 1, args...);
+	}
+
+	template <typename Tint, typename... Args>
+	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)>=8, void>::type
+		read(int idx, Tint &first, Args &... args)
+	{
+			first = sqlite3_column_int64(stmt.get(), idx);
+			read(idx + 1, args...);
+	}
+
+	template <typename TDouble, typename... Args>
+	typename std::enable_if <std::is_floating_point<TDouble>::value, void>::type
+		read(int idx, TDouble &first, Args &... args)
+	{
+			first = sqlite3_column_double(stmt.get(), idx);
+			read(idx + 1, args...);
+	}
+
+	//bind string
+	//使用const char *，则传入"first"之类的常量字符串，将不能识别
+	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
+	template <typename... Args>
+	void read(int idx, std::string &first, const Args &... args)
+	{
+		first = std::string(sqlite3_column_text(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
+		read(idx + 1, args...);
+	}
+
+	//bind const wchar_t[]
+	//长度要乘以2
+	template <typename... Args>
+	void read(int idx, std::wstring &first, const Args &... args)
+	{
+		first = std::wstring(sqlite3_column_text16(stmt.get(), idx), sqlite3_column_bytes16(stmt.get(), idx));
+		read(idx + 1, args...);
+	}
+
+	//SQLITE_STATIC方式 blob
+	template <typename... Args>
+	void read(int idx, Blob &first, const Args &... args) {
+		first = Blob(sqlite3_column_blob(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
+		read(idx + 1, args...);
+	}
+
 	//取得一行结果
 	template <typename... Args>
-	bool Execute(Args &... args)
+	bool Execute(Args & ...args)
 	{
-		int rc = sqlite3_step(stmt.get());
+		int rc = sqlite3_step(stmt.get());		
+		read(0,args...);
 		sqlite3_reset(stmt.get());
 		return (rc == SQLITE_DONE);
 	}
 
-	//支持遍历：begin end和++操作
-
+	
 private:
 	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
 	std::shared_ptr<sqlite3> connection_;

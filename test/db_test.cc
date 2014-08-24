@@ -114,4 +114,9 @@ TEST_F(dbTest, db_insert_test)
 	std::string first_string="third";
 	cmd.bind(2, first_string, (int)1402876800, (float)300.20, (int)30);
 	cmd.ExecuteNonQuery();
+
+	DbCommand query = conn.get_command("SELECT COUNT(*) FROM PRODUCT");
+	int count = 0;
+	query.Execute(count);
+	EXPECT_EQ(3,count);
 }
