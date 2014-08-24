@@ -41,22 +41,9 @@ public:
 	int length;
 
 protected:
-	Blob(void *data, int length) : data(data), length(length) {
+	template<typename T>
+	Blob(T *data, int length) : data((void*)data), length(length) {
 	}
-};
-
-
-class StaticBlob : public Blob {
-public:
-	template<typename T>
-	StaticBlob(T *data, int length) : Blob((void*)data, length) { }
-};
-
-
-class TransientBlob : public Blob {
-public:
-	template<typename T>
-	TransientBlob(T *data, int length) : Blob((void*)data, length) { }
 };
 
 
@@ -236,7 +223,7 @@ public:
 
 	//SQLITE_STATIC方式 blob
 	template <typename... Args>
-	void bind(int current, StaticBlob value, const Args &... args) {
+	void bind(int current, Blob value, const Args &... args) {
 		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
 		{
 			return false;
@@ -244,15 +231,6 @@ public:
 		return bind(current + 1, args...);
 	}
 
-	//bind SQLITE_TRANSIENT 形式的Blob
-	template <typename... Args>
-	void bind(int current, TransientBlob value, const Args &... args) {
-		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_TRANSIENT) != SQLITE_OK)
-		{
-			return false;
-		}
-		return bind(current + 1, args...);
-	}
 
 	//执行无返回的Sql命令
 	//step后应返回Sqlite_done
