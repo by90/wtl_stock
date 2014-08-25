@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "global.h"
+#include <codecvt>
 #include "sqlite/sqlite3.h"
 namespace global
 {
@@ -15,13 +16,16 @@ namespace global
 	{
 		if (default_db_path.empty())
 		{
-			char exeFullPath[MAX_PATH] = { 0 }; // MAX_PATH在WINDEF.h中定义了，等于260
-			GetModuleFileNameA(NULL, exeFullPath, MAX_PATH);
+			wchar_t exeFullPath[MAX_PATH] = { 0 }; // MAX_PATH在WINDEF.h中定义了，等于260
+			GetModuleFileNameW(NULL, exeFullPath, MAX_PATH);
 			
-			char *p = strrchr(exeFullPath, '\\'); 
+			wchar_t *p = wcsrchr(exeFullPath, '\\'); 
 			*p = 0x00; //去掉最后文件名
 
-			default_db_path.append(exeFullPath);
+			std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+			auto temp = conv.to_bytes(exeFullPath);
+
+			default_db_path.append(temp);
 			default_db_path.append("\\quote.db");
 		}
 		return default_db_path.c_str();
