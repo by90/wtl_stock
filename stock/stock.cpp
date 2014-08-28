@@ -15,6 +15,7 @@
 #include "MainFrm.h"
 #include "db.h"
 #include "global.h"
+#include "db_code.h"
 
 CAppModule _Module;
 
@@ -54,8 +55,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
-
+	
 	DbConnection::set_default(global::GetDefaultDb(), global::create_default_database);
+	DbCode::GetAllCode();
+
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();

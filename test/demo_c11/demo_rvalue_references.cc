@@ -11,10 +11,10 @@ bool max(T &first, T &second)
 }
 
 //增加这个，可以通过编译
-template <typename T>
-bool max(T *first, T *second)
+bool max(char *first, char *second)
 {
-	return first > second;
+
+	return strcmp(first,second)>0;
 }
 
 template <typename T>
@@ -26,7 +26,7 @@ bool max_r(T &&first, T &&second)
 template <typename T>
 bool max_r(T first[], T  second[])
 {
-	return first > second;
+	return strcmp(first, second)>0;
 }
 //编码转换
 TEST(demo, test_lvalue_refrences)

@@ -5,8 +5,8 @@
 #include "dad_parse_iterator.h"
 #include <vector>
 
-#ifndef db_quote_h
-#define db_quote_h
+#ifndef db_code_h
+#define db_code_h
 
 //Global类中包括代码表，而每个代码皆包括权息、财务数据，在第一次使用时载入或启动时一次性载入
 //由于财务数据和权息数据整体不足1M，也可考虑作为代码表的Blob字段一次载入，性能或更好
