@@ -30,9 +30,31 @@ public:
 	//应用初启动的时候，Global::init调用get_date_range获得已安装数据的起止日期，并调用此方法获得代码表
 	//安装日线数据时，可考虑凡事大于StockSet中最后日期者，按顺序重新读入
 	//读取全部日线，需要2000-3000次的载入操作，每次约2000条数据，大致为600万次操作。
-	void GetAllCode()
+	static void GetAllCode(bool refresh=false)
 	{
+		if (DbCode::get_stock_list().size()>0)
+		{
+			if (!refresh)	return;
+			else
+				DbCode::get_stock_list().clear();
+		}
+		DbConnection connection;
+		auto query = connection.get_command(L"select * from Stock order by Id");
+		Stock stock;
+		int market, catalog;
+		while (query.Execute(stock.Id, market,catalog, stock.Title, stock.MiniCode))
+		{
+			stock.Market = (MarketEnum)market;
+			stock.Catalog = (CatalogEnum)catalog;
+			DbCode::get_stock_list().push_back(stock);
+		}
+		
+	}
 
+	static vector<Stock> &get_stock_list()
+	{
+		static vector<Stock> stock_list;
+			return stock_list;
 	}
 
 	//更新某只股票代码：先在内存中是否有、如果有则判断是否一致，再决定是否更新
@@ -43,6 +65,7 @@ public:
 	{
 
 	}
+	//static vector<Stock> StockList;
 };
 
 #endif
