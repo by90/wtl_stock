@@ -82,17 +82,23 @@ public:
 		//这同样表示：不能编译出不合法的实际函数...起到了与enable_if相似的作用
 		static_assert(std::is_same<parse_of_dad, std::iterator_traits<T>::value_type>::value, "Incorrect usage!");
 		
+		//代码表1.创建一个command
+
 		//1.确保数据库打开：
-		sqlite3 *default_db=nullptr;
-		int rc = sqlite3_open_v2(DbConnection::get_default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
-		if (rc != SQLITE_OK)
-		{
-			auto p = sqlite3_errmsg(default_db);
-			func(p, 0);
-			if (default_db)
-				sqlite3_close_v2(default_db);
-			return 0;
-		}
+		DbConnection connection;
+		auto cmd = connection.get_command(L"INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
+
+		sqlite3 *default_db=connection.Connection.get(); //使用Api处理quote
+
+		//int rc = sqlite3_open_v2(DbConnection::get_default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
+		//if (rc != SQLITE_OK)
+		//{
+		//	auto p = sqlite3_errmsg(default_db);
+		//	func(p, 0);
+		//	if (default_db)
+		//		sqlite3_close_v2(default_db);
+		//	return 0;
+		//}
 		//此时数据库已经打开，使用default_db
 		
 
@@ -102,7 +108,7 @@ public:
 		const char *insert_sql = "INSERT OR IGNORE INTO QUOTE VALUES(?, ?, ?, ?, ?, ?, ?,?)";
 
 		//3.prepare
-		rc = sqlite3_prepare_v2(default_db, insert_sql, -1, &pStmt, 0);
+		int rc = sqlite3_prepare_v2(default_db, insert_sql, -1, &pStmt, 0);
 		if (rc)
 		{
 			auto p = sqlite3_errmsg(default_db);
@@ -120,8 +126,18 @@ public:
 		
 		//5.循环增加
 		int insert_nums = 0;
+
+		int idNumber = 0;
+		id_of_dad *oldId = nullptr;
 		for (auto current = _begin; current != _end; ++current)
 		{
+			//如果代码变化
+			if (current->idOfDad != oldId)
+			{
+				oldId = current->idOfDad;
+				idNumber++;
+
+			}
 			//保存了16位造成错误？？
 			//sqlite3_bind_text(pStmt, 1, current->idOfDad->id, sizeof(current->idOfDad->id), SQLITE_TRANSIENT);
 			sqlite3_bind_text(pStmt, 1, current->idOfDad->id, 8, SQLITE_TRANSIENT);
@@ -153,7 +169,7 @@ public:
 
 		//6.清理现场
 		sqlite3_finalize(pStmt);
-		sqlite3_close_v2(default_db);
+		//sqlite3_close_v2(default_db);
 		//7.返回插入的数量
 		if (func != nullptr)
 			func(nullptr,insert_nums);

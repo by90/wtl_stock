@@ -328,8 +328,9 @@ public:
 	template <typename... Args>
 	bool Execute(Args & ...args)
 	{
-		int rc = sqlite3_step(stmt.get());		
-		read(0,args...);
+		int rc = sqlite3_step(stmt.get());	
+		if (rc==SQLITE_ROW)
+			read(0,args...);
 		sqlite3_reset(stmt.get());
 		return (rc == SQLITE_ROW);
 	}
