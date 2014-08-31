@@ -59,11 +59,11 @@ struct ExRight
 //如果有必要，增加一个日线指针用来存放其所有日线数据
 struct Stock
 {
-	string Id; //代码
+	char Id[9]; //代码
 	enum MarketEnum Market; //股票代码和市场
 	enum CatalogEnum Catalog;  //股票类型
-	std::wstring Title; //股票名称
-	std::string MiniCode; //拼音简码	
+	char Title[9]; //股票名称，10个字节
+	char MiniCode[5]; //拼音简码	
 
 	bool ExRightLoaded = false; //权息数据是否载入,按需载入
 	bool QuoteLoaded = false; //日线是否载入

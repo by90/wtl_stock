@@ -332,6 +332,11 @@ public:
 		if (rc==SQLITE_ROW)
 			read(0,args...);
 		sqlite3_reset(stmt.get());
+		if (rc != SQLITE_ROW)
+		{
+			rc = rc;
+			return false;
+		}
 		return (rc == SQLITE_ROW);
 	}
 

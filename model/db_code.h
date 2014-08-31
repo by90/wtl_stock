@@ -4,6 +4,7 @@
 #include "db.h"
 #include "dad_parse_iterator.h"
 #include <vector>
+#include <algorithm>
 
 #ifndef db_code_h
 #define db_code_h
@@ -55,6 +56,17 @@ public:
 	{
 		static vector<Stock> stock_list;
 			return stock_list;
+	}
+
+	static int FindStock(char id[])
+	{
+		Stock stock;
+		strcpy_s(stock.Id, id); //拷贝
+		pair<vector<Stock>::iterator, vector<Stock>::iterator> bounds;
+		bounds = std::equal_range(DbCode::get_stock_list().begin(), DbCode::get_stock_list().end(), stock);//返回
+		if (bounds.first == bounds.second)
+			return -1; //没有找到
+		return (std::distance(DbCode::get_stock_list().begin(), bounds.first)); //返回找到的第一个与第一个的距离，也就是序号
 	}
 
 	//更新某只股票代码：先在内存中是否有、如果有则判断是否一致，再决定是否更新

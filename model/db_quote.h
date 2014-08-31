@@ -3,7 +3,7 @@
 #include "db.h"
 #include "dad_parse_iterator.h"
 #include "global.h"
-
+#include "db_code.h"
 #ifndef db_quote_h
 #define db_quote_h
 
@@ -86,7 +86,7 @@ public:
 
 		//1.确保数据库打开：
 		DbConnection connection;
-		auto cmd = connection.get_command(L"INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
+		
 
 		sqlite3 *default_db=connection.Connection.get(); //使用Api处理quote
 
@@ -126,16 +126,26 @@ public:
 		
 		//5.循环增加
 		int insert_nums = 0;
-
+		auto cmd = connection.get_command(L"INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
 		int idNumber = 0;
 		id_of_dad *oldId = nullptr;
+		Stock stock;
 		for (auto current = _begin; current != _end; ++current)
 		{
 			//如果代码变化
 			if (current->idOfDad != oldId)
 			{
 				oldId = current->idOfDad;
-				idNumber++;
+				idNumber = DbCode::FindStock(current->idOfDad->id);
+				
+				if (idNumber < 0 || (DbCode::get_stock_list()[idNumber].Title != current->idOfDad->title)) //代码不存在或者虽存在但名称更改
+				{
+					memcpy(stock.Id,current->idOfDad->id,9);
+					memcpy(stock.Title,current->idOfDad->title,10);
+					//需要insert或update
+					cmd.bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
+					cmd.ExecuteNonQuery();
+				}
 
 			}
 			//保存了16位造成错误？？

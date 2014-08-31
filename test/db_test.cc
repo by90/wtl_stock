@@ -14,6 +14,7 @@ bool create_demo_database(const char * path)
 		"CREATE TABLE if not exists [Product] ("
 		"[ID] INTEGER PRIMARY KEY AUTOINCREMENT,"
 		"[TITLE] nchar[20] NOT NULL,"
+		"[WTITLE] nchar[20] NOT NULL,"
 		"[DATE] INTEGER,"		
 		"[PRICE] FLOAT,"
 		"[NUMBER] INTEGER,"
@@ -92,6 +93,13 @@ TEST_F(dbTest, db_wchar_construct_test)
 	EXPECT_TRUE(db_empty());
 }
 
+//char数组有一位"/0",wchar_t数组有两位
+TEST_F(dbTest, wchar_array_test)
+{
+	wchar_t first[] = L"你好";
+	EXPECT_EQ(6, sizeof(first)); //wchar数组的长度为6，结束符为两个0
+}
+
 //db类构造函数
 TEST_F(dbTest, db_insert_test)
 {
@@ -101,18 +109,19 @@ TEST_F(dbTest, db_insert_test)
 	DbConnection conn;
 
 	//共有6个字段，如果只书写5个字段会触发异常
-	DbCommand cmd=conn.get_command( "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?)");
+	DbCommand cmd=conn.get_command( "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
 
 	//从2开始bind，因为第一个是自增长字段
 	//只bind 4个参数，最后一个blob字段没有bind
-	cmd.bind(2,(char *) "first", (unsigned long long)1402876800,(double)100.10,(int)10);
+	cmd.bind(2,"first", "第一个",(unsigned long long)1402876800,(double)100.10,(int)10);
 	cmd.ExecuteNonQuery();
 
-	cmd.bind(2, L"第二个", (int)1402876800, (float)200.20, (int)20);
+	cmd.bind(2, "second",L"第二个", (int)1402876800, (float)200.20, (int)20);
 	cmd.ExecuteNonQuery();
 
 	std::string first_string="third";
-	cmd.bind(2, first_string, (int)1402876800, (float)300.20, (int)30);
+	std::wstring first_wstring = L"第三个";
+	cmd.bind(2, first_string, first_wstring,(int)1402876800, (float)300.20, (int)30);
 	cmd.ExecuteNonQuery();
 
 	DbCommand query = conn.get_command("SELECT COUNT(*) FROM PRODUCT");
