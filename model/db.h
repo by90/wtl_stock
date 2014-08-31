@@ -286,7 +286,8 @@ public:
 	template <typename... Args>
 	void read(int idx, std::string& first,  Args &... args)
 	{
-		first=string((const char *)&sqlite3_column_text(stmt.get(), idx)[0], (size_t)sqlite3_column_bytes(stmt.get(), idx));
+		const char *p = (const char*)sqlite3_column_text(stmt.get(), idx);
+		first=string(p, strlen(p)+1);
 		read(idx + 1, args...);
 	}
 
@@ -295,7 +296,8 @@ public:
 	template <typename... Args>
 	void read(int idx, std::wstring &first, Args &... args)
 	{
-		first=wstring((wchar_t *)sqlite3_column_text16(stmt.get(), idx), sqlite3_column_bytes16(stmt.get(), idx));
+		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt.get(), idx);
+		first=wstring((wchar_t *)p,wcslen(p)*2+2);
 		read(idx + 1, args...);
 	}
 
@@ -304,7 +306,10 @@ public:
 	template <typename... Args>
 	void read(int idx,char first[],  Args &... args)
 	{
-		memcpy(first, sqlite3_column_text(stmt.get(),idx),sizeof(first)/sizeof(first[0]));
+		//int i = sizeof(first); //4字节其实是指针长度
+		const char *p = (const char*)sqlite3_column_text(stmt.get(), idx);
+		int i = strlen(p);
+		strcpy_s(first,strlen(p)+1,p);
 		//first = std::string(sqlite3_column_text(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
 		read(idx + 1, args...);
 	}
@@ -314,7 +319,9 @@ public:
 	template <typename... Args>
 	void read(int idx, wchar_t first[],   Args &... args)
 	{
-		memcpy(first, sqlite3_column_text16(stmt.get(), idx), sizeof(first) / sizeof(first[0]));
+		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt.get(), idx);
+		int i = wcslen(p);
+		wcscpy_s(first, wcslen(p)+1, p);
 		read(idx + 1, args...);
 	}
 	//SQLITE_STATIC方式 blob

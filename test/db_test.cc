@@ -103,8 +103,8 @@ TEST_F(dbTest, wchar_array_test)
 struct Product
 {
 	int id;
-	char title[20];
-	wchar_t wtitle[10];
+	char title[21];
+	wchar_t wtitle[11];
 	int date;
 	float price;
 	int number;
