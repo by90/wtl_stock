@@ -275,7 +275,7 @@ public:
 
 	template <typename TDouble, typename... Args>
 	typename std::enable_if <std::is_floating_point<TDouble>::value, void>::type
-		read(int idx, const TDouble &first, const Args &... args)
+		read(int idx,  TDouble &first,  Args &... args)
 	{
 			first = sqlite3_column_double(stmt.get(), idx);
 			read(idx + 1, args...);
@@ -331,7 +331,7 @@ public:
 		int rc = sqlite3_step(stmt.get());	
 		if (rc==SQLITE_ROW)
 			read(0,args...);
-		sqlite3_reset(stmt.get());
+		//sqlite3_reset(stmt.get());
 		if (rc != SQLITE_ROW)
 		{
 			rc = rc;

@@ -100,6 +100,16 @@ TEST_F(dbTest, wchar_array_test)
 	EXPECT_EQ(6, sizeof(first)); //wchar数组的长度为6，结束符为两个0
 }
 
+struct Product
+{
+	int id;
+	char title[20];
+	wchar_t wtitle[10];
+	int date;
+	float price;
+	int number;
+	//image 暂时不列入
+};
 //db类构造函数
 TEST_F(dbTest, db_insert_test)
 {
@@ -128,4 +138,12 @@ TEST_F(dbTest, db_insert_test)
 	int count = 0;
 	query.Execute(count);
 	EXPECT_EQ(3,count);
+
+	Product product;
+	DbCommand row_cmd = conn.get_command("SELECT * FROM PRODUCT");
+	while (row_cmd.Execute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
+	{
+		int i=product.id;
+	}
+	
 }
