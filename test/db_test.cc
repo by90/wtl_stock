@@ -141,9 +141,15 @@ TEST_F(dbTest, db_insert_test)
 
 	Product product;
 	DbCommand row_cmd = conn.get_command("SELECT * FROM PRODUCT");
-	while (row_cmd.Execute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
-	{
-		int i=product.id;
-	}
+	//while (row_cmd.Execute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
+	//{
+	//	int i=product.id;
+	//}
+	char wtitle_ptr[11] = { 0 };
+	row_cmd.Execute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
 	
+	//注意，char[]表达的汉字，写入数据库，可以char[]正确读出。在数据库中使用普通管理工具，为乱码，无关紧要。
+
+	EXPECT_STREQ("第一个", wtitle_ptr);
+
 }
