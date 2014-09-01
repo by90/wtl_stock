@@ -59,10 +59,10 @@ struct ExRight
 //如果有必要，增加一个日线指针用来存放其所有日线数据
 struct Stock
 {
-	char Id[9]; //代码
+	char Id[9]; //代码，8位+0
 	enum MarketEnum Market; //股票代码和市场
 	enum CatalogEnum Catalog;  //股票类型
-	char Title[9]; //股票名称，10个字节
+	char Title[9]; //股票名称，4个汉字+0
 	char MiniCode[5]; //拼音简码	
 
 	bool ExRightLoaded = false; //权息数据是否载入,按需载入
@@ -74,11 +74,11 @@ struct Stock
 	//重载小于和等于操作符，搜索算法需要
 	bool operator < (const Stock& a) const
 	{
-		return (Id <a.Id);
+		return (strcmp(Id,a.Id)<0);
 	}
 	bool operator == (const Stock& a)const
 	{
-		return (Id == a.Id);
+		return (strcmp(Id, a.Id)==0);
 	}
 
 	//前60天的最高、最低、均价、均量

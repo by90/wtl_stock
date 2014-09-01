@@ -126,7 +126,8 @@ public:
 		
 		//5.循环增加
 		int insert_nums = 0;
-		auto cmd = connection.get_command(L"INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
+		//command不用L""
+		auto cmd = connection.get_command("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
 		int idNumber = 0;
 		id_of_dad *oldId = nullptr;
 		Stock stock;
@@ -138,10 +139,10 @@ public:
 				oldId = current->idOfDad;
 				idNumber = DbCode::FindStock(current->idOfDad->id);
 				
-				if (idNumber < 0 || (DbCode::get_stock_list()[idNumber].Title != current->idOfDad->title)) //代码不存在或者虽存在但名称更改
+				if (idNumber < 0 || (strcmp(DbCode::get_stock_list()[idNumber].Title,current->idOfDad->title)!=0)) //代码不存在或者虽存在但名称更改
 				{
 					memcpy(stock.Id,current->idOfDad->id,9);
-					memcpy(stock.Title,current->idOfDad->title,10);
+					memcpy(stock.Title,current->idOfDad->title,9);
 					//需要insert或update
 					cmd.bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
 					cmd.ExecuteNonQuery();
