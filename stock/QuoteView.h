@@ -32,10 +32,7 @@ public:
 		complete,
 	};
 
-	int install_type_quote = 0;
-	int install_type_exright = -1;
-	int install_type_base = -1;
-	int install_type_catalog = -1;
+	int install_type= 0;
 	State m_state = State::init;
 	std::wstring m_path; //选取的文件路径
 	std::wstring m_info=L"";
@@ -173,10 +170,10 @@ public:
 		DDX_TEXT(IDC_STATIC_OPENED, model.m_opened)
 
 		
-		DDX_RADIO(IDC_RADIO_QUOTE, model.install_type_quote)
-		DDX_RADIO(IDC_RADIO_EXRIGHT, model.install_type_exright)
-		DDX_RADIO(IDC_RADIO_BASE, model.install_type_base)
-		DDX_RADIO(IDC_RADIO_CATALOG, model.install_type_catalog)
+		//DDX_RADIO(IDC_RADIO_QUOTE, model.install_type_quote)
+		//DDX_RADIO(IDC_RADIO_EXRIGHT, model.install_type_exright)
+		//DDX_RADIO(IDC_RADIO_BASE, model.install_type_base)
+		//DDX_RADIO(IDC_RADIO_CATALOG, model.install_type_catalog)
 
 		
 	END_DDX_MAP()
@@ -397,7 +394,21 @@ public:
 	LRESULT OnRadioClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, wID);
-		DoDataExchange(TRUE);
+		switch (wID)
+		{
+		case IDC_RADIO_QUOTE:
+			model.install_type = 0;
+			break;
+		case IDC_RADIO_EXRIGHT:
+			model.install_type = 1;
+			break;
+		case IDC_RADIO_BASE:
+			model.install_type = 2;
+			break;
+		case IDC_RADIO_CATALOG:
+			model.install_type = 3;
+			break;
+		}
 		return 0;
 	}
 	// Handler prototypes (uncomment arguments if needed):
