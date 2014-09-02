@@ -51,7 +51,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
 
-	AtlInitCommonControls(ICC_COOL_CLASSES | ICC_BAR_CLASSES);	// add flags to support other controls
+	//AtlInitCommonControls(ICC_COOL_CLASSES | ICC_BAR_CLASSES);	// add flags to support other controls
+	//ÐÞ¸Ä£¬Ê¹ÓÃInitCommonControlsEx
+	INITCOMMONCONTROLSEX init;
+	init.dwSize = sizeof(init);
+	init.dwICC = ICC_LISTVIEW_CLASSES;
+	InitCommonControlsEx(&init);
+
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));

@@ -32,6 +32,10 @@ public:
 		complete,
 	};
 
+	int install_type_quote = 0;
+	int install_type_exright = -1;
+	int install_type_base = -1;
+	int install_type_catalog = -1;
 	State m_state = State::init;
 	std::wstring m_path; //选取的文件路径
 	std::wstring m_info=L"";
@@ -164,9 +168,17 @@ public:
 
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
-		DDX_TEXT(IDC_STATIC_INFO,model.m_info)
+		DDX_TEXT(IDC_STATIC_INFO, model.m_info)
 		DDX_TEXT(IDC_STATIC_SAVED, model.m_saved)
 		DDX_TEXT(IDC_STATIC_OPENED, model.m_opened)
+
+		
+		DDX_RADIO(IDC_RADIO_QUOTE, model.install_type_quote)
+		DDX_RADIO(IDC_RADIO_EXRIGHT, model.install_type_exright)
+		DDX_RADIO(IDC_RADIO_BASE, model.install_type_base)
+		DDX_RADIO(IDC_RADIO_CATALOG, model.install_type_catalog)
+
+		
 	END_DDX_MAP()
 	//init_dialog、show都只运行一次。
 	BEGIN_MSG_MAP(CQuoteView)
@@ -174,6 +186,7 @@ public:
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		//NOTIFY_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
 		COMMAND_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
+		COMMAND_RANGE_HANDLER(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, OnRadioClick)
 
 		COMMAND_HANDLER(IDC_BUTTON_SELECT, BN_CLICKED, OnClickedButtonSelect)
 		COMMAND_HANDLER(IDC_BUTTON_INSTALL, BN_CLICKED, OnClickedButtonInstall)
@@ -260,6 +273,9 @@ public:
 
 		model.get_date_range();
 		//model.set_saved_string();
+
+		//初始化Radio Button
+		CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, IDC_RADIO_QUOTE);
 
 		SetVisible(model.m_state);
 		DoDataExchange(FALSE);
@@ -375,6 +391,13 @@ public:
 		ThreadTask::Add(import_id, L"导入行情");
 		t->detach(); //从主线程分离后执行
 		//t.join();//等待子线程执行完毕再执行下一条语句
+		return 0;
+	}
+
+	LRESULT OnRadioClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	{
+		CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, wID);
+		DoDataExchange(TRUE);
 		return 0;
 	}
 	// Handler prototypes (uncomment arguments if needed):
