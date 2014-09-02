@@ -187,6 +187,7 @@ public:
 
 		COMMAND_HANDLER(IDC_BUTTON_SELECT, BN_CLICKED, OnClickedButtonSelect)
 		COMMAND_HANDLER(IDC_BUTTON_INSTALL, BN_CLICKED, OnClickedButtonInstall)
+		COMMAND_HANDLER(IDC_BUTTON_REMOVE, BN_CLICKED, OnClickedButtonRemove)
 		CHAIN_MSG_MAP(CCtlColored<CQuoteView>)
 
 	END_MSG_MAP()
@@ -414,6 +415,13 @@ public:
 		return 0;
 	}
 
+	LRESULT OnClickedButtonRemove(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	{
+
+		if (MessageBoxA(0, "您将删除全部日线和代码表\n删除之后您必须重新安装，您确定吗？", "请您三思", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDCANCEL)
+			return 0;
+		return 0;
+	}
 	LRESULT OnRadioClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, wID);
