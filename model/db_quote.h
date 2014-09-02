@@ -72,6 +72,23 @@ public:
 
 	}
 
+	void delete_all()
+	{
+		DbConnection connection;
+		try
+		{
+			auto cmd = connection.get_command("delete from quote;delete from stock;");
+			cmd.ExecuteNonQuery();
+		}
+		catch (DbException e)
+		{
+			e.what();
+		}
+		DbCode::get_stock_list().clear();
+		global::begin_date = 0;
+		global::end_date = 0;
+	}
+
 	//批量保存quote
 	//加入回调函数,回调函数的频次(N条汇报一次，N%汇报一次)
 	template <typename T>

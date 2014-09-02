@@ -257,6 +257,7 @@ public:
 		{
 			::EnableWindow(GetDlgItem(IDC_BUTTON_SELECT), TRUE);
 			::EnableWindow(GetDlgItem(IDC_EDIT_PATH), TRUE);
+			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), TRUE);
 
 			//::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE); //安装按钮不可见
 
@@ -420,6 +421,13 @@ public:
 
 		if (MessageBoxA(0, "您将删除全部日线和代码表\n删除之后您必须重新安装，您确定吗？", "请您三思", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDCANCEL)
 			return 0;
+		
+		model.m_info = L"删除全部数据...";
+		DoDataExchange(0, IDC_STATIC_ALLQUOTE);
+		model.quote.delete_all();
+		model.m_info = L"删除全部数据...完成!";
+		model.m_saved= L"已经安装：没有数据";
+		DoDataExchange();
 		return 0;
 	}
 	LRESULT OnRadioClick(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
