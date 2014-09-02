@@ -133,12 +133,19 @@ public:
 		Stock stock;
 		for (auto current = _begin; current != _end; ++current)
 		{
+			if (DbCode::GetMarket(current->idOfDad->id) == ::Others)
+				continue;//如果代码类型不可识别，即略过后面所有的操作。
 			//如果代码变化
 			if (current->idOfDad != oldId)
 			{
 				oldId = current->idOfDad;
+				//这里过滤代码
+
+				
+				//只有代码类别可识别，才在内存代码表里搜索。
 				idNumber = DbCode::FindStock(current->idOfDad->id);
 				
+
 				if (idNumber < 0 || (strcmp(DbCode::get_stock_list()[idNumber].Title,current->idOfDad->title)!=0)) //代码不存在或者虽存在但名称更改
 				{
 					memcpy(stock.Id,current->idOfDad->id,9);
