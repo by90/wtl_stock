@@ -203,7 +203,11 @@ public:
 
 			::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE);  //安装按钮不可用
 
-			
+			::EnableWindow(GetDlgItem(IDC_BUTTON_REMOVE), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_QUOTE), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_EXRIGHT), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_BASE), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_CATALOG), true);
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
 			m_progressBar.SetPos(0);//先设为0，再隐藏
 
@@ -219,6 +223,13 @@ public:
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_HIDE);
 			m_progressBar.SetPos(0);//先设为0，再隐藏
+			::EnableWindow(GetDlgItem(IDC_RADIO_QUOTE), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_EXRIGHT), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_BASE), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_CATALOG), false);
+			::EnableWindow(GetDlgItem(IDC_BUTTON_REMOVE), true);
+
+			
 
 		}
 			break;
@@ -232,6 +243,12 @@ public:
 
 			::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
 
+			::EnableWindow(GetDlgItem(IDC_RADIO_QUOTE), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_EXRIGHT), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_BASE), false);
+			::EnableWindow(GetDlgItem(IDC_RADIO_CATALOG), false);
+			::EnableWindow(GetDlgItem(IDC_BUTTON_REMOVE), false);
+
 		}
 			break;
 
@@ -243,6 +260,12 @@ public:
 			//::EnableWindow(GetDlgItem(IDC_BUTTON_INSTALL), FALSE); //安装按钮不可见
 
 			//::ShowWindow(GetDlgItem(IDC_PROGRESS_IMPORT), SW_SHOW);
+
+			::EnableWindow(GetDlgItem(IDC_RADIO_QUOTE), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_EXRIGHT), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_BASE), true);
+			::EnableWindow(GetDlgItem(IDC_RADIO_CATALOG), true);
+			::EnableWindow(GetDlgItem(IDC_BUTTON_REMOVE), true);
 
 		}
 			break;
