@@ -143,6 +143,27 @@ public:
 				{
 					memcpy(stock.Id,current->idOfDad->id,9);
 					memcpy(stock.Title,current->idOfDad->title,9);
+					
+					//标题的首字母简写都需要修改
+					memset(stock.MiniCode, '\0', 5); //全部设为0
+					DbCode::GetMiniCode(stock.Title, stock.MiniCode);
+
+					//如果是新增加的股票，此时还需要修改交易所、类型
+					if (idNumber < 0)
+					{
+						stock.Market= DbCode::GetMarket(stock.Id);
+						stock.Catalog = DbCode::GetCatalog(stock.Id);
+
+						//新的股票应按顺序加入代码表
+						DbCode::get_stock_list().insert(DbCode::get_stock_list().begin()- (1 * idNumber + 1), stock);
+					}
+					else //如果仅仅是标题更新，修改即可
+					{
+						memcpy(DbCode::get_stock_list()[idNumber].Title, stock.Title, 9);
+						
+						memcpy(DbCode::get_stock_list()[idNumber].MiniCode, stock.MiniCode, 5);
+					}
+
 					//需要insert或update
 					cmd.bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
 					cmd.ExecuteNonQuery();
