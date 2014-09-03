@@ -228,6 +228,21 @@ TEST_F(dbTest, Reset)
 	EXPECT_EQ(20, product.number);
 	EXPECT_TRUE(wcscmp(L"第二个", product.wtitle) == 0);
 }
+
+//测试的Title是其它测试未处理的
+TEST_F(dbTest, ExcuteScript)
+{
+	Db connection("test.db");
+	connection.ExcuteScript("Update Product SET TITLE='first_update',NUMBER=11 WHERE ID=1;Update Product SET TITLE='second_update',NUMBER=21 WHERE ID=2;");
+}
+
+//测试的Title是其它测试未处理的
+TEST_F(dbTest, ExcuteNonQuery)
+{
+	Db connection("test.db");
+	connection.ExcuteNonQuery("Update Product SET TITLE=? WHERE ID=?","third_update",3);
+}
+
 //auto conn = Db::GetDb(); //返回默认的连接
 //EXPECT_TRUE(conn());
 //Db类应提供一个始终打开的连接...没有必要，打开关闭连接，并不是影响性能的主因。

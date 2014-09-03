@@ -351,7 +351,7 @@ public:
 		ReadColumn(idx + 1, args...);
 	}
 
-	//执行无返回的Sql命令
+	//执行无返回的Sql命令,如insert、update、delete或create table等。
 	//step后应返回Sqlite_done
 	inline bool ExcuteNonQuery()
 	{
@@ -457,12 +457,47 @@ public:
 		return sqlite3_last_insert_rowid(connection_.get());
 	}
 
-	void Db::SetTimeout(int ms_number) {
+	void SetTimeout(int ms_number) {
 		if (!connection_.get()) throw DbException("connection_ invalid");
 
 		if (sqlite3_busy_timeout(connection_.get(), ms_number) != SQLITE_OK)
 			throw DbException(connection_.get());
 	}
+
+	//执行sql命令，不返回值
+	//支持用分号分隔的多条sql语句
+	//不支持参数
+	bool ExcuteScript(const char *sql)
+	{
+		sqlite3_stmt *stmt_ptr = 0;
+		const char *tail = sql;
+		int rc;
+		while (tail &&strlen(tail)>0)
+		{
+			if (sqlite3_prepare_v2(connection_.get(), tail, strlen(tail), &stmt_ptr, &tail) != SQLITE_OK)
+			{
+				//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
+				throw DbException(connection_.get());
+				return false;
+			}
+			rc = sqlite3_step(stmt_ptr);
+			rc = sqlite3_finalize(stmt_ptr);
+		}
+		return true;
+	}
+
+
+	//或者输出到lambda?
+	//执行无返回的单条sql
+	//可bind参数
+	template <typename... Args>
+	bool ExcuteNonQuery(const char *sql, const Args &... args)
+	{
+		auto query = CreateQuery(sql);
+		query.Bind(1, args...);
+		return query.ExcuteNonQuery();
+	}
+
 private:
 	void OpenDatabase(const char *filename = nullptr)
 	{
