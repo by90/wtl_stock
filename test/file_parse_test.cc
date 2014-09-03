@@ -25,7 +25,7 @@ TEST_F(FileParse, construct_default)
 }
 
 //默认构造的实例，同样能够支持遍历
-TEST_F(FileParse, shuld_support_loop_for_default)
+TEST_F(FileParse, should_support_loop_for_default)
 {
 	file_parse<int *, char *> container;
 	int j = 0;

@@ -63,9 +63,6 @@
     <ClCompile Include="demo_c11\demo_chrono.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="singleton_test.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="demo_c11\demo_rvalue_references.cc">
       <Filter>源文件</Filter>
     </ClCompile>
