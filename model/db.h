@@ -498,6 +498,20 @@ public:
 		return query.ExcuteNonQuery();
 	}
 
+	void Begin()
+	{
+		ExcuteScript("BEGIN");
+	}
+
+	void Commit()
+	{
+		ExcuteScript("COMMIT");
+	}
+	void Rollback()
+	{
+		ExcuteScript("ROLLBACK");
+	}
+
 private:
 	void OpenDatabase(const char *filename = nullptr)
 	{
