@@ -233,14 +233,10 @@ TEST_F(dbTest, Reset)
 TEST_F(dbTest, ExcuteScript)
 {
 	Db connection("test.db");
+	connection.Begin();
 	connection.ExcuteScript("Update Product SET TITLE='first_update',NUMBER=11 WHERE ID=1;Update Product SET TITLE='second_update',NUMBER=21 WHERE ID=2;");
-}
-
-//测试的Title是其它测试未处理的
-TEST_F(dbTest, ExcuteNonQuery)
-{
-	Db connection("test.db");
-	connection.ExcuteNonQuery("Update Product SET TITLE=? WHERE ID=?","third_update",3);
+	connection.ExcuteNonQuery("Update Product SET TITLE=? WHERE ID=?", "third_update", 3);
+	connection.Commit();
 }
 
 //auto conn = Db::GetDb(); //返回默认的连接
