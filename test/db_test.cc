@@ -40,6 +40,25 @@ protected:
 	{
 		_unlink("ctest.db");
 		_unlink("wtest.db");
+		_unlink("test.db");
+		Db::set_default_path("ctest.db", create_demo_database);
+		Db conn;
+
+		//共有6个字段，如果只书写5个字段会触发异常
+		Query cmd = conn.create_query("INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
+
+		//从2开始bind，因为第一个是自增长字段
+		//只bind 4个参数，最后一个blob字段没有bind
+		cmd.bind(2, "first", "第一个", (unsigned long long)1402876800, (double)100.10, (int)10);
+		cmd.ExecuteNonQuery();
+
+		cmd.bind(2, "second", L"第二个", (int)1402876800, (float)200.20, (int)20);
+		cmd.ExecuteNonQuery();
+
+		std::string first_string = "third";
+		std::wstring first_wstring = L"第三个";
+		cmd.bind(2, first_string, first_wstring, (int)1402876800, (float)300.20, (int)30);
+		cmd.ExecuteNonQuery();
 	}
 
 	virtual void TearDown()
@@ -51,30 +70,30 @@ protected:
 ////db类的静态函数set_default
 TEST_F(dbTest, set_default_test)
 {
-	auto rc = DbConnection::set_default("ctest.db",create_demo_database);
-	EXPECT_STREQ("ctest.db", DbConnection::get_default());
+	auto rc = Db::set_default_path("ctest.db",create_demo_database);
+	EXPECT_STREQ("ctest.db", Db::default_path()->c_str());
 }
 
 //db类的静态函数set_default使用wstring
 TEST_F(dbTest, set_default_wstring_test)
 {
-	auto rc = DbConnection::set_default(L"wtest.db",create_demo_database);
-	EXPECT_STREQ("wtest.db", DbConnection::get_default());
+	auto rc = Db::set_default_path(L"wtest.db",create_demo_database);
+	EXPECT_STREQ("wtest.db", Db::default_path()->c_str());
 }
 
 //db类构造函数
 TEST_F(dbTest, db_construct_test)
 {
 	//文件不存在，应抛出异常
-	EXPECT_ANY_THROW(DbConnection db_not_exist("file"));
+	EXPECT_ANY_THROW(Db db_not_exist("file"));
 		 //file数据库不存在
 	//EXPECT_FALSE(db_not_exist());
 	//再次确认创建了ctest.db
-	DbConnection::set_default("ctest.db", global::create_default_database);
-	DbConnection db_exist("ctest.db");
+	Db::set_default_path("ctest.db", global::create_default_database);
+	Db db_exist("ctest.db");
 	EXPECT_TRUE(db_exist());
 
-	DbConnection db_empty;
+	Db db_empty;
 	EXPECT_TRUE(db_empty());
 }
 
@@ -82,14 +101,14 @@ TEST_F(dbTest, db_construct_test)
 TEST_F(dbTest, db_wchar_construct_test)
 {
 	//文件不存在应抛出异常
-	EXPECT_ANY_THROW(DbConnection db_not_exist(L"file"));
+	EXPECT_ANY_THROW(Db db_not_exist(L"file"));
 
 	//再次确认创建了ctest.db
-	DbConnection::set_default(L"wtest.db", global::create_default_database);
-	DbConnection db_exist(L"wtest.db");
+	Db::set_default_path(L"wtest.db", global::create_default_database);
+	Db db_exist(L"wtest.db");
 	EXPECT_TRUE(db_exist());
 
-	DbConnection db_empty;
+	Db db_empty;
 	EXPECT_TRUE(db_empty());
 }
 
@@ -114,42 +133,40 @@ struct Product
 TEST_F(dbTest, db_insert_test)
 {
 	//再次确认创建了ctest.db
-	DbConnection::set_default("ctest.db", create_demo_database);
-
-	DbConnection conn;
-
-	//共有6个字段，如果只书写5个字段会触发异常
-	DbCommand cmd=conn.get_command( "INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
-
-	//从2开始bind，因为第一个是自增长字段
-	//只bind 4个参数，最后一个blob字段没有bind
-	cmd.bind(2,"first", "第一个",(unsigned long long)1402876800,(double)100.10,(int)10);
-	cmd.ExecuteNonQuery();
-
-	cmd.bind(2, "second",L"第二个", (int)1402876800, (float)200.20, (int)20);
-	cmd.ExecuteNonQuery();
-
-	std::string first_string="third";
-	std::wstring first_wstring = L"第三个";
-	cmd.bind(2, first_string, first_wstring,(int)1402876800, (float)300.20, (int)30);
-	cmd.ExecuteNonQuery();
-
-	DbCommand query = conn.get_command("SELECT COUNT(*) FROM PRODUCT");
+	Db::set_default_path("ctest.db", create_demo_database);
+	Db conn;
+	Query query = conn.create_query("SELECT COUNT(*) FROM PRODUCT");
 	int count = 0;
 	query.Execute(count);
 	EXPECT_EQ(3,count);
+}
 
+//获取一行的所有内容
+//注意覆盖了int、float、string等，则测试了输出一行结果的各种类型
+TEST_F(dbTest, db_query_test)
+{
+	Db::set_default_path("ctest.db", create_demo_database);
+	Db conn;
 	Product product;
-	DbCommand row_cmd = conn.get_command("SELECT * FROM PRODUCT");
+	Query row_cmd = conn.create_query("SELECT * FROM PRODUCT");
 	//while (row_cmd.Execute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
 	//{
 	//	int i=product.id;
 	//}
 	char wtitle_ptr[11] = { 0 };
 	row_cmd.Execute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
-	
+
 	//注意，char[]表达的汉字，写入数据库，可以char[]正确读出。在数据库中使用普通管理工具，为乱码，无关紧要。
-
 	EXPECT_STREQ("第一个", wtitle_ptr);
-
 }
+
+//Db类应提供一个始终打开的连接
+TEST_F(dbTest, db_default_connection_)
+{
+	//auto conn = Db::GetDb(); //返回默认的连接
+	//EXPECT_TRUE(conn());
+}
+
+
+
+

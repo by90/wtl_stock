@@ -28,8 +28,8 @@ public:
 			else
 				DbCode::get_stock_list().clear();
 		}
-		DbConnection connection;
-		auto query = connection.get_command(L"select * from Stock order by Id");
+		Db connection_;
+		auto query = connection_.create_query(L"select * from Stock order by Id");
 		Stock stock;
 		int market, catalog;
 		while (query.Execute(stock.Id, market,catalog, stock.Title, stock.MiniCode))

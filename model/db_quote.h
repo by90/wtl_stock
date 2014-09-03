@@ -42,7 +42,7 @@ public:
 		//unsigned long end = get_end_date();
 		
 		sqlite3 *default_db = nullptr;
-		int rc = sqlite3_open_v2(DbConnection::get_default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
+		int rc = sqlite3_open_v2(Db::default_path()->c_str(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 	
 		//这里仍然应使用异常机制，抛出正常的错误信息，更为便捷。
 		//不能恢复的异常，才使用...当数据库不存在，可以创建，连接不存在，可以等待或重新连接，但各处都考虑实在麻烦
@@ -74,10 +74,10 @@ public:
 
 	void delete_all()
 	{
-		DbConnection connection;
+		Db connection_;
 		try
 		{
-			auto cmd = connection.get_command("delete from quote;delete from stock;");
+			auto cmd = connection_.create_query("delete from quote;delete from stock;");
 			cmd.ExecuteNonQuery();
 		}
 		catch (DbException e)
@@ -102,12 +102,12 @@ public:
 		//代码表1.创建一个command
 
 		//1.确保数据库打开：
-		DbConnection connection;
+		Db connection_;
 		
 
-		sqlite3 *default_db=connection.Connection.get(); //使用Api处理quote
+		sqlite3 *default_db=connection_.connection_.get(); //使用Api处理quote
 
-		//int rc = sqlite3_open_v2(DbConnection::get_default(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
+		//int rc = sqlite3_open_v2(Db::default_path()->c_str(), &default_db, SQLITE_OPEN_READWRITE, nullptr);
 		//if (rc != SQLITE_OK)
 		//{
 		//	auto p = sqlite3_errmsg(default_db);
@@ -144,7 +144,7 @@ public:
 		//5.循环增加
 		int insert_nums = 0;
 		//command不用L""
-		auto cmd = connection.get_command("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
+		auto cmd = connection_.create_query("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
 		int idNumber = 0;
 		id_of_dad *oldId = nullptr;
 		Stock stock;
