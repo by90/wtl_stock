@@ -77,7 +77,9 @@ public:
 		Db connection_;
 		try
 		{
-			auto cmd = connection_.CreateQuery("delete from quote;delete from stock;");
+			auto cmd = connection_.CreateQuery("delete from quote");
+			cmd.ExcuteNonQuery();
+			cmd.Reset("delete from stock");
 			cmd.ExcuteNonQuery();
 		}
 		catch (DbException e)

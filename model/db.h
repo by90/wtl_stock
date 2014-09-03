@@ -44,6 +44,7 @@ public:
 
 //sql命令类
 //单独的使用，主要用于一个sql命令，多次Bind参数的情况
+//注意：Query不支持多条命令sqlite3_prepare_v2中的tail为剩下来的语句
 class Query
 {
 public:
@@ -60,6 +61,7 @@ public:
 			//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
 			throw DbException(connection_.get());
 		}
+
 		stmt_ = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
@@ -104,14 +106,14 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
-	//重置
+	//重置...不需要，使用Excute需要多掌握一个概念。Excute在返回SQLITE_DONE时自动重置。
 	//当sql语句为select的时候，第二次Bind再执行，结果会错误
 	//因此第二次Bind之前，应Reset，以便清除上次的结果。
 	//Insert之类不需要这样。
-	inline void Reset()
-	{
-		sqlite3_reset(stmt_.get());
-	}
+	//inline void Reset()
+	//{
+	//	sqlite3_reset(stmt_.get());
+	//}
 
 	//重新设置sql语句
 	bool Reset(const char *_sql)
@@ -120,16 +122,18 @@ public:
 		sqlite3_stmt *stmt_ptr = 0;
 		//无需sqlites_reset,最新版本在step之后自动的reset了
 		sqlite3_reset(stmt_.get());
-		sqlite3_clear_bindings(stmt_.get());
+		//sqlite3_clear_bindings(stmt_.get()); //需要吗？
 		//sqlite3_finalize(stmt_.get()); //这里不能手工执行，因为智能指针reset的时候将执行。
 		//char *，其长度使用-1，string则用string的长度，wstring长度要乘以2
 		if (sqlite3_prepare_v2(connection_.get(), _sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
 		{
 			//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
 			throw DbException(connection_.get());
+			return false;
 		}
 		stmt_.reset(stmt_ptr, sqlite3_finalize);
 		this->column_count_ = sqlite3_column_count(stmt_.get());
+		return true;
 	}
 	//Bind部分，使用变参模板处理
 	//sqlite3的bind包括如下9个函数
@@ -363,6 +367,8 @@ public:
 		int rc = sqlite3_step(stmt_.get());
 		if (rc == SQLITE_ROW)
 			ReadColumn(0, args...);
+		if (rc==SQLITE_DONE)
+			sqlite3_reset(stmt_.get());
 		return (rc == SQLITE_ROW);
 	}
 

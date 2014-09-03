@@ -200,7 +200,7 @@ TEST_F(dbTest, Bind_GB2312)
 }
 
 
-TEST_F(dbTest, bind_twice)
+TEST_F(dbTest, Reset)
 {
 	Product product;
 	Db conn("test.db");
@@ -214,12 +214,12 @@ TEST_F(dbTest, bind_twice)
 	result = query.Excute();
 	EXPECT_FALSE(result);
 
-	query.Reset();//实际上，需要清除上次查询的结果，与bind无关，因此insert也不需要考虑。
+	//query.Reset();//Excute在SQLITE_DONE的时候已经reset了。
 	char wtitle_ptr[11] = { 0 };
 	query.Bind(1, "第一个"); //第一条记录存放的是gb2312中文
 	result = query.Excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
 	EXPECT_TRUE(result);
-	EXPECT_STREQ("第一个", wtitle_ptr); //读出9个字节，难道是utf8?	
+	EXPECT_STREQ("第一个", wtitle_ptr); //读出9个字节，难道是utf8?结论，由于没有reset，第二次查询时，前面的8字节+1字节未被覆盖.	
 
 	query.Reset("SELECT * FROM PRODUCT WHERE WTITLE=? AND NUMBER=?");
 	query.Bind(1, L"第二个", 20);
@@ -230,13 +230,9 @@ TEST_F(dbTest, bind_twice)
 }
 //auto conn = Db::GetDb(); //返回默认的连接
 //EXPECT_TRUE(conn());
-//Db类应提供一个始终打开的连接
-TEST_F(dbTest, db_default_connection_)
-{
-	//auto conn = Db::GetDb(); //返回默认的连接
-	//EXPECT_TRUE(conn());
-}
-
-
-
-
+//Db类应提供一个始终打开的连接...没有必要，打开关闭连接，并不是影响性能的主因。
+//TEST_F(dbTest, db_default_connection_)
+//{
+//	//auto conn = Db::GetDb(); //返回默认的连接
+//	//EXPECT_TRUE(conn());
+//}
