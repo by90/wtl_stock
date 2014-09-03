@@ -104,6 +104,23 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
+	//重新设置sql语句
+	bool set_sql(const char *_sql)
+	{
+		const char *tail = NULL;
+		sqlite3_stmt *stmt_ptr = 0;
+		//无需sqlites_reset,最新版本在step之后自动的reset了
+		sqlite3_clear_bindings(stmt_.get());
+		sqlite3_finalize(stmt_.get()); //先前的stmt_被消除
+		//char *，其长度使用-1，string则用string的长度，wstring长度要乘以2
+		if (sqlite3_prepare_v2(connection_.get(), _sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
+		{
+			//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
+			throw DbException(connection_.get());
+		}
+		stmt_.reset(stmt_ptr, sqlite3_finalize);
+		this->column_count_ = sqlite3_column_count(stmt_.get());
+	}
 	//Bind部分，使用变参模板处理
 	//sqlite3的bind包括如下9个函数
 	//int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void(*)(void*));
@@ -118,8 +135,7 @@ public:
 
 	//bind参数解析完毕后调用
 	inline bool  Bind(const int) { return true; }
-
-
+	
 	//sqlite3_bind_int，针对4位以下的整数
 	//这里，使用整数、浮点数、其他情况来解包，这样整数版本可以同时处理int,unsigned int等
 	//同时，这样的重载，必须保证每个都有限定，否则会出现重载不明确的编译错误
@@ -192,7 +208,7 @@ public:
 	template <typename... Args>
 	inline bool Bind(int current, const wchar_t first[], const Args &... args)
 	{
-		if (sqlite3_bind_text16(stmt_.get(), current, first, wcslen(first) * 2, SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text16(stmt_.get(), current, first,-1, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -298,7 +314,7 @@ public:
 	{
 		//int i = sizeof(first); //4字节其实是指针长度
 		const char *p = (const char*)sqlite3_column_text(stmt_.get(), idx);
-		int i = strlen(p);
+		//int i = strlen(p);
 		strcpy_s(first, strlen(p) + 1, p);
 		//first = std::string(sqlite3_column_text(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
 		ReadColumn(idx + 1, args...);
@@ -309,7 +325,7 @@ public:
 	template <typename... Args>
 	inline void ReadColumn(int idx, wchar_t first[], Args &... args)
 	{
-		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt.get(), idx);
+		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt_.get(), idx);
 		int i = wcslen(p);
 		wcscpy_s(first, wcslen(p) + 1, p);
 		ReadColumn(idx + 1, args...);
@@ -337,13 +353,13 @@ public:
 		int rc = sqlite3_step(stmt_.get());
 		if (rc == SQLITE_ROW)
 			ReadColumn(0, args...);
-		//sqlite3_reset(stmt.get());
-		if (rc != SQLITE_ROW)
-		{
-			rc = rc;
-			return false;
-		}
 		return (rc == SQLITE_ROW);
+	}
+
+	//重置
+	inline void Reset()
+	{
+		sqlite3_reset(stmt_.get());
 	}
 
 private:
@@ -382,8 +398,7 @@ public:
 		auto temp = conv.to_bytes(_default);//如果反过来转换:conv.from_bytes(narrowStr);
 		return set_default_path(temp.c_str(), create_database);
 	}
-
-
+	
 private:
 	static bool CheckDatabaseExist(const char *_default)
 	{
@@ -394,7 +409,6 @@ private:
 			sqlite3_close_v2(pdb);
 		return (rc == SQLITE_OK);
 	}
-
 
 	//非静态部分
 public:

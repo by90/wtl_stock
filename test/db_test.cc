@@ -41,11 +41,11 @@ protected:
 		_unlink("ctest.db");
 		_unlink("wtest.db");
 		_unlink("test.db");
-		Db::set_default_path("ctest.db", create_demo_database);
+		Db::set_default_path("test.db", create_demo_database);
 		Db conn;
 
 		//共有6个字段，如果只书写5个字段会触发异常
-		Query cmd = conn.CreateQuery("INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
+		Query cmd = conn.CreateQuery(L"INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
 
 		//从2开始bind，因为第一个是自增长字段
 		//只bind 4个参数，最后一个blob字段没有bind
@@ -112,13 +112,6 @@ TEST_F(dbTest, db_wchar_construct_test)
 	EXPECT_TRUE(db_empty());
 }
 
-//char数组有一位"/0",wchar_t数组有两位
-TEST_F(dbTest, wchar_array_test)
-{
-	wchar_t first[] = L"你好";
-	EXPECT_EQ(6, sizeof(first)); //wchar数组的长度为6，结束符为两个0
-}
-
 struct Product
 {
 	int id;
@@ -133,7 +126,7 @@ struct Product
 TEST_F(dbTest, db_insert_test)
 {
 	//再次确认创建了ctest.db
-	Db::set_default_path("ctest.db", create_demo_database);
+	Db::set_default_path("test.db"); //test预先建立
 	Db conn;
 	Query query = conn.CreateQuery("SELECT COUNT(*) FROM PRODUCT");
 	int count = 0;
@@ -145,7 +138,7 @@ TEST_F(dbTest, db_insert_test)
 //注意覆盖了int、float、string等，则测试了输出一行结果的各种类型
 TEST_F(dbTest, db_query_test)
 {
-	Db::set_default_path("ctest.db", create_demo_database);
+	Db::set_default_path("test.db", create_demo_database);
 	Db conn;
 	Product product;
 	Query row_cmd = conn.CreateQuery("SELECT * FROM PRODUCT");
@@ -160,6 +153,77 @@ TEST_F(dbTest, db_query_test)
 	EXPECT_STREQ("第一个", wtitle_ptr);
 }
 
+TEST_F(dbTest, Bind)
+{
+	Product product;
+	char wtitle_ptr[11] = { 0 };
+	Db conn("test.db");
+	//Query query = conn.CreateQuery(L"SELECT * FROM PRODUCT WHERE TITLE=? AND NUMBER=?");
+	//query.Bind(1, L"第二个", 20);
+	Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE NUMBER=?");
+	query.Bind(1, 20);
+	bool result = query.Excute(product.id, product.title,product.wtitle, product.date, product.price, product.number);
+	EXPECT_TRUE(result); 
+	EXPECT_EQ(20, product.number);
+	EXPECT_TRUE(wcscmp(L"第二个", product.wtitle)==0);
+	result = query.Excute();
+	EXPECT_FALSE(result);
+}
+
+//使用uncicode，首先sql无需是L开头的，然后搜索是正常的
+//如果用gb2312，则同样搜索正确
+TEST_F(dbTest, Bind_Unicode)
+{
+	Product product;	
+	Db conn("test.db");
+	Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE WTITLE=?");
+	//Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE WTITLE=?");//这样也行
+	query.Bind(1, L"第二个");
+	bool result = query.Excute(product.id, product.title, product.wtitle, product.date, product.price, product.number);
+	EXPECT_TRUE(result);
+	EXPECT_EQ(20, product.number);
+	EXPECT_TRUE(wcscmp(L"第二个", product.wtitle) == 0);
+	result = query.Excute();
+	EXPECT_FALSE(result);
+}
+
+TEST_F(dbTest, Bind_GB2312)
+{
+	Product product;
+	Db conn("test.db");
+	Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE WTITLE=?");
+	char wtitle_ptr[11] = { 0 };
+	query.Bind(1, "第一个"); //第一条记录存放的是gb2312中文
+	bool result = query.Excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
+	EXPECT_TRUE(result);
+	EXPECT_STREQ("第一个", wtitle_ptr); //读出9个字节，难道是utf8?	
+}
+
+
+TEST_F(dbTest, bind_twice)
+{
+	Product product;
+	Db conn("test.db");
+	Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE WTITLE=?");
+	//Query query = conn.CreateQuery("SELECT * FROM PRODUCT WHERE WTITLE=?");//这样也行
+	query.Bind(1, L"第二个");
+	bool result = query.Excute(product.id, product.title, product.wtitle, product.date, product.price, product.number);
+	EXPECT_TRUE(result);
+	EXPECT_EQ(20, product.number);
+	EXPECT_TRUE(wcscmp(L"第二个", product.wtitle) == 0);
+	result = query.Excute();
+	EXPECT_FALSE(result);
+
+	query.Reset();//实际上，需要清除上次查询的结果，与bind无关，因此insert也不需要考虑。
+	char wtitle_ptr[11] = { 0 };
+	query.Bind(1, "第一个"); //第一条记录存放的是gb2312中文
+	result = query.Excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
+	EXPECT_TRUE(result);
+	EXPECT_STREQ("第一个", wtitle_ptr); //读出9个字节，难道是utf8?	
+
+}
+//auto conn = Db::GetDb(); //返回默认的连接
+//EXPECT_TRUE(conn());
 //Db类应提供一个始终打开的连接
 TEST_F(dbTest, db_default_connection_)
 {
