@@ -45,20 +45,20 @@ protected:
 		Db conn;
 
 		//共有6个字段，如果只书写5个字段会触发异常
-		Query cmd = conn.create_query("INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
+		Query cmd = conn.CreateQuery("INSERT INTO PRODUCT VALUES (?,?,?,?,?,?,?)");
 
 		//从2开始bind，因为第一个是自增长字段
 		//只bind 4个参数，最后一个blob字段没有bind
-		cmd.bind(2, "first", "第一个", (unsigned long long)1402876800, (double)100.10, (int)10);
-		cmd.excute_non_query();
+		cmd. Bind(2, "first", "第一个", (unsigned long long)1402876800, (double)100.10, (int)10);
+		cmd.ExcuteNonQuery();
 
-		cmd.bind(2, "second", L"第二个", (int)1402876800, (float)200.20, (int)20);
-		cmd.excute_non_query();
+		cmd. Bind(2, "second", L"第二个", (int)1402876800, (float)200.20, (int)20);
+		cmd.ExcuteNonQuery();
 
 		std::string first_string = "third";
 		std::wstring first_wstring = L"第三个";
-		cmd.bind(2, first_string, first_wstring, (int)1402876800, (float)300.20, (int)30);
-		cmd.excute_non_query();
+		cmd. Bind(2, first_string, first_wstring, (int)1402876800, (float)300.20, (int)30);
+		cmd.ExcuteNonQuery();
 	}
 
 	virtual void TearDown()
@@ -135,9 +135,9 @@ TEST_F(dbTest, db_insert_test)
 	//再次确认创建了ctest.db
 	Db::set_default_path("ctest.db", create_demo_database);
 	Db conn;
-	Query query = conn.create_query("SELECT COUNT(*) FROM PRODUCT");
+	Query query = conn.CreateQuery("SELECT COUNT(*) FROM PRODUCT");
 	int count = 0;
-	query.excute(count);
+	query.Excute(count);
 	EXPECT_EQ(3,count);
 }
 
@@ -148,13 +148,13 @@ TEST_F(dbTest, db_query_test)
 	Db::set_default_path("ctest.db", create_demo_database);
 	Db conn;
 	Product product;
-	Query row_cmd = conn.create_query("SELECT * FROM PRODUCT");
-	//while (row_cmd.excute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
+	Query row_cmd = conn.CreateQuery("SELECT * FROM PRODUCT");
+	//while (row_cmd.Excute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
 	//{
 	//	int i=product.id;
 	//}
 	char wtitle_ptr[11] = { 0 };
-	row_cmd.excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
+	row_cmd.Excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
 
 	//注意，char[]表达的汉字，写入数据库，可以char[]正确读出。在数据库中使用普通管理工具，为乱码，无关紧要。
 	EXPECT_STREQ("第一个", wtitle_ptr);

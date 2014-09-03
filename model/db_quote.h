@@ -77,8 +77,8 @@ public:
 		Db connection_;
 		try
 		{
-			auto cmd = connection_.create_query("delete from quote;delete from stock;");
-			cmd.excute_non_query();
+			auto cmd = connection_.CreateQuery("delete from quote;delete from stock;");
+			cmd.ExcuteNonQuery();
 		}
 		catch (DbException e)
 		{
@@ -144,7 +144,7 @@ public:
 		//5.循环增加
 		int insert_nums = 0;
 		//command不用L""
-		auto cmd = connection_.create_query("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
+		auto cmd = connection_.CreateQuery("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
 		int idNumber = 0;
 		id_of_dad *oldId = nullptr;
 		Stock stock;
@@ -189,8 +189,8 @@ public:
 					}
 
 					//需要insert或update
-					cmd.bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
-					cmd.excute_non_query();
+					cmd. Bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
+					cmd.ExcuteNonQuery();
 				}
 
 			}

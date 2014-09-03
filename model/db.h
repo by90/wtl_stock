@@ -15,35 +15,25 @@
 #define MODEL_API __declspec(dllimport)
 #endif
 
-//class Db;
-
 //数据库异常
 class DbException : public std::runtime_error {
 public:
 	//与连接无关
-	DbException(const char *error_message) : std::runtime_error(error_message)
-	{
-
-	}
+	DbException(const char *_error_message) : std::runtime_error(_error_message){}
 
 	//与连接有关
-	DbException(sqlite3 *sql_connection) : runtime_error(sqlite3_errmsg(sql_connection))
-	{
-
-	}
+	DbException(sqlite3 *_sql_connection) : runtime_error(sqlite3_errmsg(_sql_connection)){}
 };
 
 //Blob：
 //Thanks For https://github.com/catnapgames/NLDatabase
-class Blob {
+struct Blob {
 public:
-	void *data;
+	void *data; //结构体命名，不使用data_形式
 	int length;
 
-protected:
 	template<typename T>
-	Blob(T *data, int length) : data((void*)data), length(length) {
-	}
+	Blob(T *data, int length) : data((void*)data), length(length) {}
 };
 
 
@@ -67,6 +57,7 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
+	//针对wchar_t[]的构造函数
 	Query(std::shared_ptr<sqlite3> _connection, const wchar_t sql[]) :connection_(_connection)
 	{
 		const wchar_t *tail = NULL;
@@ -79,6 +70,7 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
+	//针对string的构造函数，实际上没必要？
 	Query(std::shared_ptr<sqlite3> _connection,  std::string &sql) :connection_(_connection)
 	{
 		const char *tail = NULL;
@@ -91,6 +83,7 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
+	//针对wstring的构造函数
 	Query(std::shared_ptr<sqlite3> _connection, std::wstring &sql) :connection_(_connection)
 	{
 		const wchar_t *tail = NULL;
@@ -117,7 +110,7 @@ public:
 	//int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);
 
 	//bind参数解析完毕后调用
-	inline bool bind(const int) { return true; }
+	inline bool  Bind(const int) { return true; }
 
 
 	//sqlite3_bind_int，针对4位以下的整数
@@ -126,44 +119,44 @@ public:
 	//我们仅仅在函数返回值中，保留原来的类型，但加一个限制，以便编译器采纳此版本
 	template <typename Tint, typename... Args>
 	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)<8,bool>::type 
-	bind(int current, Tint first, const Args &... args)
+	 Bind(int current, Tint first, const Args &... args)
 	{
 		if (sqlite3_bind_int(stmt_.get(), current, first) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//sqlite3_bind_int64,针对8位以上的整数
 	template <typename Tint, typename... Args>
 	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)>=8, bool>::type
-		bind(int current, Tint first, const Args &... args)
+		 Bind(int current, Tint first, const Args &... args)
 	{
 			if (sqlite3_bind_int64(stmt_.get(), current, first) != SQLITE_OK)
 			{
 				return false;
 			}
-			return bind(current + 1, args...);
+			return  Bind(current + 1, args...);
 	}
 
 	//sqlite3_bind_double，针对各类浮点数
 	template <typename Tdouble, typename... Args>
 	typename std::enable_if <std::is_floating_point<Tdouble>::value,bool>::type
-	bind(int current,Tdouble first, const Args &... args)
+	 Bind(int current,Tdouble first, const Args &... args)
 	{
 		if (sqlite3_bind_double(stmt_.get(), current, first) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//当其他重载都不能识别的时候，转换成字符串然后bind_text
 	//写入和读取均需要转换为字符串，构建stringstream临时对象，因此性能较差。
 	template <typename T,  typename... Args>
 	typename std::enable_if <!std::is_floating_point<T>::value && !std::is_integral<T>::value, bool>::type
-	bind(int current, T &first, const Args &... args)
+     Bind(int current, T &first, const Args &... args)
 	{
 		std::stringstream ss;
 		ss << first;
@@ -171,159 +164,159 @@ public:
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//bind const char[]和char *
 	//若使用const char *，则传入"first"之类的常量字符串，将不能识别
 	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	bool bind(int current, const char first[], const Args &... args)
+	bool  Bind(int current, const char first[], const Args &... args)
 	{
 		if (sqlite3_bind_text(stmt_.get(), current, first, strlen(first), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//bind const wchar_t[]
 	//长度要乘以2
 	template <typename... Args>
-	bool bind(int current, const wchar_t first[], const Args &... args)
+	bool  Bind(int current, const wchar_t first[], const Args &... args)
 	{
 		if (sqlite3_bind_text16(stmt_.get(), current, first, wcslen(first)*2, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//bind string
 	//使用const char *，则传入"first"之类的常量字符串，将不能识别
 	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	bool bind(int current, std::string first, const Args &... args)
+	bool  Bind(int current, std::string first, const Args &... args)
 	{
 		if (sqlite3_bind_text(stmt_.get(), current, first.c_str(), first.length(), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//bind const wchar_t[]
 	//长度要乘以2
 	template <typename... Args>
-	bool bind(int current, std::wstring first, const Args &... args)
+	bool  Bind(int current, std::wstring first, const Args &... args)
 	{
 		if (sqlite3_bind_text16(stmt_.get(), current, first.c_str(), first.length()*2, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//SQLITE_STATIC方式 blob
 	template <typename... Args>
-	void bind(int current, Blob value, const Args &... args) {
+	void  Bind(int current, Blob value, const Args &... args) {
 		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
 		{
 			return false;
 		}
-		return bind(current + 1, args...);
+		return  Bind(current + 1, args...);
 	}
 
 	//读取，中止函数
-	void read(int idx){}
+	void ReadColumn(int idx){}
 
 	//整数
 	template <typename Tint, typename... Args>
 	typename std::enable_if <!std::is_enum<Tint>::value && std::is_integral<Tint>::value && sizeof(Tint)<8, void>::type
-	read(int idx, Tint &first, Args &... args)
+	ReadColumn(int idx, Tint &first, Args &... args)
 	{
 		first = sqlite3_column_int(stmt_.get(), idx);
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 
 	template <typename Tint, typename... Args>
 	typename std::enable_if <!std::is_enum<Tint>::value && std::is_integral<Tint>::value && sizeof(Tint) >= 8, void>::type
-		read(int idx, Tint &first, Args &... args)
+		ReadColumn(int idx, Tint &first, Args &... args)
 	{
 			first = sqlite3_column_int64(stmt.get(), idx);
-			read(idx + 1, args...);
+			ReadColumn(idx + 1, args...);
 	}
 
 	//如果是enum，需要转换成enum
 	template <typename Tenum, typename... Args>
 	typename std::enable_if <std::is_enum<Tenum>::value, void>::type
-		read(int idx,  Tenum &first, Args &... args)
+		ReadColumn(int idx,  Tenum &first, Args &... args)
 	{
 			first = (Tenum)sqlite3_column_int(stmt.get(), idx);
-			read(idx + 1, args...);
+			ReadColumn(idx + 1, args...);
 	}
 
 	template <typename TDouble, typename... Args>
 	typename std::enable_if <std::is_floating_point<TDouble>::value, void>::type
-		read(int idx,  TDouble &first,  Args &... args)
+		ReadColumn(int idx,  TDouble &first,  Args &... args)
 	{
 			first = sqlite3_column_double(stmt_.get(), idx);
-			read(idx + 1, args...);
+			ReadColumn(idx + 1, args...);
 	}
 
 	//使用const char *，则传入"first"之类的常量字符串，将不能识别
 	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	void read(int idx, std::string& first,  Args &... args)
+	void ReadColumn(int idx, std::string& first,  Args &... args)
 	{
 		const char *p = (const char*)sqlite3_column_text(stmt.get(), idx);
 		first=string(p, strlen(p)+1);
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 
 	//bind const wchar_t[]
 	//长度要乘以2
 	template <typename... Args>
-	void read(int idx, std::wstring &first, Args &... args)
+	void ReadColumn(int idx, std::wstring &first, Args &... args)
 	{
 		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt.get(), idx);
 		first=wstring((wchar_t *)p,wcslen(p)*2+2);
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 
 	//使用const char *，则传入"first"之类的常量字符串，将不能识别
 	//关于长度问题，有的sqlite封装，将size+1，用于容纳最后的0结尾字符，目前暂未发现有何不妥。
 	template <typename... Args>
-	void read(int idx,char first[],  Args &... args)
+	void ReadColumn(int idx,char first[],  Args &... args)
 	{
 		//int i = sizeof(first); //4字节其实是指针长度
 		const char *p = (const char*)sqlite3_column_text(stmt_.get(), idx);
 		int i = strlen(p);
 		strcpy_s(first,strlen(p)+1,p);
 		//first = std::string(sqlite3_column_text(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 
 	//bind const wchar_t[]
 	//长度要乘以2
 	template <typename... Args>
-	void read(int idx, wchar_t first[],   Args &... args)
+	void ReadColumn(int idx, wchar_t first[],   Args &... args)
 	{
 		const wchar_t *p = (const wchar_t*)sqlite3_column_text16(stmt.get(), idx);
 		int i = wcslen(p);
 		wcscpy_s(first, wcslen(p)+1, p);
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 	//SQLITE_STATIC方式 blob
 	template <typename... Args>
-	void read(int idx,Blob &first,Args &... args) {
+	void ReadColumn(int idx,Blob &first,Args &... args) {
 		first = Blob(sqlite3_column_blob(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
-		read(idx + 1, args...);
+		ReadColumn(idx + 1, args...);
 	}
 
 	//执行无返回的Sql命令
 	//step后应返回Sqlite_done
-	bool excute_non_query()
+	bool ExcuteNonQuery()
 	{
 		int rc = sqlite3_step(stmt_.get());
 		sqlite3_reset(stmt_.get());
@@ -332,11 +325,11 @@ public:
 
 	//取得一行结果
 	template <typename... Args>
-	bool excute(Args & ...args)
+	bool Excute(Args & ...args)
 	{
 		int rc = sqlite3_step(stmt_.get());	
 		if (rc==SQLITE_ROW)
-			read(0,args...);
+			ReadColumn(0,args...);
 		//sqlite3_reset(stmt.get());
 		if (rc != SQLITE_ROW)
 		{
@@ -367,7 +360,7 @@ public:
 	{
 		*default_path() = _default;
 		//因此直接略过，用数据库是否正常打开，来判断。
-		if (!check_default_database_exist(default_path()->c_str()))
+		if (!CheckDatabaseExist(default_path()->c_str()))
 		{
 			if (create_database != nullptr)
 				return create_database(default_path()->c_str());
@@ -385,7 +378,7 @@ public:
 
 
 private:
-	static bool check_default_database_exist(const char *_default)
+	static bool CheckDatabaseExist(const char *_default)
 	{
 		sqlite3 *pdb = NULL;
 		int rc = 0;
@@ -402,7 +395,7 @@ public:
 
 	Db(const char *filename = nullptr)
 	{
-		open(filename);
+		OpenDatabase(filename);
 	}
 
 	//这里不能使用=nullptr，否则出现重复的重载
@@ -410,7 +403,7 @@ public:
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
 		auto temp = conv.to_bytes(filename);//如果反过来转换:conv.from_bytes(narrowStr);
-		open(temp.c_str());
+		OpenDatabase(temp.c_str());
 	}
 
 	//是否已连接
@@ -420,42 +413,39 @@ public:
 	};
 
 	template <class T>
-	Query create_query(T &sql) {
+	Query CreateQuery(T &sql) {
 		return Query(this->connection_, sql);
 	}
 
-	std::string get_last_error() {
+	std::string GetLastError() {
 		return std::string((char *)sqlite3_errmsg(connection_.get()));
 	}
 
-	long long get_last_id() {
+	long long GetLastId() {
 		if (!this->connection_.get()) throw DbException("connection_ invalid");
 		return sqlite3_last_insert_rowid(connection_.get());
 	}
 
-	void Db::set_timeout(int ms_number) {
+	void Db::SetTimeout(int ms_number) {
 		if (!connection_.get()) throw DbException("connection_ invalid");
 
 		if (sqlite3_busy_timeout(connection_.get(), ms_number) != SQLITE_OK)
 			throw DbException(connection_.get());
 	}
 private:
-	void open(const char *filename = nullptr)
+	void OpenDatabase(const char *filename = nullptr)
 	{
 		if (filename == nullptr)
 			filename = Db::default_path()->c_str();
 		sqlite3 *connection_buffer = nullptr;
 		int result = sqlite3_open_v2(filename, &connection_buffer, SQLITE_OPEN_READWRITE, nullptr);  // you can treat errors by throwing exceptions
 		if (result == SQLITE_OK)
-		{
 			connection_ = std::shared_ptr<sqlite3>(connection_buffer, sqlite3_close_v2);
-		}
 		else
 		{
 			if (connection_buffer)
 				sqlite3_close_v2(connection_buffer);
 			throw DbException("unable to open database");
-			//connection_buffer = nullptr;
 		}
 	}
 };
