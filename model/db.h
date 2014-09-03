@@ -104,14 +104,24 @@ public:
 		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
+	//重置
+	//当sql语句为select的时候，第二次Bind再执行，结果会错误
+	//因此第二次Bind之前，应Reset，以便清除上次的结果。
+	//Insert之类不需要这样。
+	inline void Reset()
+	{
+		sqlite3_reset(stmt_.get());
+	}
+
 	//重新设置sql语句
-	bool set_sql(const char *_sql)
+	bool Reset(const char *_sql)
 	{
 		const char *tail = NULL;
 		sqlite3_stmt *stmt_ptr = 0;
 		//无需sqlites_reset,最新版本在step之后自动的reset了
+		sqlite3_reset(stmt_.get());
 		sqlite3_clear_bindings(stmt_.get());
-		sqlite3_finalize(stmt_.get()); //先前的stmt_被消除
+		//sqlite3_finalize(stmt_.get()); //这里不能手工执行，因为智能指针reset的时候将执行。
 		//char *，其长度使用-1，string则用string的长度，wstring长度要乘以2
 		if (sqlite3_prepare_v2(connection_.get(), _sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
 		{
@@ -354,12 +364,6 @@ public:
 		if (rc == SQLITE_ROW)
 			ReadColumn(0, args...);
 		return (rc == SQLITE_ROW);
-	}
-
-	//重置
-	inline void Reset()
-	{
-		sqlite3_reset(stmt_.get());
 	}
 
 private:

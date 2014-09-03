@@ -221,6 +221,12 @@ TEST_F(dbTest, bind_twice)
 	EXPECT_TRUE(result);
 	EXPECT_STREQ("第一个", wtitle_ptr); //读出9个字节，难道是utf8?	
 
+	query.Reset("SELECT * FROM PRODUCT WHERE WTITLE=? AND NUMBER=?");
+	query.Bind(1, L"第二个", 20);
+	result = query.Excute(product.id, product.title, product.wtitle, product.date, product.price, product.number);
+	EXPECT_TRUE(result);
+	EXPECT_EQ(20, product.number);
+	EXPECT_TRUE(wcscmp(L"第二个", product.wtitle) == 0);
 }
 //auto conn = Db::GetDb(); //返回默认的连接
 //EXPECT_TRUE(conn());
