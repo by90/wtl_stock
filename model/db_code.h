@@ -32,7 +32,7 @@ public:
 		auto query = connection_.create_query(L"select * from Stock order by Id");
 		Stock stock;
 		int market, catalog;
-		while (query.Execute(stock.Id, market,catalog, stock.Title, stock.MiniCode))
+		while (query.excute(stock.Id, market,catalog, stock.Title, stock.MiniCode))
 		{
 			stock.Market = (MarketEnum)market;
 			stock.Catalog = (CatalogEnum)catalog;

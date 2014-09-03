@@ -27,7 +27,7 @@ public:
 	}
 
 	//与连接有关
-	DbException(sqlite3 *sql_connection_) : runtime_error(sqlite3_errmsg(sql_connection_))
+	DbException(sqlite3 *sql_connection) : runtime_error(sqlite3_errmsg(sql_connection))
 	{
 
 	}
@@ -52,53 +52,56 @@ class Query
 public:
 
 	//使用重载，处理ascii或unicode的sql文本，同样在编译期
-	Query(std::shared_ptr<sqlite3> _connection_, const char sql[]) :connection__(_connection_)
+	Query(std::shared_ptr<sqlite3> _connection, const char sql[]) :connection_(_connection)
 	{
 		const char *tail = NULL;
 		sqlite3_stmt *stmt_ptr = 0;
 
 		//char *，其长度使用-1，string则用string的长度，wstring长度要乘以2
-		if (sqlite3_prepare_v2(connection__.get(), sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
+		if (sqlite3_prepare_v2(connection_.get(), sql, -1, &stmt_ptr, &tail) != SQLITE_OK)
 		{
 			//传入连接，返回该连接的最后错误信息，也可获取错误信息后传入字符串
-			throw DbException(connection__.get());
+			throw DbException(connection_.get());
 		}
-		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
-		this->column_count_ = sqlite3_column_count(this->stmt.get());
+		stmt_ = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
-	Query(std::shared_ptr<sqlite3> _connection_, const wchar_t sql[]) :connection__(_connection_)
+
+	Query(std::shared_ptr<sqlite3> _connection, const wchar_t sql[]) :connection_(_connection)
 	{
 		const wchar_t *tail = NULL;
 		sqlite3_stmt *stmt_ptr = 0;
-		if (sqlite3_prepare16_v2(connection__.get(), sql, -1, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
+		if (sqlite3_prepare16_v2(connection_.get(), sql, -1, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
 		{
-			throw DbException(connection__.get());
+			throw DbException(connection_.get());
 		}
-		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
-		this->column_count_ = sqlite3_column_count(this->stmt.get());
+		stmt_ = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
-	Query(std::shared_ptr<sqlite3> _connection_,  std::string &sql) :connection__(_connection_)
+
+	Query(std::shared_ptr<sqlite3> _connection,  std::string &sql) :connection_(_connection)
 	{
 		const char *tail = NULL;
 		sqlite3_stmt *stmt_ptr = 0;
-		if (sqlite3_prepare_v2(connection__.get(), sql.c_str(), (int)sql.length(), &stmt_ptr, &tail) != SQLITE_OK)
+		if (sqlite3_prepare_v2(connection_.get(), sql.c_str(), (int)sql.length(), &stmt_ptr, &tail) != SQLITE_OK)
 		{
-			throw DbException(connection__.get());
+			throw DbException(connection_.get());
 		}
-		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
-		this->column_count_ = sqlite3_column_count(this->stmt.get());
+		stmt_ = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
-	Query(std::shared_ptr<sqlite3> _connection_, std::wstring &sql) :connection__(_connection_)
+
+	Query(std::shared_ptr<sqlite3> _connection, std::wstring &sql) :connection_(_connection)
 	{
 		const wchar_t *tail = NULL;
 		sqlite3_stmt *stmt_ptr = 0;
 		//注意：wstring的长度要乘以2
-		if (sqlite3_prepare16_v2(connection__.get(), sql.c_str(), (int)sql.length() * 2, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
+		if (sqlite3_prepare16_v2(connection_.get(), sql.c_str(), (int)sql.length() * 2, &stmt_ptr, (const void**)&tail) != SQLITE_OK)
 		{
-			throw DbException(connection__.get());
+			throw DbException(connection_.get());
 		}
-		stmt = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
-		this->column_count_ = sqlite3_column_count(this->stmt.get());
+		stmt_ = std::shared_ptr<sqlite3_stmt>(stmt_ptr, sqlite3_finalize);
+		this->column_count_ = sqlite3_column_count(this->stmt_.get());
 	}
 
 	//Bind部分，使用变参模板处理
@@ -125,7 +128,7 @@ public:
 	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)<8,bool>::type 
 	bind(int current, Tint first, const Args &... args)
 	{
-		if (sqlite3_bind_int(stmt.get(), current, first) != SQLITE_OK)
+		if (sqlite3_bind_int(stmt_.get(), current, first) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -137,7 +140,7 @@ public:
 	typename std::enable_if <std::is_integral<Tint>::value && sizeof(Tint)>=8, bool>::type
 		bind(int current, Tint first, const Args &... args)
 	{
-			if (sqlite3_bind_int64(stmt.get(), current, first) != SQLITE_OK)
+			if (sqlite3_bind_int64(stmt_.get(), current, first) != SQLITE_OK)
 			{
 				return false;
 			}
@@ -149,7 +152,7 @@ public:
 	typename std::enable_if <std::is_floating_point<Tdouble>::value,bool>::type
 	bind(int current,Tdouble first, const Args &... args)
 	{
-		if (sqlite3_bind_double(stmt.get(), current, first) != SQLITE_OK)
+		if (sqlite3_bind_double(stmt_.get(), current, first) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -164,7 +167,7 @@ public:
 	{
 		std::stringstream ss;
 		ss << first;
-		if (sqlite3_bind_text(stmt.get(), current,ss.str().data(), ss.str().length(),SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text(stmt_.get(), current,ss.str().data(), ss.str().length(),SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -177,7 +180,7 @@ public:
 	template <typename... Args>
 	bool bind(int current, const char first[], const Args &... args)
 	{
-		if (sqlite3_bind_text(stmt.get(), current, first, strlen(first), SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text(stmt_.get(), current, first, strlen(first), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -189,7 +192,7 @@ public:
 	template <typename... Args>
 	bool bind(int current, const wchar_t first[], const Args &... args)
 	{
-		if (sqlite3_bind_text16(stmt.get(), current, first, wcslen(first)*2, SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text16(stmt_.get(), current, first, wcslen(first)*2, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -202,7 +205,7 @@ public:
 	template <typename... Args>
 	bool bind(int current, std::string first, const Args &... args)
 	{
-		if (sqlite3_bind_text(stmt.get(), current, first.c_str(), first.length(), SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text(stmt_.get(), current, first.c_str(), first.length(), SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -214,7 +217,7 @@ public:
 	template <typename... Args>
 	bool bind(int current, std::wstring first, const Args &... args)
 	{
-		if (sqlite3_bind_text16(stmt.get(), current, first.c_str(), first.length()*2, SQLITE_TRANSIENT) != SQLITE_OK)
+		if (sqlite3_bind_text16(stmt_.get(), current, first.c_str(), first.length()*2, SQLITE_TRANSIENT) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -231,28 +234,15 @@ public:
 		return bind(current + 1, args...);
 	}
 
-
-	//执行无返回的Sql命令
-	//step后应返回Sqlite_done
-	bool ExecuteNonQuery()
-	{
-		int rc = sqlite3_step(stmt.get());
-		sqlite3_reset(stmt.get());
-		return (rc == SQLITE_DONE);
-	}
-
 	//读取，中止函数
-	void read(int idx)
-	{
-
-	}
+	void read(int idx){}
 
 	//整数
 	template <typename Tint, typename... Args>
 	typename std::enable_if <!std::is_enum<Tint>::value && std::is_integral<Tint>::value && sizeof(Tint)<8, void>::type
 	read(int idx, Tint &first, Args &... args)
 	{
-		first = sqlite3_column_int(stmt.get(), idx);
+		first = sqlite3_column_int(stmt_.get(), idx);
 		read(idx + 1, args...);
 	}
 
@@ -277,7 +267,7 @@ public:
 	typename std::enable_if <std::is_floating_point<TDouble>::value, void>::type
 		read(int idx,  TDouble &first,  Args &... args)
 	{
-			first = sqlite3_column_double(stmt.get(), idx);
+			first = sqlite3_column_double(stmt_.get(), idx);
 			read(idx + 1, args...);
 	}
 
@@ -307,7 +297,7 @@ public:
 	void read(int idx,char first[],  Args &... args)
 	{
 		//int i = sizeof(first); //4字节其实是指针长度
-		const char *p = (const char*)sqlite3_column_text(stmt.get(), idx);
+		const char *p = (const char*)sqlite3_column_text(stmt_.get(), idx);
 		int i = strlen(p);
 		strcpy_s(first,strlen(p)+1,p);
 		//first = std::string(sqlite3_column_text(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
@@ -331,11 +321,20 @@ public:
 		read(idx + 1, args...);
 	}
 
+	//执行无返回的Sql命令
+	//step后应返回Sqlite_done
+	bool excute_non_query()
+	{
+		int rc = sqlite3_step(stmt_.get());
+		sqlite3_reset(stmt_.get());
+		return (rc == SQLITE_DONE);
+	}
+
 	//取得一行结果
 	template <typename... Args>
-	bool Execute(Args & ...args)
+	bool excute(Args & ...args)
 	{
-		int rc = sqlite3_step(stmt.get());	
+		int rc = sqlite3_step(stmt_.get());	
 		if (rc==SQLITE_ROW)
 			read(0,args...);
 		//sqlite3_reset(stmt.get());
@@ -346,11 +345,10 @@ public:
 		}
 		return (rc == SQLITE_ROW);
 	}
-
 	
 private:
-	std::shared_ptr<sqlite3_stmt> stmt=nullptr;
-	std::shared_ptr<sqlite3> connection__;
+	std::shared_ptr<sqlite3_stmt> stmt_=nullptr;
+	std::shared_ptr<sqlite3> connection_;
 	int column_count_ = 0;
 };
 

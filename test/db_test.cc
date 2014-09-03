@@ -50,15 +50,15 @@ protected:
 		//从2开始bind，因为第一个是自增长字段
 		//只bind 4个参数，最后一个blob字段没有bind
 		cmd.bind(2, "first", "第一个", (unsigned long long)1402876800, (double)100.10, (int)10);
-		cmd.ExecuteNonQuery();
+		cmd.excute_non_query();
 
 		cmd.bind(2, "second", L"第二个", (int)1402876800, (float)200.20, (int)20);
-		cmd.ExecuteNonQuery();
+		cmd.excute_non_query();
 
 		std::string first_string = "third";
 		std::wstring first_wstring = L"第三个";
 		cmd.bind(2, first_string, first_wstring, (int)1402876800, (float)300.20, (int)30);
-		cmd.ExecuteNonQuery();
+		cmd.excute_non_query();
 	}
 
 	virtual void TearDown()
@@ -137,7 +137,7 @@ TEST_F(dbTest, db_insert_test)
 	Db conn;
 	Query query = conn.create_query("SELECT COUNT(*) FROM PRODUCT");
 	int count = 0;
-	query.Execute(count);
+	query.excute(count);
 	EXPECT_EQ(3,count);
 }
 
@@ -149,12 +149,12 @@ TEST_F(dbTest, db_query_test)
 	Db conn;
 	Product product;
 	Query row_cmd = conn.create_query("SELECT * FROM PRODUCT");
-	//while (row_cmd.Execute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
+	//while (row_cmd.excute(product.id, product.title, product.wtitle, product.date, product.price, product.number))
 	//{
 	//	int i=product.id;
 	//}
 	char wtitle_ptr[11] = { 0 };
-	row_cmd.Execute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
+	row_cmd.excute(product.id, product.title, wtitle_ptr, product.date, product.price, product.number);
 
 	//注意，char[]表达的汉字，写入数据库，可以char[]正确读出。在数据库中使用普通管理工具，为乱码，无关紧要。
 	EXPECT_STREQ("第一个", wtitle_ptr);

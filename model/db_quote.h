@@ -78,7 +78,7 @@ public:
 		try
 		{
 			auto cmd = connection_.create_query("delete from quote;delete from stock;");
-			cmd.ExecuteNonQuery();
+			cmd.excute_non_query();
 		}
 		catch (DbException e)
 		{
@@ -190,7 +190,7 @@ public:
 
 					//ÐèÒªinsert»òupdate
 					cmd.bind(1, stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode);
-					cmd.ExecuteNonQuery();
+					cmd.excute_non_query();
 				}
 
 			}
