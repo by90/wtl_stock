@@ -5,7 +5,7 @@
 #pragma once
 //#include <atltypes.h>
 #include "MultiViewFrame.h"
-#include "QuoteView.h"
+#include "import_view.h"
 
 class CMainFrame : 
 	public CMultiViewFrame<CMainFrame>, 
@@ -48,7 +48,7 @@ public:
 		MESSAGE_HANDLER(WM_CREATE, OnCreate)
 		MESSAGE_HANDLER(WM_DESTROY, OnDestroy)		
 		COMMAND_ID_HANDLER(ID_HOME_VIEW, OnHomeView)
-		COMMAND_ID_HANDLER(ID_QUOTE_VIEW, OnQuoteView)
+		COMMAND_ID_HANDLER(ID_IMPORT_VIEW, OnImportView)
 		COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 		COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
 		COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
@@ -78,7 +78,7 @@ public:
 		//默认是在按钮下方显示文字
 		HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 		AddToolbarButtonText(hWndToolBar, ID_HOME_VIEW, _T("主页"));
-		AddToolbarButtonText(hWndToolBar, ID_QUOTE_VIEW, _T("导入行情"));
+		AddToolbarButtonText(hWndToolBar, ID_IMPORT_VIEW, _T("导入行情"));
 
 		CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 		AddSimpleReBarBand(hWndCmdBar);
@@ -127,9 +127,9 @@ public:
 		return 0;
 	}	
 
-	LRESULT OnQuoteView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+	LRESULT OnImportView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		ShowView<CQuoteView>({ -50, -50, 0, 0 },true,false);
+		ShowView<ImportView>({ -50, -50, 0, 0 },true,false);
 		
 		//::ShowWindow(m_hWndClient, SW_SHOW);
 

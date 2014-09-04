@@ -63,6 +63,9 @@
     <ClInclude Include="db_code.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="import_model_base.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
