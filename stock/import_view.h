@@ -159,14 +159,14 @@ public:
 
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
-		return CWindow::IsDialogMessage(pMsg);
+		return CWindow::IsDialogMessage(pMsg);		
 	}
 
 	BEGIN_DDX_MAP(CQuoteBox)
-		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
-		DDX_TEXT(IDC_STATIC_INFO, model.m_info)
+		DDX_TEXT(IDC_EDIT_PATH, view_model_.selected_file_)
+		DDX_TEXT(IDC_STATIC_INFO, view_model_.progress_info_)
 		DDX_TEXT(IDC_STATIC_SAVED, view_model_.installed_info_)
-		DDX_TEXT(IDC_STATIC_OPENED, model.m_opened)
+		DDX_TEXT(IDC_STATIC_OPENED, view_model_.selected_info_)
 
 
 		//DDX_RADIO(IDC_RADIO_QUOTE, model.install_type_quote)
@@ -319,22 +319,23 @@ public:
 
 	LRESULT OnClickedButtonSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
-		wchar_t temp[MAX_PATH] = { 0 };
-		GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
-		model.open(m_hWnd);
-		if (temp != model.m_path)
-		{
+		view_model_.SelectFile();
+		//wchar_t temp[MAX_PATH] = { 0 };
+		//GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
+		//model.open(m_hWnd);
+		//if (temp != model.m_path)
+		//{
 
-			DoDataExchange(false, IDC_EDIT_PATH);
-			//仅在init或selected状态执行
-			if (model.is_state_changed())
-			{
-				SetVisible(model.m_state);
-			}
+		//	DoDataExchange(false, IDC_EDIT_PATH);
+		//	//仅在init或selected状态执行
+		//	if (model.is_state_changed())
+		//	{
+		//		SetVisible(model.m_state);
+		//	}
 
-			DoDataExchange(FALSE, IDC_STATIC_OPENED);
-			DoDataExchange(FALSE, IDC_STATIC_INFO);
-		}
+		//	DoDataExchange(FALSE, IDC_STATIC_OPENED);
+		//	DoDataExchange(FALSE, IDC_STATIC_INFO);
+		//}
 		return 0;
 	}
 	LRESULT OnEditChanged(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
