@@ -333,6 +333,8 @@ public:
 
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
+		view_model_.RunImportFile();
+		return 0;
 		model.m_state = CQuoteViewModel::State::pending;
 		SetVisible(CQuoteViewModel::State::pending);
 		wostringstream info;

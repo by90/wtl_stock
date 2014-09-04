@@ -11,8 +11,8 @@ class ImportModelBase
 {
 public:
 	virtual void GetSavedDate(unsigned long &_start, unsigned long &_end)=0; //初始化，获取已经安装数据
-	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end)=0; //检查文件是否合法
-	virtual void ImportFile(std::function<void(const char *, int)> func)=0;
+	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end, unsigned long &_count) = 0; //检查文件是否合法
+	virtual void ImportFile(const wchar_t *_file, std::function<void(const char *, int)> func) = 0;
 };
 
 class ImportModelQuote:public ImportModelBase
@@ -27,7 +27,7 @@ public:
 		_start = global::begin_date;
 		_end = global::end_date;
 	}
-	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end) //检查文件是否合法
+	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end, unsigned long &_count) //检查文件是否合法
 	{
 		_start = 0;
 		_end = 0;
@@ -35,13 +35,15 @@ public:
 		{
 			_start = parser_.m_start_date;
 			_end = parser_.m_end_date;
+			_count = parser_.m_quote_count;
 			return true;
 		}
 		return false;
 	}
-	virtual void ImportFile(std::function<void(const char *, int)> func)
+	virtual void ImportFile(const wchar_t *_file,std::function<void(const char *, int)> func)
 	{
-
+		parser_.open(_file);
+		quote_.bulk_insert(parser_.begin(), parser_.end(), 2000, func);
 	}
 private:
 	//根据日期获得时间字符串

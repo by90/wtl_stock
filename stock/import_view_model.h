@@ -1,5 +1,6 @@
 #include <string>
 #include <memory>
+#include <thread>
 
 #ifndef STOCK_STOCK_IMPORT_VIEW_MODEL_H
 #define STOCK_STOCK_IMPORT_VIEW_MODEL_H
@@ -22,6 +23,8 @@ public:
 	int progress_total_=100, progress_now_=0;
 	int import_catalog_= 0;
 	int ui_state_ = 0;
+	unsigned long file_count_=0;
+	std::thread::id  import_id_;
 
 	//初始化，由View的InitDialog调用
 	void Init();
@@ -32,6 +35,8 @@ public:
 	void CheckFile();
 	//安装，并使用回调更新进度文本控件和进度条
 	void ImportFile(std::function<void(const char *, int)> func);
+
+	void RunImportFile();
 
 	//改变导入文件的类型，将状态设为0
 	void ChangeImportFileType();
