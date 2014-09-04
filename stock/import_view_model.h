@@ -1,26 +1,27 @@
 #include <string>
-
+#include <memory>
 
 #ifndef STOCK_STOCK_IMPORT_VIEW_MODEL_H
 #define STOCK_STOCK_IMPORT_VIEW_MODEL_H
 class ImportView;
+class ImportModelBase;
 class ImportViewModel
 {
 public:
 
 	ImportViewModel(ImportView *_view=nullptr);
 	ImportView *view_;
-	//BaseModel *model;
+	std::shared_ptr<ImportModelBase> model_;
 
-	std::wstring install_data_=L"";
-	std::wstring selected_data_=L"";
+	std::wstring installed_info_=L"";
+	std::wstring selected_info_=L"";
 	std::wstring selected_file_ = L"";
 	std::wstring progress_info_ = L"";
 
 	bool is_file_validate = false;
-	int progress_total=100, progress_now=0;
-	int import_catalog = 0;
-	int ui_state = 0;
+	int progress_total_=100, progress_now_=0;
+	int import_catalog_= 0;
+	int ui_state_ = 0;
 
 	//初始化，由View的InitDialog调用
 	void Init();
@@ -35,9 +36,12 @@ public:
 	void ChangeImportFileType();
 
 	//改变View的状态，由此设定各控件的可用性和可见性
-	void set_ui_state();
+	void set_ui_state(int _ui_state);
 
 	//删除全部日线和代码表
 	void RemoveInstalledQuote();
+
+	//获取已安装数据字符串
+	void set_installed_info(unsigned long _begin, unsigned long _end);
 };
 #endif

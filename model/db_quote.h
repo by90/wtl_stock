@@ -35,7 +35,7 @@ public:
 	//当回调不为为nullptr，则用T *返回结果
 	//当回调为nullptr，则直接用T的引用，在参数中返回结果
 	//这种体制可以抽象一下...
-	void get_date_range(unsigned long &start,unsigned long &end, std::function<void(const char *, int)> func = nullptr)
+	void GetSavedDate(unsigned long &start,unsigned long &end, std::function<void(const char *, int)> func = nullptr)
 	{
 		//获取两个指针，分别指向静态的变量
 		//unsigned long start = get_start_date();

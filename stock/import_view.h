@@ -47,7 +47,7 @@ public:
 
 	void get_date_range()
 	{
-		quote.get_date_range(global::begin_date, global::end_date);
+		quote.GetSavedDate(global::begin_date, global::end_date);
 		set_saved_string();
 
 	}
@@ -165,7 +165,7 @@ public:
 	BEGIN_DDX_MAP(CQuoteBox)
 		DDX_TEXT(IDC_EDIT_PATH, model.m_path)
 		DDX_TEXT(IDC_STATIC_INFO, model.m_info)
-		DDX_TEXT(IDC_STATIC_SAVED, model.m_saved)
+		DDX_TEXT(IDC_STATIC_SAVED, view_model_.installed_info_)
 		DDX_TEXT(IDC_STATIC_OPENED, model.m_opened)
 
 
@@ -289,9 +289,10 @@ public:
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 
 		view_model_ = ImportViewModel(this);
-		model.m_path = L"";
+		view_model_.Init();
+
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
-		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
+		//m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));
 
 		model.get_date_range();
 		//model.set_saved_string();
