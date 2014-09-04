@@ -1,24 +1,25 @@
-
-#include "CCtlColor.h"
 #include <atldlgs.h>
-#include "atlddxEx.h"
 #include <atlctrls.h>
 #include <string>
 #include <functional>
 #include <chrono>
 #include <thread>
 #include <atlddx.h>
-#include "db_quote.h"
 #include <sstream>
+#include "resource.h"
 #include "dad_file_parse.h"
 #include "ThreadTask.h"
-#include "timer.h"
 #include "stdmore.h"
 #include <iomanip>
+#include "CCtlColor.h"
+#include "timer.h"
+#include "atlddxEx.h"
+#include "db_quote.h"
+#include "import_view_model.h"
 
 #ifndef STOCK_STOCK_IMPORT_VIEW_H
 #define STOCK_STOCK_IMPORT_VIEW_H
-class CQuoteView;
+
 class CQuoteViewModel
 {
 public:
@@ -148,7 +149,7 @@ class ImportView : public CDialogImpl<ImportView>
 	, public CCtlColored<ImportView>
 {
 public:
-
+	ImportViewModel view_model_; //包含一个该对象
 	CQuoteViewModel model;
 	CProgressBarCtrl m_progressBar;
 	CEdit m_pathctrl;
@@ -176,7 +177,7 @@ public:
 
 	END_DDX_MAP()
 	//init_dialog、show都只运行一次。
-	BEGIN_MSG_MAP(CQuoteView)
+	BEGIN_MSG_MAP(ImportView)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		//NOTIFY_ID_HANDLER(IDC_EDIT_PATH,OnEditChanged)
@@ -287,7 +288,7 @@ public:
 		SetTextColor(RGB(0, 0, 0));
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 
-
+		view_model_ = ImportViewModel(this);
 		model.m_path = L"";
 		m_progressBar = GetDlgItem(IDC_PROGRESS_IMPORT);
 		m_pathctrl.Attach(GetDlgItem(IDC_EDIT_PATH));

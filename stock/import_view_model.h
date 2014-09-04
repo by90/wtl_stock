@@ -1,12 +1,15 @@
 #include <string>
-#include "QuoteView.h"
+
 
 #ifndef STOCK_STOCK_IMPORT_VIEW_MODEL_H
 #define STOCK_STOCK_IMPORT_VIEW_MODEL_H
-class QuoteViewModel
+class ImportView;
+class ImportViewModel
 {
 public:
-	CQuoteView *view_;
+
+	ImportViewModel(ImportView *_view=nullptr);
+	ImportView *view_;
 	//BaseModel *model;
 
 	std::wstring install_data_=L"";
@@ -20,39 +23,21 @@ public:
 	int ui_state = 0;
 
 	//初始化，由View的InitDialog调用
-	void Init()
-	{
-
-	}
+	void Init();
 
 	//选择文件，并检查合法性
-	void SelectFile()
-	{
-
-	}
+	void SelectFile();
 
 	//安装，并使用回调更新进度文本控件和进度条
-	void ImportFile(std::function<void(const char *, int)> func)
-	{
-
-	}
+	void ImportFile(std::function<void(const char *, int)> func);
 
 	//改变导入文件的类型，将状态设为0
-	void ChangeImportFileType()
-	{
-
-	}
+	void ChangeImportFileType();
 
 	//改变View的状态，由此设定各控件的可用性和可见性
-	void set_ui_state()
-	{
-
-	}
+	void set_ui_state();
 
 	//删除全部日线和代码表
-	void RemoveInstalledQuote()
-	{
-
-	}
+	void RemoveInstalledQuote();
 };
 #endif
