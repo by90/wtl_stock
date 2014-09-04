@@ -320,43 +320,13 @@ public:
 	LRESULT OnClickedButtonSelect(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		view_model_.SelectFile();
-		//wchar_t temp[MAX_PATH] = { 0 };
-		//GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
-		//model.open(m_hWnd);
-		//if (temp != model.m_path)
-		//{
-
-		//	DoDataExchange(false, IDC_EDIT_PATH);
-		//	//仅在init或selected状态执行
-		//	if (model.is_state_changed())
-		//	{
-		//		SetVisible(model.m_state);
-		//	}
-
-		//	DoDataExchange(FALSE, IDC_STATIC_OPENED);
-		//	DoDataExchange(FALSE, IDC_STATIC_INFO);
-		//}
 		return 0;
 	}
 	LRESULT OnEditChanged(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
 	{
 		//512=EN_KILLFOCUS WID=1004即控件的id，hwnd是控件的hwnd
 		if (wNotifyCode == EN_KILLFOCUS)
-		{
-			wchar_t temp[MAX_PATH] = { 0 };
-			GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
-			if (temp != model.m_path)
-			{
-
-				DoDataExchange(true, wID);
-				//仅在init或selected状态执行
-				if (model.is_state_changed())
-				{
-					SetVisible(model.m_state);
-				}
-				DoDataExchange(FALSE, IDC_STATIC_INFO);
-			}
-		}
+			view_model_.CheckFile();
 		return 0;
 	}
 

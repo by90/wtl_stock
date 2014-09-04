@@ -29,6 +29,7 @@ public:
 	//选择文件，并检查合法性
 	void SelectFile();
 
+	void CheckFile();
 	//安装，并使用回调更新进度文本控件和进度条
 	void ImportFile(std::function<void(const char *, int)> func);
 

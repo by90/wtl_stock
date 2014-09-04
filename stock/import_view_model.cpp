@@ -48,42 +48,49 @@ void ImportViewModel::Init()
 	set_ui_state(0);//状态设为0
 }
 
-//选择文件，并检查合法性
-void ImportViewModel::SelectFile()
+void ImportViewModel::CheckFile()
 {
 	wchar_t temp[MAX_PATH] = { 0 };
 	view_->GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH);
+	if (temp != selected_file_)  //对话框选择文件，预先已经令两者一致，只有编辑框才可能调用
+	{
+		selected_file_.clear();
+		selected_file_.append(temp);
 
+		unsigned long start_date, end_date;
+		if (this->model_->CheckSourceFile(selected_file_.c_str(), start_date, end_date))
+		{
+			set_ui_state(1);
+			progress_info_ = L" ";
+			selected_info_ = L"准备安装：";
+			stdmore::time_to_wstring((time_t)start_date, L"%Y-%m-%d", selected_info_);
+			selected_info_ += L"到";
+			stdmore::time_to_wstring((time_t)end_date, L"%Y-%m-%d", selected_info_);
+		}
+		else
+		{
+			set_ui_state(0);
+			selected_info_ = L"准备安装：您选的文件格式不对";
+		}
+
+		view_->DoDataExchange(FALSE, IDC_STATIC_OPENED);
+		view_->DoDataExchange(FALSE, IDC_STATIC_INFO);
+	}
+}
+//选择文件，并检查合法性
+void ImportViewModel::SelectFile()
+{
 	std::wstring sDest;
-	//GETDLGITEMTEXTCSTRING(IDC_EDITSOURCE, sDest);
 	LPCTSTR pfileName = selected_file_.empty() ? NULL : selected_file_.c_str();
 	CFileDialog dlg(TRUE, NULL, pfileName, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 		_T("所有文件 (*.*)\0*.*\0Dad文件 (*.Dad)\0*.exe\0Dat文件 (*.dat)\0\0"),view_->m_hWnd);
 	if (dlg.DoModal() == IDOK)
 	{
-		selected_file_ = dlg.m_szFileName;
-		view_->DoDataExchange(false, IDC_EDIT_PATH);//显示文件名编辑框
-		if (temp != selected_file_)
-		{
-			unsigned long start_date, end_date;
-			if (this->model_->CheckSourceFile(selected_file_.c_str(), start_date, end_date))
-			{
-				set_ui_state(1);
-				progress_info_ = L" ";
-				selected_info_ = L"准备安装：";
-				stdmore::time_to_wstring((time_t)start_date, L"%Y-%m-%d", selected_info_);
-				selected_info_ += L"到";
-				stdmore::time_to_wstring((time_t)end_date, L"%Y-%m-%d", selected_info_);
-			}
-			else
-			{
-				set_ui_state(0);
-				selected_info_ = L"准备安装：您选的文件格式不对";
-			}
-
-			view_->DoDataExchange(FALSE, IDC_STATIC_OPENED);
-			view_->DoDataExchange(FALSE, IDC_STATIC_INFO);
-		}
+		wchar_t temp[MAX_PATH] = { 0 };
+		view_->GetDlgItemText(IDC_EDIT_PATH, temp, MAX_PATH); //取得编辑框的路径
+		if (temp != dlg.m_szFileName)
+			view_->SetDlgItemTextW(IDC_EDIT_PATH, dlg.m_szFileName);
+		CheckFile();
 	}
 
 
