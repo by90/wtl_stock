@@ -135,6 +135,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="stockView.h" />
     <ClInclude Include="ThreadTask.h" />
+    <ClInclude Include="ui_state.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="stock.rc" />

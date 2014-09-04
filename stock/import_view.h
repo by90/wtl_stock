@@ -300,7 +300,7 @@ public:
 		//≥ı ºªØRadio Button
 		CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, IDC_RADIO_QUOTE);
 
-		SetVisible(model.m_state);
+		//SetVisible(model.m_state);
 		DoDataExchange(FALSE);
 
 		return TRUE;

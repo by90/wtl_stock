@@ -2,6 +2,7 @@
 #include "import_model_base.h"
 #include "import_view.h"
 #include "import_view_model.h"
+#include "ui_state.h"
 
 
 ImportViewModel::ImportViewModel(ImportView *_view)
@@ -68,6 +69,23 @@ void ImportViewModel::ChangeImportFileType()
 void ImportViewModel::set_ui_state(int _ui_state) 
 {
 	ui_state_ = _ui_state;
+	switch (_ui_state)
+	{
+	case 0:
+		::SetEnable(view_, false, IDC_BUTTON_INSTALL);
+		::SetEnable(view_, true, IDC_BUTTON_SELECT, IDC_EDIT_PATH, IDC_BUTTON_REMOVE, IDC_RADIO_QUOTE, IDC_RADIO_EXRIGHT, IDC_RADIO_BASE, IDC_RADIO_CATALOG);
+
+		::SetVisble((CWindow *)view_, false, IDC_PROGRESS_IMPORT);
+		break;
+	case 1:
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+
+
+	}
 }
 
 //删除全部日线和代码表
