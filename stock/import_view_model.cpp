@@ -114,9 +114,25 @@ void ImportViewModel::RunImportFile()
 }
 
 //改变导入文件的类型，将状态设为0
-void ImportViewModel::ChangeImportFileType()
+void ImportViewModel::ChangeImportFileType(WORD wID)
 {
-
+	view_->CheckRadioButton(IDC_RADIO_QUOTE, IDC_RADIO_CATALOG, wID);
+	switch (wID)
+	{
+	case IDC_RADIO_QUOTE:
+		this->import_catalog_ = 0;
+		break;
+	case IDC_RADIO_EXRIGHT:
+		this->import_catalog_ = 1;
+		break;
+	case IDC_RADIO_BASE:
+		this->import_catalog_ = 2;
+		break;
+	case IDC_RADIO_CATALOG:
+		this->import_catalog_ = 3;
+		break;
+	}
+	return ;
 }
 
 //改变View的状态，由此设定各控件的可用性和可见性
@@ -151,5 +167,15 @@ void ImportViewModel::set_ui_state(int _ui_state)
 //删除全部日线和代码表
 void ImportViewModel::RemoveInstalledQuote()
 {
+	if (MessageBoxA(0, "您将删除全部日线和代码表\n删除之后您必须重新安装，您确定吗？", "请您三思", MB_ICONEXCLAMATION | MB_OKCANCEL) == IDCANCEL)
+		return ;
 
+	installed_info_= L"删除全部数据...";
+	view_->DoDataExchange(false, IDC_STATIC_ALLQUOTE);
+	DbQuote quote; //这里使用DbQuote直接完成，因为与不同的model无关.
+	quote.delete_all();
+	
+	progress_info_= L"删除全部数据...完成!";
+	installed_info_ = L"已经安装：没有数据";
+	view_->DoDataExchange();
 }

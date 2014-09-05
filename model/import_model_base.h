@@ -75,7 +75,7 @@ public:
 			_selected = L"准备安装：";
 			stdmore::time_to_wstring((time_t)parser_.m_start_date, L"%Y-%m-%d", _selected);
 			_selected += L"到";
-			stdmore::time_to_wstring((time_t)parser_.m_start_date, L"%Y-%m-%d", _selected);
+			stdmore::time_to_wstring((time_t)parser_.m_end_date, L"%Y-%m-%d", _selected);
 			return true;
 		}
 		_selected = L"准备安装：您选的文件格式不对";

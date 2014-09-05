@@ -39,7 +39,7 @@ public:
 	void RunImportFile();
 
 	//改变导入文件的类型，将状态设为0
-	void ChangeImportFileType();
+	void ChangeImportFileType(WORD wID);
 
 	//改变View的状态，由此设定各控件的可用性和可见性
 	void set_ui_state(int _ui_state);
