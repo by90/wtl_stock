@@ -99,11 +99,8 @@ void ImportViewModel::RunImportFile()
 {
 	set_ui_state(2); //正在运行，调整界面
 
-	wostringstream info;
-	info << L"共" << file_count_ << L"条记录，正在安装...";
-	progress_info_.clear();
-	progress_info_.append(info.str());
-	view_->SetDlgItemTextW(IDC_STATIC_INFO, progress_info_.c_str());
+
+	
 
 	timer time_used;
 	time_used.reset();
@@ -115,10 +112,10 @@ void ImportViewModel::RunImportFile()
 	//3和4，为函数提供的参数
 	t = new thread(&ImportModelBase::ImportFile,model_.get(),
 		selected_file_.c_str(),
-		[this, t, time_used](const char *err, int now){
-		if (err)
+		[this, t, time_used](const wchar_t *info, int now){
+		if (info)
 		{
-			MessageBoxA(view_->m_hWnd, err, "导入过程出错", 0);
+			view_->SetDlgItemTextW(IDC_STATIC_INFO, info);
 		}
 		else if (::IsWindow(view_->m_progressBar.m_hWnd))
 		{

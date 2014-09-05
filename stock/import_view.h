@@ -89,22 +89,6 @@ public:
 
 
 
-	void import(std::function<void(const char *, int)> func)
-	{
-		m_state = CQuoteViewModel::State::pending;
-		parser.open(m_path.c_str());
-		quote.bulk_insert(parser.begin(), parser.end(), 2000, func);
-
-
-
-		//for (int i = 0; i < 100; i++)
-		//{
-		//	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-		//	func(i);
-		//	//Sleep(100);//win32写法
-		//}
-
-	}
 
 	void open(HWND hwnd)
 	{
@@ -333,59 +317,6 @@ public:
 	LRESULT OnClickedButtonInstall(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		view_model_.RunImportFile();
-		return 0;
-		model.m_state = CQuoteViewModel::State::pending;
-		SetVisible(CQuoteViewModel::State::pending);
-		wostringstream info;
-		info << L"共" << model.parser.m_quote_count << L"条记录，正在安装...";
-		model.m_info.clear();
-		model.m_info.append(info.str());
-		SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
-
-		timer time_used;
-		time_used.reset();
-
-		std::thread *t;
-		t = new thread(&CQuoteViewModel::import, &model, [this, t, time_used](const char *err, int now){
-			if (err)
-			{
-				MessageBoxA(m_hWnd, err, "导入过程出错", 0);
-			}
-			else if (::IsWindow(m_progressBar.m_hWnd))
-			{
-				m_progressBar.SetPos(now * 100 / model.parser.m_quote_count + 1);
-				if (now == model.parser.m_quote_count)
-				{
-
-					wstringstream ss;
-					ss << L"完成,耗时";
-					auto used = time_used.elapsed_seconds();
-					if (used <= 0)
-						ss << L"不足1秒!";
-					else
-						if (used >= 60)
-							ss << used / 60 << L"分" << used % 60 << L"秒!";
-						else
-							ss << used << L"秒!";
-					model.m_info.append(ss.str());
-
-					model.set_saved_string();
-
-					model.m_state = CQuoteViewModel::State::complete;
-					SetVisible(CQuoteViewModel::State::complete);
-
-					SetDlgItemTextW(IDC_STATIC_SAVED, model.m_saved.c_str());
-
-					SetDlgItemTextW(IDC_STATIC_INFO, model.m_info.c_str());
-					model.parser.close(); //安装完毕后，清除缓存的Dad文件
-					ThreadTask::Remove(import_id);
-				}
-			}
-		});
-		import_id = t->get_id();
-		ThreadTask::Add(import_id, L"导入行情");
-		t->detach(); //从主线程分离后执行
-		//t.join();//等待子线程执行完毕再执行下一条语句
 		return 0;
 	}
 

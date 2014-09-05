@@ -18,12 +18,12 @@ public:
 	std::wstring selected_info_=L"";
 	std::wstring selected_file_ = L"";
 	std::wstring progress_info_ = L"";
+	unsigned long file_count_ = 0; //需要吗？
 
-	bool is_file_validate = false;
 	int progress_total_=100, progress_now_=0;
 	int import_catalog_= 0;
 	int ui_state_ = 0;
-	unsigned long file_count_=0;
+	
 	std::thread::id  import_id_;
 
 	//初始化，由View的InitDialog调用
