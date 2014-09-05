@@ -3,7 +3,7 @@
 using namespace std;
 
 //时间点：两个时间点之间的间隔
-TEST(demo, chrono_time_point)
+TEST(DemoC11, chrono_time_point)
 {
 	//system_clock：系统时钟,但用户在计时阶段修改了时间，则程序结果会受影响
 	//steady_clock：不能被用户修改的时钟，换言之，计时期间即使用户修改了时钟，程序也不受影响。仅在起点使用系统时钟？
@@ -21,7 +21,7 @@ TEST(demo, chrono_time_point)
 }
 
 //和ctime间的相互转换
-TEST(demo, chrono_and_ctime)
+TEST(DemoC11, chrono_and_ctime)
 {
 	std::time_t firstTime = (std::time_t)1402876800;
 	
@@ -41,11 +41,9 @@ TEST(demo, chrono_and_ctime)
 }
 
 //转换为"2014-1-1"这类形式，用于显示
-TEST(demo, chrono_to_string)
+TEST(DemoC11, chrono_to_string)
 {
 	std::time_t firstTime = (std::time_t)1402876800;
-
-
 
 	//时间转字符串：size_t strftime( char *strDest, size_t maxsize, const char *format, co
 	//转换成time_point

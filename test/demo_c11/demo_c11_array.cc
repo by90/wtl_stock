@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 using namespace std;
 
-TEST(demo,stl_array)
+TEST(DemoC11,array)
 {
 	std::array<int, 10> arr;
 	int j = 0;

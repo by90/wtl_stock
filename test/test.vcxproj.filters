@@ -30,18 +30,6 @@
     <ClCompile Include="base_parse_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\demo_encoding.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\demo_stl_algorithm.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\demo_stl_array.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="dad_file_parse_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -60,33 +48,45 @@
     <ClCompile Include="ui_layout_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\demo_chrono.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\demo_rvalue_references.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="demo_c11\demo_iterator_as_point.cc">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="file_parse_test.cc">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="demo_c11\demo_wtl_polymorphism.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\demo_aligned_storage.cc">
+    <ClCompile Include="demo_c11\demo_c11_unordered_map.cc">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="demo_c11\demo_vector.cc">
+    <ClCompile Include="demo_c11\demo_c11_vector.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_aligned_storage.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_chrono.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_enable_if.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_rvalue_references.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_array.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_encoding.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_c11_shared_ptr.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="demo_c11\demo_stl_traits_in_algorithm.cc">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_singleton\singleton_v1.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="demo_c11\demo_traits_algorithm.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -37,7 +37,7 @@ std::wstring gb2312_to_unicode(const std::string& str)
 }
 
 //编码转换
-TEST(demo, encoding_convert)
+TEST(DemoC11, encoding_convert)
 {
 	auto result = to_utf8(L"你好");
 	EXPECT_EQ(6, result.length());
@@ -47,7 +47,7 @@ TEST(demo, encoding_convert)
 //utf_16分成utf16_LE和utf16_BE两种，前者是小头，比较常用，为0x61,0x00，cpu是倒着吃的，所以能够提高速度
 //L"a"，实际上是小头，所以vs2013默认的是0x61,0x00这种即utf_16BE...记住Big
 //utf16_BE,big endian，表达为0x00,0x61
-TEST(demo, encoding)
+TEST(DemoC11, encoding)
 {
 	const wchar_t wcharString[] = L"a"; //保存0x61,0x00,0x00、0x00，
 	const wchar_t nextString[] = L"啊";

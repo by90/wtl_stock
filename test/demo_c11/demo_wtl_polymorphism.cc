@@ -45,7 +45,7 @@ class child :public base_class<child>
 
 
 //wtl的递归模板的多态机制
-TEST(demo,wtl_polymorphism)
+TEST(DemoWtl,polymorphism)
 {
 	child_class A;
 	child B;

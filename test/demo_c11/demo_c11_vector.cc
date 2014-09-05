@@ -20,7 +20,7 @@ public:
 int any_struct::construct_number = 0;
 int any_struct::move_number = 0;
 
-TEST(DemoC11, Vector)
+TEST(DemoC11,vector)
 {
 	vector<int> any_vector;
 	any_vector.push_back(1);
@@ -45,6 +45,36 @@ TEST(DemoC11, Vector)
 	EXPECT_EQ(5, any_vector[1]);
 	//EXPECT_EQ(3, any_vector[2]);
 
+	//vector分配一块内存，尾部追加的时候，步骤如下：
+	//1.整块内存重新分配
+	//2.原来的数据拷贝到新的内存块(memecpy)
+	//3.新内存块尾部增加
+	//4.释放原来的内存块
+	//5.vector的data指向新的地址
+	//但为了保证性能，一般新分配的内存块要大一些，这就是
+	//当然，若能预知大小，预先resize，则不会出现多次内存分配，性能大幅提高
+	
+	auto real_size = any_vector.capacity();
+	auto object_size = sizeof(any_vector);
+
+	//使用<<:出错时将提供我们需要的信息，不出错不显示
+	EXPECT_LE(2u, any_vector.capacity()) << "real_size=" << real_size << "object_size=" << object_size;
+	
+	//如此，在命令窗口运行test.exe可以看到提示，测试资源管理器运行时看不到。
+	std::cout << "capacity=" << real_size << " , object_size=" << object_size;
+
+	//使用reverse重新分配空间,实际的size()不变，能力改变
+	any_vector.reserve(10);
+	EXPECT_EQ(2, any_vector.size()); //大小不变
+	EXPECT_EQ(10, any_vector.capacity());  //存储能力改变
+
+	//使用resize改变大小,size和capacity同时改变。
+	any_vector.resize(20);
+	EXPECT_EQ(20, any_vector.size()); //大小不变
+	EXPECT_EQ(20, any_vector.capacity());  //存储能力改变
+
+	//vector大小一直是16，无论装多少数据，说明内存是heap上分配的，本身只保存指针、大小等。
+	//EXPECT_EQ(16, sizeof(any_vector)) << "object_size=" << object_size;
 
 	//emplace_back，尾部增加
 	//是变参语法,参数用来构造一个对象

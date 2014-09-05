@@ -13,7 +13,7 @@ count_vector(T _begin,T _end)
 	return std::distance(_begin, _end);
 }
 
-TEST(demo, std_is_convertible)
+TEST(DemoC11, enable_if)
 {
 	bool result = typeid(std::iterator_traits<std::vector<int>::iterator>::distance_type) == typeid(int);
 	EXPECT_EQ(true, result);

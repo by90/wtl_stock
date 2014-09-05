@@ -29,7 +29,7 @@ bool max_r(T first[], T  second[])
 	return strcmp(first, second)>0;
 }
 //±àÂë×ª»»
-TEST(demo, test_lvalue_refrences)
+TEST(DemoC11, lvalue_refrences)
 {
 	EXPECT_TRUE(max("2", "1"));
 

@@ -10,7 +10,7 @@ void func(void){
 	//此处仅在Test项目|属性|C++|命令行，增加其他命令行
 	//离开作用域后会导致两次销毁同一块内存
 };
-TEST(demo,stl_shared_ptr)
+TEST(DemoC11,shared_ptr)
 {
 	//演示引用计数到销毁的含义
 	//这里使用{}来限制作用域
