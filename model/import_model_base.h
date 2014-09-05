@@ -42,8 +42,9 @@ public:
 	}
 	virtual void ImportFile(const wchar_t *_file,std::function<void(const char *, int)> func)
 	{
-		parser_.open(_file);
-		quote_.bulk_insert(parser_.begin(), parser_.end(), 2000, func);
+		parser_.open(_file);		
+		int i=quote_.bulk_insert(parser_.begin(), parser_.end(), 2000, func);
+		parser_.close(); //这个函数后台执行，函数内顺序执行，因此这里关闭可行
 	}
 private:
 	//根据日期获得时间字符串

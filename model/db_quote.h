@@ -228,6 +228,7 @@ public:
 		//6.清理现场
 		sqlite3_finalize(pStmt);
 		//sqlite3_close_v2(default_db);
+
 		//7.返回插入的数量
 		if (func != nullptr)
 			func(nullptr,insert_nums);

@@ -143,6 +143,7 @@ void ImportViewModel::RunImportFile()
 				set_ui_state(3); //完成，调整界面
 				view_->SetDlgItemTextW(IDC_STATIC_SAVED, installed_info_.c_str());
 				view_->SetDlgItemTextW(IDC_STATIC_INFO, progress_info_.c_str());
+				
 				//model.parser.close(); //安装完毕后，清除缓存的Dad文件
 				ThreadTask::Remove(import_id_);
 			}
