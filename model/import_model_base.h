@@ -3,6 +3,7 @@
 #include "global.h"
 #include "dad_file_parse.h"
 #include "db_quote.h"
+#include "timer.h"
 #ifndef STOCK_MODEL_IMPORT_MODEL_BASE_H
 #define STOCK_MODEL_IMPORT_MODEL_BASE_H
 
@@ -43,14 +44,29 @@ public:
 	}
 	virtual void ImportFile(const wchar_t *_file,std::function<void(const wchar_t *, int)> func)
 	{
+		timer time_used; //开始计时
+		time_used.reset();
+
 		parser_.open(_file);
 
-		wostringstream info;
-		info << L"共" << parser_.m_quote_count << L"条记录，正在安装...";
-		func(info.str().c_str(), 0); 
+		wostringstream ss;
+		ss << L"共" << parser_.m_quote_count << L"条记录，正在安装...";
+		func(ss.str().c_str(), 0); 
 
-		int i=quote_.bulk_insert(parser_.begin(), parser_.end(), 2000, func);
+		int inserted=quote_.bulk_insert(parser_.begin(), parser_.end(),parser_.m_quote_count, 2000, func);
 		parser_.close(); //这个函数后台执行，函数内顺序执行，因此这里关闭可行
+
+		ss.clear();
+		ss << L"完成,耗时";
+		auto used = time_used.elapsed_seconds();
+		if (used <= 0)
+			ss << L"不足1秒!";
+		else
+			if (used >= 60)
+				ss << used / 60 << L"分" << used % 60 << L"秒!";
+			else
+				ss << used << L"秒!";
+		func(ss.str().c_str(), 100);
 	}
 private:
 	//根据日期获得时间字符串

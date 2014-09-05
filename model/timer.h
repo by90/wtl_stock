@@ -1,6 +1,9 @@
 #include<chrono>
+#ifndef STOCK_MODEL_TIMER_H
+#define STOCK_MODEL_TIMER_H
 using namespace std;
 using namespace std::chrono;
+
 
 //定时器，用于计时
 class timer
@@ -48,3 +51,5 @@ public:
 private:
 	time_point<high_resolution_clock> m_begin;
 };
+
+#endif

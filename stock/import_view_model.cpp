@@ -4,7 +4,6 @@
 #include "import_view_model.h"
 #include "ui_state.h"
 
-
 ImportViewModel::ImportViewModel(ImportView *_view)
 {
 	view_ = _view;
@@ -99,9 +98,6 @@ void ImportViewModel::RunImportFile()
 {
 	set_ui_state(2); //正在运行，调整界面
 
-
-	
-
 	timer time_used;
 	time_used.reset();
 
@@ -117,32 +113,16 @@ void ImportViewModel::RunImportFile()
 		{
 			view_->SetDlgItemTextW(IDC_STATIC_INFO, info);
 		}
-		else if (::IsWindow(view_->m_progressBar.m_hWnd))
+		if (::IsWindow(view_->m_progressBar.m_hWnd))
 		{
-			view_->m_progressBar.SetPos(now * 100 / file_count_ + 1);
-			if (now == file_count_)
+			view_->m_progressBar.SetPos(now);
+			if ((now == 100) && info) //最后一次,info不能为空
 			{
-
-				wstringstream ss;
-				ss << L"完成,耗时";
-				auto used = time_used.elapsed_seconds();
-				if (used <= 0)
-					ss << L"不足1秒!";
-				else
-					if (used >= 60)
-						ss << used / 60 << L"分" << used % 60 << L"秒!";
-					else
-						ss << used << L"秒!";
-				progress_info_.append(ss.str());
-
 				//此处重新计算
 				//model.set_saved_string();
-
-	
 				set_ui_state(3); //完成，调整界面
 				view_->SetDlgItemTextW(IDC_STATIC_SAVED, installed_info_.c_str());
-				view_->SetDlgItemTextW(IDC_STATIC_INFO, progress_info_.c_str());
-				
+			
 				//model.parser.close(); //安装完毕后，清除缓存的Dad文件
 				ThreadTask::Remove(import_id_);
 			}
