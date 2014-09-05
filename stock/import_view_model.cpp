@@ -94,10 +94,6 @@ void ImportViewModel::SelectFile()
 	}
 }
 
-void ImportViewModel::ImportFile(std::function<void(const char *, int)> func)
-{
-	model_->ImportFile(selected_file_.c_str(),func);
-}
 //安装，并使用回调更新进度文本控件和进度条
 void ImportViewModel::RunImportFile()
 {
@@ -113,7 +109,13 @@ void ImportViewModel::RunImportFile()
 	time_used.reset();
 
 	std::thread *t;
-	t = new thread(&ImportViewModel::ImportFile,this,[this, t, time_used](const char *err, int now){
+	//thread的参数
+	//1.&ImportModelBase::ImportFile 表示哪个类的哪个函数
+	//2.model_.get() 表示指向哪个变量的指针，第一个参数所指类的实例
+	//3和4，为函数提供的参数
+	t = new thread(&ImportModelBase::ImportFile,model_.get(),
+		selected_file_.c_str(),
+		[this, t, time_used](const char *err, int now){
 		if (err)
 		{
 			MessageBoxA(view_->m_hWnd, err, "导入过程出错", 0);

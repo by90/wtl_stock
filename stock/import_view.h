@@ -49,7 +49,6 @@ public:
 	{
 		quote.GetSavedDate(global::begin_date, global::end_date);
 		set_saved_string();
-
 	}
 	void set_saved_string()
 	{
