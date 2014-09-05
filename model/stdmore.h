@@ -2,11 +2,12 @@
 #include <string>
 #include <codecvt>
 #include <stdarg.h>
+
+#ifndef STOCK_MODEL_STDMORE_H
+#define STOCK_MODEL_STDMORE_H
+
 namespace stdmore
 {
-	
- 
-
 	//localtime_r返回的是指针,localtime_s返回的是错误号typedef int errno_t，两者参数次序亦颠倒。
 	//我们使用引用,但何种错误对我们意义不大,简单使用bool返回是否成功即可。
 	//不返回tm结构，是减少一次拷贝。不定义一个bool result，减少一次变量分配。inline直接嵌入。
@@ -70,8 +71,5 @@ namespace stdmore
 		vsnprintf_s((char*)a_string.data(), size, _TRUNCATE, fmt, vl);
 		va_end(vl);
 	}
-
-	
-
-
 }
+#endif

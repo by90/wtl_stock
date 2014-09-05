@@ -9,19 +9,6 @@ ImportViewModel::ImportViewModel(ImportView *_view)
 	view_ = _view;
 }
 
-void ImportViewModel::set_installed_info(unsigned long _begin, unsigned long _end) //初始化，获取已经安装数据
-{
-	if (_begin == 0 || _end == 0)
-		installed_info_ = L"已经安装：没有数据";
-	else
-	{
-		installed_info_.clear();
-		installed_info_ = L"已经安装：";
-		stdmore::time_to_wstring((time_t)_begin, L"%Y-%m-%d", installed_info_);
-		installed_info_ += L"到";
-		stdmore::time_to_wstring((time_t)_end, L"%Y-%m-%d", installed_info_);
-	}
-}
 //初始化，由View的InitDialog调用
 //将import_catalog设为0，同时建立model对象
 void ImportViewModel::Init()
@@ -38,12 +25,9 @@ void ImportViewModel::Init()
 		model_.reset(new ImportModelQuote);
 		break;
 	}
-	unsigned long start_date = 0;
-	unsigned long end_date = 0;
-	model_->GetSavedDate(start_date,end_date);
-	set_installed_info(start_date, end_date);//获取"已经安装数据"
-	view_->DoDataExchange(false, IDC_STATIC_SAVED); //从数据到UI,false表示是否获取ui数据
 
+	model_->GetSavedDate(installed_info_,true);
+	view_->DoDataExchange(false, IDC_STATIC_SAVED); //从数据到UI,false表示是否获取ui数据
 	set_ui_state(0);//状态设为0
 }
 
@@ -55,21 +39,14 @@ void ImportViewModel::CheckFile()
 	{
 		selected_file_.clear();
 		selected_file_.append(temp);
-
-		unsigned long start_date, end_date;
-		if (this->model_->CheckSourceFile(selected_file_.c_str(), start_date, end_date,file_count_))
+		if (this->model_->CheckSourceFile(selected_file_.c_str(), selected_info_))
 		{
 			set_ui_state(1);
 			progress_info_ = L" ";
-			selected_info_ = L"准备安装：";
-			stdmore::time_to_wstring((time_t)start_date, L"%Y-%m-%d", selected_info_);
-			selected_info_ += L"到";
-			stdmore::time_to_wstring((time_t)end_date, L"%Y-%m-%d", selected_info_);
 		}
 		else
 		{
 			set_ui_state(0);
-			selected_info_ = L"准备安装：您选的文件格式不对";
 		}
 
 		view_->DoDataExchange(FALSE, IDC_STATIC_OPENED);
@@ -150,8 +127,9 @@ void ImportViewModel::set_ui_state(int _ui_state)
 	case 0:
 		::SetEnable(view_, false, IDC_BUTTON_INSTALL);
 		::SetEnable(view_, true, IDC_BUTTON_SELECT, IDC_EDIT_PATH, IDC_BUTTON_REMOVE, IDC_RADIO_QUOTE, IDC_RADIO_EXRIGHT, IDC_RADIO_BASE, IDC_RADIO_CATALOG);
-
 		::SetVisble((CWindow *)view_, false, IDC_PROGRESS_IMPORT);
+		if (::IsWindow(view_->m_progressBar.m_hWnd)) 
+			view_->m_progressBar.SetPos(0);
 		break;
 	case 1:
 		::SetEnable(view_, true, IDC_BUTTON_INSTALL, IDC_BUTTON_SELECT, IDC_EDIT_PATH, IDC_BUTTON_REMOVE, IDC_RADIO_QUOTE, IDC_RADIO_EXRIGHT, IDC_RADIO_BASE, IDC_RADIO_CATALOG);

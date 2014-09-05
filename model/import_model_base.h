@@ -4,6 +4,7 @@
 #include "dad_file_parse.h"
 #include "db_quote.h"
 #include "timer.h"
+#include "stdmore.h"
 #ifndef STOCK_MODEL_IMPORT_MODEL_BASE_H
 #define STOCK_MODEL_IMPORT_MODEL_BASE_H
 
@@ -12,8 +13,10 @@
 class ImportModelBase
 {
 public:
-	virtual void GetSavedDate(unsigned long &_start, unsigned long &_end)=0; //初始化，获取已经安装数据
-	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end, unsigned long &_count) = 0; //检查文件是否合法
+	//只需要返回字符串
+	virtual void GetSavedDate(wstring &_saved,bool _fetch=false)=0; //初始化，获取已经安装数据
+	virtual void UpdateSavedDate(wstring &_saved) = 0; //已经安装数据变化
+	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected) = 0; //检查文件是否合法,返回文件的说明
 	virtual void ImportFile(const wchar_t *_file, std::function<void(const wchar_t *, int)> func) = 0;
 };
 
@@ -23,23 +26,39 @@ public:
 	DbQuote quote_;
 	dad_file_parse parser_;
 
-	virtual void GetSavedDate(unsigned long &_start, unsigned long &_end)
+	virtual void GetSavedDate(wstring &_saved, bool _fetch = false)
 	{
-		quote_.GetSavedDate(global::begin_date, global::end_date);
-		_start = global::begin_date;
-		_end = global::end_date;
+		if (_fetch)
+		  quote_.GetSavedDate(global::begin_date, global::end_date);
+		if (global::begin_date == 0 || global::begin_date == 0)
+			_saved = L"已经安装：没有数据";
+		else
+		{
+			_saved.clear();
+			_saved= L"已经安装：";
+			stdmore::time_to_wstring((time_t)global::begin_date, L"%Y-%m-%d", _saved);
+			_saved += L"到";
+			stdmore::time_to_wstring((time_t)global::end_date, L"%Y-%m-%d", _saved);
+		}
 	}
-	virtual bool CheckSourceFile(const wchar_t *_file, unsigned long &_start, unsigned long &_end, unsigned long &_count) //检查文件是否合法
+
+	virtual void UpdateSavedDate(wstring &_saved)
 	{
-		_start = 0;
-		_end = 0;
+
+	}
+
+	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected) //检查文件是否合法
+	{
 		if (parser_.check(_file))
 		{
-			_start = parser_.m_start_date;
-			_end = parser_.m_end_date;
-			_count = parser_.m_quote_count;
+			_selected = L" ";
+			_selected = L"准备安装：";
+			stdmore::time_to_wstring((time_t)parser_.m_start_date, L"%Y-%m-%d", _selected);
+			_selected += L"到";
+			stdmore::time_to_wstring((time_t)parser_.m_start_date, L"%Y-%m-%d", _selected);
 			return true;
 		}
+		_selected = L"准备安装：您选的文件格式不对";
 		return false;
 	}
 	virtual void ImportFile(const wchar_t *_file,std::function<void(const wchar_t *, int)> func)
