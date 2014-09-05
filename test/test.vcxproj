@@ -95,6 +95,7 @@
     <ClCompile Include="demo_c11\demo_stl_array.cc" />
     <ClCompile Include="demo_c11\demo_stl_shared_ptr.cc" />
     <ClCompile Include="demo_c11\demo_iterator_as_point.cc" />
+    <ClCompile Include="demo_c11\demo_vector.cc" />
     <ClCompile Include="file_parse_test.cc" />
     <ClCompile Include="demo_c11\demo_wtl_polymorphism.cc" />
     <ClCompile Include="demo_singleton\singleton_v1_test.cpp" />

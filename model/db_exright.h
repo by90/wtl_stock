@@ -9,6 +9,13 @@ class DbExright
 {
 public:
 	
+	//读取...
+	//当返回的vector长度为0,则不合法
+
+	//insert使用vector的begin end迭代器
+
+	
+
 	size_t bulk_insert(const wchar_t *_file, int totals = -1, int period = 2000, std::function<void(const wchar_t *, int)> func = nullptr)
 	{
 		std::vector<Stock> stock_list;

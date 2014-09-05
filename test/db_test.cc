@@ -3,6 +3,9 @@
 #include "db.h"
 #include "global.h"
 
+
+
+
 bool create_demo_database(const char * path)
 {
 	sqlite3 *db = NULL;
@@ -247,3 +250,4 @@ TEST_F(dbTest, ExcuteScript)
 //	//auto conn = Db::GetDb(); //返回默认的连接
 //	//EXPECT_TRUE(conn());
 //}
+

@@ -78,6 +78,9 @@
     <ClCompile Include="demo_c11\demo_aligned_storage.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_c11\demo_vector.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_singleton\singleton_v1.h">
