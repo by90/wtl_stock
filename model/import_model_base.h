@@ -13,9 +13,8 @@
 class ImportModelBase
 {
 public:
-	//只需要返回字符串
-	virtual void GetSavedDate(wstring &_saved,bool _fetch=false)=0; //初始化，获取已经安装数据
-	virtual void UpdateSavedDate(wstring &_saved) = 0; //已经安装数据变化
+	virtual void GetSavedInfo(wstring &_saved,bool _fetch=false)=0; //初始化，获取已经安装数据
+	virtual void UpdateSavedInfo(wstring &_saved) = 0; //已经安装数据变化
 	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected) = 0; //检查文件是否合法,返回文件的说明
 	virtual void ImportFile(const wchar_t *_file, std::function<void(const wchar_t *, int)> func) = 0;
 };
@@ -26,7 +25,7 @@ public:
 	DbQuote quote_;
 	dad_file_parse parser_;
 
-	virtual void GetSavedDate(wstring &_saved, bool _fetch = false)
+	virtual void GetSavedInfo(wstring &_saved, bool _fetch = false)
 	{
 		if (_fetch)
 		  quote_.GetSavedDate(global::begin_date, global::end_date);
@@ -42,9 +41,30 @@ public:
 		}
 	}
 
-	virtual void UpdateSavedDate(wstring &_saved)
+	virtual void UpdateSavedInfo(wstring &_saved)
 	{
+		if (global::begin_date == 0)
+		{
+			if (parser_.m_start_date != 0)
+				global::begin_date = parser_.m_start_date;
+		}
+		else
+		{
+			if (parser_.m_start_date != 0 && parser_.m_start_date< global::begin_date)
+				global::begin_date = parser_.m_start_date;
+		}
 
+		if (global::end_date == 0)
+		{
+			if (parser_.m_end_date != 0)
+				global::end_date = parser_.m_end_date;
+		}
+		else
+		{
+			if (parser_.m_end_date != 0 && parser_.m_end_date> global::end_date)
+				global::end_date = parser_.m_end_date;
+		}
+		GetSavedInfo(_saved);
 	}
 
 	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected) //检查文件是否合法
@@ -94,19 +114,22 @@ private:
 class ImportModelExright :public ImportModelBase
 {
 public:
-	virtual void Init() //初始化，获取已经安装数据
+	virtual void GetSavedInfo(wstring &_saved, bool _fetch = false)  //初始化，获取已经安装数据
 	{
 
 	}
-	virtual bool CheckSourceFile(const wchar_t *_file) //检查文件是否合法
+	virtual void UpdateSavedInfo(wstring &_saved)  //已经安装数据变化
 	{
-
+	
 	}
-	virtual void ImportFile(std::function<void(const char *, int)> func)
+	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected)  //检查文件是否合法,返回文件的说明
 	{
-
+	
 	}
-
+	virtual void ImportFile(const wchar_t *_file, std::function<void(const wchar_t *, int)> func) 
+	{
+	
+	}
 };
 
 #endif

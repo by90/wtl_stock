@@ -26,7 +26,7 @@ void ImportViewModel::Init()
 		break;
 	}
 
-	model_->GetSavedDate(installed_info_,true);
+	model_->GetSavedInfo(installed_info_,true);
 	view_->DoDataExchange(false, IDC_STATIC_SAVED); //从数据到UI,false表示是否获取ui数据
 	set_ui_state(0);//状态设为0
 }
@@ -97,7 +97,10 @@ void ImportViewModel::RunImportFile()
 			{
 				//此处重新计算
 				//model.set_saved_string();
+				
 				set_ui_state(3); //完成，调整界面
+				
+				model_->UpdateSavedInfo(installed_info_);
 				view_->SetDlgItemTextW(IDC_STATIC_SAVED, installed_info_.c_str());
 			
 				//model.parser.close(); //安装完毕后，清除缓存的Dad文件
