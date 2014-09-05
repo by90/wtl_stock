@@ -27,7 +27,11 @@ void ImportViewModel::Init()
 	}
 
 	model_->GetSavedInfo(installed_info_,true);
-	view_->DoDataExchange(false, IDC_STATIC_SAVED); //从数据到UI,false表示是否获取ui数据
+	selected_info_ = L"";
+	selected_file_ = L"";
+	progress_info_ = L"";
+
+	view_->DoDataExchange(false); //从数据到UI,false表示是否获取ui数据
 	set_ui_state(0);//状态设为0
 }
 
@@ -132,6 +136,7 @@ void ImportViewModel::ChangeImportFileType(WORD wID)
 		this->import_catalog_ = 3;
 		break;
 	}
+	Init();
 	return ;
 }
 
