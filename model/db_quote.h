@@ -3,7 +3,7 @@
 #include "db.h"
 #include "dad_parse_iterator.h"
 #include "global.h"
-#include "db_stock.h"
+
 #ifndef STOCK_MODEL_DB_QUOTE_H
 #define STOCK_MODEL_DB_QUOTE_H
 
@@ -86,7 +86,7 @@ public:
 		{
 			e.what();
 		}
-		DbStock::get_stock_list().clear();
+		g_stock.Data.clear();
 		g_stock.BeginDate = 0;
 		g_stock.EndDate = 0;
 	}
@@ -135,10 +135,10 @@ public:
 		auto cmd = connection_.CreateQuery("INSERT OR REPLACE INTO Stock(Id,Market,Catalog,Title,MiniCode) VALUES(?,?,?,?,?)"); //增加或更新代码表命令
 		int idNumber = 0;
 		id_of_dad *oldId = nullptr;
-		Stock stock;
+		StockInfo stock;
 		for (auto current = _begin; current != _end; ++current)
 		{
-			if (DbStock::GetMarket(current->idOfDad->id) == ::Others)
+			if (g_stock.GetMarket(current->idOfDad->id) == -1) //不可识别
 				continue;//如果代码类型不可识别，即略过后面所有的操作。
 			//如果代码变化
 			if (current->idOfDad != oldId)
@@ -148,32 +148,32 @@ public:
 
 				
 				//只有代码类别可识别，才在内存代码表里搜索。
-				idNumber = DbStock::FindStock(current->idOfDad->id);
+				idNumber = g_stock.FindStock(current->idOfDad->id);
 				
 
-				if (idNumber < 0 || (strcmp(DbStock::get_stock_list()[idNumber].Title,current->idOfDad->title)!=0)) //代码不存在或者虽存在但名称更改
+				if (idNumber < 0 || strcmp(g_stock.Data[idNumber].Title,current->idOfDad->title)!=0) //代码不存在或者虽存在但名称更改
 				{
 					memcpy(stock.Id,current->idOfDad->id,9);
 					memcpy(stock.Title,current->idOfDad->title,9);
 					
 					//标题的首字母简写都需要修改
 					memset(stock.MiniCode, '\0', 5); //全部设为0
-					DbStock::GetMiniCode(stock.Title, stock.MiniCode);
+					g_stock.GetMiniCode(stock.Title, stock.MiniCode);
 
 					//如果是新增加的股票，此时还需要修改交易所、类型
 					if (idNumber < 0)
 					{
-						stock.Market= DbStock::GetMarket(stock.Id);
-						stock.Catalog = DbStock::GetCatalog(stock.Id);
+						stock.Market= g_stock.GetMarket(stock.Id);
+						stock.Catalog = g_stock.GetCatalog(stock.Id);
 
 						//新的股票应按顺序加入代码表
-						DbStock::get_stock_list().insert(DbStock::get_stock_list().begin()- (1 * idNumber + 1), stock);
+						g_stock.Data.insert(g_stock.Data.begin()- (1 * idNumber + 1), stock);
 					}
 					else //如果仅仅是标题更新，修改即可
 					{
-						memcpy(DbStock::get_stock_list()[idNumber].Title, stock.Title, 9);
+						memcpy(g_stock.Data[idNumber].Title, stock.Title, 9);
 						
-						memcpy(DbStock::get_stock_list()[idNumber].MiniCode, stock.MiniCode, 5);
+						memcpy(g_stock.Data[idNumber].MiniCode, stock.MiniCode, 5);
 					}
 
 					//需要insert或update

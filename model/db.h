@@ -14,11 +14,11 @@
 #define STOCK_MODEL_DB_H
 
 //Dll项目中，在此定义宏MODEL_API，让Dll项目和使用dll的项目，使用同一个头文件。
-#ifdef MODEL_EXPORTS
-#define MODEL_API __declspec(dllexport)
-#else
-#define MODEL_API __declspec(dllimport)
-#endif
+//#ifdef MODEL_EXPORTS
+//#define MODEL_API __declspec(dllexport)
+//#else
+//#define MODEL_API __declspec(dllimport)
+//#endif
 
 //数据库异常
 //类名一般用名词，使用首字母大写形式，不含下划线
@@ -28,7 +28,10 @@ public:
 	DbException(const char *_error_message) : std::runtime_error(_error_message){}
 
 	//与连接有关
-	DbException(sqlite3 *_sql_connection) : runtime_error(sqlite3_errmsg(_sql_connection)){}
+	DbException(sqlite3 *_sql_connection) : runtime_error(sqlite3_errmsg(_sql_connection))
+	{
+		const char *p=this->what();
+	}
 };
 
 //Blob：

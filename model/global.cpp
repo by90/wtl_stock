@@ -1,14 +1,10 @@
 #include "stdafx.h"
-#include "global.h"
 #include <codecvt>
+#include "global.h"
 #include "sqlite/sqlite3.h"
-
+#include "stock_map.h"
 
 	MODEL_API StockMap g_stock;
-
-
-	//每只股票的id、代码属性、日线、权息数据
-	MODEL_API vector<Stock> StockSet;
 
 	//默认的数据库全路径名称
 	MODEL_API std::string default_db_path = {};
