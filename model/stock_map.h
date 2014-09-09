@@ -138,7 +138,7 @@ public:
 			return 1;
 
 		//四个指数
-		if (id == "SH000001" || id == "SZ399001" || id == "SZ399005" || id == "SZ399006")
+		if (memcmp(id,"SH000001",8)==0 || memcmp(id,"SZ399001",8)==0 || memcmp(id,"SZ399005",8)==0 || memcmp(id,"SZ399006",8)==0)
 			return 4;
 		return -1;
 	}

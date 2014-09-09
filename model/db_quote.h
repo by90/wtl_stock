@@ -138,14 +138,14 @@ public:
 		StockInfo stock;
 		for (auto current = _begin; current != _end; ++current)
 		{
-			if (g_stock.GetMarket(current->idOfDad->id) == -1) //不可识别
-				continue;//如果代码类型不可识别，即略过后面所有的操作。
+			
 			//如果代码变化
-			if (current->idOfDad != oldId)
+			if (oldId==nullptr || memcmp(current->idOfDad, oldId, 8) != 0)
 			{
 				oldId = current->idOfDad;
 				//这里过滤代码
-
+				if (g_stock.GetCatalog(current->idOfDad->id) == -1) //不可识别
+					continue;//如果代码类型不可识别，即略过后面所有的操作。
 				
 				//只有代码类别可识别，才在内存代码表里搜索。
 				idNumber = g_stock.FindStock(current->idOfDad->id);
