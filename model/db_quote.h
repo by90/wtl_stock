@@ -140,7 +140,7 @@ public:
 		{
 			
 			//如果代码变化
-			if (oldId==nullptr || oldId!=current->idOfDad)
+			if (oldId==nullptr || (oldId!=nullptr && oldId!=current->idOfDad))
 			{
 				oldId = current->idOfDad;
 				//这里过滤代码
