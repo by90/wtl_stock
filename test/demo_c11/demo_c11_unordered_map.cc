@@ -4,7 +4,7 @@
 #include "gtest/gtest.h"
 using namespace std;
 
-
+//注意，unordered_map系列是c++ 11标准里的，之前stl的hash_map之类的结构不是c++ 标准的。
 TEST(DemoC11, unordered_map)
 {
 	//定义时，仅指明键值类型

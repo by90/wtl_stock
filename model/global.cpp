@@ -4,6 +4,10 @@
 #include "sqlite/sqlite3.h"
 namespace global
 {
+
+	MODEL_API StockMap g_stock;
+
+
 	//每只股票的id、代码属性、日线、权息数据
 	MODEL_API vector<Stock> StockSet;
 
@@ -55,16 +59,11 @@ namespace global
 			"[Market] tinyint , "
 			"[Catalog] tinyint , "
 			"[Title] nchar(8) , "
-			"[Minicode] nchar(4) ); "
-			"CREATE TABLE if not exists [ExRight] ("
-			"[Id] nchar(8) NOT NULL,"
-			"[QuoteTime] integer NOT NULL,"
-			"[AddStock] float ,"
-			"[BuyStock] float ,"
-			"[Price] float ,"
-			"[Bonus] float ,"
-			"CONSTRAINT[PK_Exrights] PRIMARY KEY([Id], [QuoteTime])"
-			"); ", 0, 0, &pErrMsg);
+			"[Minicode] nchar(4) ,"
+			"[TotalCirculation] INT,"
+			"[Circulation] INT,"
+			"[EarningsPerShare] FLOAT,"
+			"[Exrights] BLOB);", 0, 0, &pErrMsg);
 		if (rc!=SQLITE_OK)
 		{
 			printf("Error message: %s\n", pErrMsg);

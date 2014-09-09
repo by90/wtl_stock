@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "stock_map.h"
 
 #ifdef MODEL_EXPORTS
 #define MODEL_API __declspec(dllexport)
@@ -38,20 +39,6 @@ enum CatalogEnum
 	Futures = 8, //期货
 	Warrant = 9, //权证
 	Others = 10, //其他	
-};
-
-//日线结构
-struct Quote
-{
-	unsigned long QuoteTime; //使用_mktime32转为__time32t存储，使用_localtime32读取
-	float Open, High, Low, Close, Volume, Amount;
-};
-
-//权息表结构
-struct ExRight
-{
-	int QuoteTime;
-	float AddStock, BuyStock, Price, Bonus;
 };
 
 
@@ -95,5 +82,6 @@ namespace global
 	extern MODEL_API unsigned long begin_date;
 	extern MODEL_API unsigned long end_date; //已保存数据的起止日期
 	extern MODEL_API vector<Stock> StockSet;
+	extern MODEL_API StockMap g_stock;
 };
 #endif
