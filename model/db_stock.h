@@ -6,14 +6,14 @@
 #include <vector>
 #include <algorithm>
 
-#ifndef db_code_h
-#define db_code_h
+#ifndef STOCK_MODEL_DB_STOCK_H
+#define STOCK_MODEL_DB_STOCK_H
 
-class DbCode
+class DbStock
 {
 public:
-	DbCode() = default;
-	~DbCode() = default;
+	DbStock() = default;
+	~DbStock() = default;
 
 	//获取全部股票代码信息，保存在global::StockSet中
 	//时机可在应用启动时，而每只股票相关的日线、权息数据，数据量较大，根据情形按需载入
@@ -22,11 +22,11 @@ public:
 	//读取全部日线，需要2000-3000次的载入操作，每次约2000条数据，大致为600万次操作。
 	static void GetAllCode(bool refresh=false)
 	{
-		if (DbCode::get_stock_list().size()>0)
+		if (DbStock::get_stock_list().size()>0)
 		{
 			if (!refresh)	return;
 			else
-				DbCode::get_stock_list().clear();
+				DbStock::get_stock_list().clear();
 		}
 		Db connection_;
 		auto query = connection_.CreateQuery(L"select * from Stock order by Id");
@@ -36,7 +36,7 @@ public:
 		{
 			stock.Market = (MarketEnum)market;
 			stock.Catalog = (CatalogEnum)catalog;
-			DbCode::get_stock_list().push_back(stock);
+			DbStock::get_stock_list().push_back(stock);
 		}
 		
 	}
@@ -53,10 +53,10 @@ public:
 		Stock stock;
 		strcpy_s(stock.Id, id); //拷贝
 		pair<vector<Stock>::iterator, vector<Stock>::iterator> bounds;
-		bounds = std::equal_range(DbCode::get_stock_list().begin(), DbCode::get_stock_list().end(), stock);//返回
+		bounds = std::equal_range(DbStock::get_stock_list().begin(), DbStock::get_stock_list().end(), stock);//返回
 		if (bounds.first == bounds.second)
-			return -1 - std::distance(DbCode::get_stock_list().begin(), bounds.first); //没有找到,返回负值，表示插入的位置，注意，若begin为0，则返回-1
-		return (std::distance(DbCode::get_stock_list().begin(), bounds.first)); //返回找到的第一个与第一个的距离，也就是序号
+			return -1 - std::distance(DbStock::get_stock_list().begin(), bounds.first); //没有找到,返回负值，表示插入的位置，注意，若begin为0，则返回-1
+		return (std::distance(DbStock::get_stock_list().begin(), bounds.first)); //返回找到的第一个与第一个的距离，也就是序号
 	}
 
 	//根据代码获取交易所

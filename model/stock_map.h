@@ -1,5 +1,4 @@
 
-#include <unordered_map>
 #include <vector>
 #include <map>
 #ifndef STOCK_MODEL_STOCKAPI_H
@@ -21,6 +20,7 @@ struct ExRight
 struct StockInfo
 {
 	//代码表导入部分
+	char Id[9];
 	short Market; //股票代码和市场
 	short Catalog;  //股票类型
 	char Title[9]; //股票名称，4个汉字+0
@@ -43,7 +43,7 @@ public:
 	StockMap();
 	~StockMap();
 
-	std::map<char[9], StockInfo> Data;
+	std::vector<StockInfo> Data;
 
 	void SetConnection(); //设置连接和cmd，便于批量处理。
 	//启动时载入代码表

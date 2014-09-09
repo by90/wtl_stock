@@ -3,9 +3,9 @@
 #include "db.h"
 #include "dad_parse_iterator.h"
 #include "global.h"
-#include "db_code.h"
-#ifndef db_quote_h
-#define db_quote_h
+#include "db_stock.h"
+#ifndef STOCK_MODEL_DB_QUOTE_H
+#define STOCK_MODEL_DB_QUOTE_H
 
 struct sqlite3_stmt;
 
@@ -86,7 +86,7 @@ public:
 		{
 			e.what();
 		}
-		DbCode::get_stock_list().clear();
+		DbStock::get_stock_list().clear();
 		global::begin_date = 0;
 		global::end_date = 0;
 	}
@@ -138,7 +138,7 @@ public:
 		Stock stock;
 		for (auto current = _begin; current != _end; ++current)
 		{
-			if (DbCode::GetMarket(current->idOfDad->id) == ::Others)
+			if (DbStock::GetMarket(current->idOfDad->id) == ::Others)
 				continue;//如果代码类型不可识别，即略过后面所有的操作。
 			//如果代码变化
 			if (current->idOfDad != oldId)
@@ -148,32 +148,32 @@ public:
 
 				
 				//只有代码类别可识别，才在内存代码表里搜索。
-				idNumber = DbCode::FindStock(current->idOfDad->id);
+				idNumber = DbStock::FindStock(current->idOfDad->id);
 				
 
-				if (idNumber < 0 || (strcmp(DbCode::get_stock_list()[idNumber].Title,current->idOfDad->title)!=0)) //代码不存在或者虽存在但名称更改
+				if (idNumber < 0 || (strcmp(DbStock::get_stock_list()[idNumber].Title,current->idOfDad->title)!=0)) //代码不存在或者虽存在但名称更改
 				{
 					memcpy(stock.Id,current->idOfDad->id,9);
 					memcpy(stock.Title,current->idOfDad->title,9);
 					
 					//标题的首字母简写都需要修改
 					memset(stock.MiniCode, '\0', 5); //全部设为0
-					DbCode::GetMiniCode(stock.Title, stock.MiniCode);
+					DbStock::GetMiniCode(stock.Title, stock.MiniCode);
 
 					//如果是新增加的股票，此时还需要修改交易所、类型
 					if (idNumber < 0)
 					{
-						stock.Market= DbCode::GetMarket(stock.Id);
-						stock.Catalog = DbCode::GetCatalog(stock.Id);
+						stock.Market= DbStock::GetMarket(stock.Id);
+						stock.Catalog = DbStock::GetCatalog(stock.Id);
 
 						//新的股票应按顺序加入代码表
-						DbCode::get_stock_list().insert(DbCode::get_stock_list().begin()- (1 * idNumber + 1), stock);
+						DbStock::get_stock_list().insert(DbStock::get_stock_list().begin()- (1 * idNumber + 1), stock);
 					}
 					else //如果仅仅是标题更新，修改即可
 					{
-						memcpy(DbCode::get_stock_list()[idNumber].Title, stock.Title, 9);
+						memcpy(DbStock::get_stock_list()[idNumber].Title, stock.Title, 9);
 						
-						memcpy(DbCode::get_stock_list()[idNumber].MiniCode, stock.MiniCode, 5);
+						memcpy(DbStock::get_stock_list()[idNumber].MiniCode, stock.MiniCode, 5);
 					}
 
 					//需要insert或update

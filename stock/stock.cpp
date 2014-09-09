@@ -15,7 +15,7 @@
 #include "MainFrm.h"
 #include "db.h"
 #include "global.h"
-#include "db_code.h"
+#include "db_stock.h"
 
 CAppModule _Module;
 
@@ -63,7 +63,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 	
 	Db::set_default_path(global::GetDefaultDb(), global::create_default_database);
-	DbCode::GetAllCode();
+	DbStock::GetAllCode();
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 

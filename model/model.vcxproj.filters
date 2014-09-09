@@ -60,9 +60,6 @@
     <ClInclude Include="singleton.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="db_code.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="import_model_base.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stock_map.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="db_stock.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
