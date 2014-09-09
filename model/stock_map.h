@@ -44,6 +44,7 @@ public:
 	~StockMap();
 
 	std::vector<StockInfo> Data;
+	unsigned long BeginDate = 0, EndDate = 0;
 
 	void SetConnection(); //设置连接和cmd，便于批量处理。
 	//启动时载入代码表

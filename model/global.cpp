@@ -2,8 +2,7 @@
 #include "global.h"
 #include <codecvt>
 #include "sqlite/sqlite3.h"
-namespace global
-{
+
 
 	MODEL_API StockMap g_stock;
 
@@ -13,8 +12,7 @@ namespace global
 
 	//默认的数据库全路径名称
 	MODEL_API std::string default_db_path = {};
-	MODEL_API unsigned long begin_date = 0;
-	MODEL_API unsigned long end_date = 0;
+
 	//获取默认的数据库全路径名称
 	MODEL_API const char * GetDefaultDb()
 	{
@@ -77,4 +75,4 @@ namespace global
 			return true;
 		}
 	}
-}
+

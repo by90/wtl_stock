@@ -92,7 +92,7 @@ TEST_F(dbTest, db_construct_test)
 		 //file数据库不存在
 	//EXPECT_FALSE(db_not_exist());
 	//再次确认创建了ctest.db
-	Db::set_default_path("ctest.db", global::create_default_database);
+	Db::set_default_path("ctest.db", ::create_default_database);
 	Db db_exist("ctest.db");
 	EXPECT_TRUE(db_exist());
 
@@ -107,7 +107,7 @@ TEST_F(dbTest, db_wchar_construct_test)
 	EXPECT_ANY_THROW(Db db_not_exist(L"file"));
 
 	//再次确认创建了ctest.db
-	Db::set_default_path(L"wtest.db", global::create_default_database);
+	Db::set_default_path(L"wtest.db", ::create_default_database);
 	Db db_exist(L"wtest.db");
 	EXPECT_TRUE(db_exist());
 

@@ -15,9 +15,9 @@ public:
 	DbStock() = default;
 	~DbStock() = default;
 
-	//获取全部股票代码信息，保存在global::StockSet中
+	//获取全部股票代码信息，保存在::StockSet中
 	//时机可在应用启动时，而每只股票相关的日线、权息数据，数据量较大，根据情形按需载入
-	//应用初启动的时候，Global::init调用get_date_range获得已安装数据的起止日期，并调用此方法获得代码表
+	//应用初启动的时候，::init调用get_date_range获得已安装数据的起止日期，并调用此方法获得代码表
 	//安装日线数据时，可考虑凡事大于StockSet中最后日期者，按顺序重新读入
 	//读取全部日线，需要2000-3000次的载入操作，每次约2000条数据，大致为600万次操作。
 	static void GetAllCode(bool refresh=false)

@@ -47,7 +47,7 @@ protected:
 //dbÀàµÄ¾²Ì¬º¯Êıset_default
 TEST_F(dbQuoteTest, import)
 {
-	Db::set_default_path("test.db",global::create_default_database);
+	Db::set_default_path("test.db",::create_default_database);
 	dad_parse_iterator p((char *)dad_data, (char *)(dad_data + 432), {
 		(id_of_dad *)(dad_data + 20),
 		(quote_of_dad *)(dad_data + 16 + 32)

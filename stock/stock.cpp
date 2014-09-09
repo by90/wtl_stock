@@ -62,7 +62,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
 	
-	Db::set_default_path(global::GetDefaultDb(), global::create_default_database);
+	Db::set_default_path(::GetDefaultDb(), ::create_default_database);
 	DbStock::GetAllCode();
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);

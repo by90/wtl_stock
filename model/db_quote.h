@@ -87,8 +87,8 @@ public:
 			e.what();
 		}
 		DbStock::get_stock_list().clear();
-		global::begin_date = 0;
-		global::end_date = 0;
+		g_stock.BeginDate = 0;
+		g_stock.EndDate = 0;
 	}
 
 	//ÅúÁ¿±£´æquote

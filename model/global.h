@@ -74,14 +74,10 @@ struct Stock
 	//中线分段
 };
 
-namespace global
-{
+
 	MODEL_API bool create_default_database(const char  *str); //创建默认数据库
 	MODEL_API const char * GetDefaultDb(); //获取默认数据库路径
 
-	extern MODEL_API unsigned long begin_date;
-	extern MODEL_API unsigned long end_date; //已保存数据的起止日期
 	extern MODEL_API vector<Stock> StockSet;
 	extern MODEL_API StockMap g_stock;
-};
 #endif

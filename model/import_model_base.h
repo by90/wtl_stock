@@ -28,41 +28,41 @@ public:
 	virtual void GetSavedInfo(wstring &_saved, bool _fetch = false)
 	{
 		if (_fetch)
-		  quote_.GetSavedDate(global::begin_date, global::end_date);
-		if (global::begin_date == 0 || global::begin_date == 0)
+		  quote_.GetSavedDate(g_stock.BeginDate, g_stock.EndDate);
+		if (g_stock.BeginDate == 0 || g_stock.BeginDate == 0)
 			_saved = L"已经安装：没有数据";
 		else
 		{
 			_saved.clear();
 			_saved= L"已经安装：";
-			stdmore::time_to_wstring((time_t)global::begin_date, L"%Y-%m-%d", _saved);
+			stdmore::time_to_wstring((time_t)g_stock.BeginDate, L"%Y-%m-%d", _saved);
 			_saved += L"到";
-			stdmore::time_to_wstring((time_t)global::end_date, L"%Y-%m-%d", _saved);
+			stdmore::time_to_wstring((time_t)g_stock.EndDate, L"%Y-%m-%d", _saved);
 		}
 	}
 
 	virtual void UpdateSavedInfo(wstring &_saved)
 	{
-		if (global::begin_date == 0)
+		if (g_stock.BeginDate == 0)
 		{
 			if (parser_.m_start_date != 0)
-				global::begin_date = parser_.m_start_date;
+				g_stock.BeginDate = parser_.m_start_date;
 		}
 		else
 		{
-			if (parser_.m_start_date != 0 && parser_.m_start_date< global::begin_date)
-				global::begin_date = parser_.m_start_date;
+			if (parser_.m_start_date != 0 && parser_.m_start_date< g_stock.BeginDate)
+				g_stock.BeginDate = parser_.m_start_date;
 		}
 
-		if (global::end_date == 0)
+		if (g_stock.EndDate == 0)
 		{
 			if (parser_.m_end_date != 0)
-				global::end_date = parser_.m_end_date;
+				g_stock.EndDate = parser_.m_end_date;
 		}
 		else
 		{
-			if (parser_.m_end_date != 0 && parser_.m_end_date> global::end_date)
-				global::end_date = parser_.m_end_date;
+			if (parser_.m_end_date != 0 && parser_.m_end_date> g_stock.EndDate)
+				g_stock.EndDate = parser_.m_end_date;
 		}
 		GetSavedInfo(_saved);
 	}
