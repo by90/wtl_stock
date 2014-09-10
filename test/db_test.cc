@@ -247,13 +247,20 @@ TEST_F(dbTest, Blob)
 {
 
 	int any_int[] = { 1, 2, 3 };
+	int result[] = { 0, 0, 0 };
 	Db connection("test.db");
 
 	//共有6个字段，如果只书写5个字段会触发异常
 	Query cmd = connection.CreateQuery(L"UPDATE PRODUCT SET IMAGE=? WHERE TITLE='first'");
-	//Blob blob(any_int,3);
+	Blob blob(result,3*sizeof(int));
 	cmd.Bind(1, Blob(any_int,3*sizeof(int)));
 	cmd.ExcuteNonQuery();
+
+	cmd.Reset("SELECT IMAGE FROM PRODUCT WHERE TITLE='first'");
+	cmd.Excute(blob);
+	EXPECT_EQ(1, ((int *)(blob.data))[0]);
+	EXPECT_EQ(2, ((int *)(blob.data))[1]);
+	EXPECT_EQ(3, ((int *)(blob.data))[2]);
 }
 //auto conn = Db::GetDb(); //返回默认的连接
 //EXPECT_TRUE(conn());

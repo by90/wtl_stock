@@ -350,7 +350,7 @@ public:
 	//SQLITE_STATIC·½Ê½ blob
 	template <typename... Args>
 	inline void ReadColumn(int idx, Blob &first, Args &... args) {
-		first = Blob(sqlite3_column_blob(stmt.get(), idx), sqlite3_column_bytes(stmt.get(), idx));
+		first = Blob(sqlite3_column_blob(stmt_.get(), idx), sqlite3_column_bytes(stmt_.get(), idx));
 		ReadColumn(idx + 1, args...);
 	}
 
