@@ -5,6 +5,7 @@
 #include "db_quote.h"
 #include "timer.h"
 #include "stdmore.h"
+#include "db_exright.h"
 #ifndef STOCK_MODEL_IMPORT_MODEL_BASE_H
 #define STOCK_MODEL_IMPORT_MODEL_BASE_H
 
@@ -114,6 +115,7 @@ private:
 class ImportModelExright :public ImportModelBase
 {
 public:
+	DbExright dbExright;
 	virtual void GetSavedInfo(wstring &_saved, bool _fetch = false)
 	{
 		_saved = L"";
@@ -127,18 +129,13 @@ public:
 
 	virtual bool CheckSourceFile(const wchar_t *_file, wstring &_selected) //检查文件是否合法
 	{
-		//if (parser_.check(_file))
-		//{
-		//	_selected = L" ";
-		//	_selected = L"准备安装：";
-		//	stdmore::time_to_wstring((time_t)parser_.m_start_date, L"%Y-%m-%d", _selected);
-		//	_selected += L"到";
-		//	stdmore::time_to_wstring((time_t)parser_.m_end_date, L"%Y-%m-%d", _selected);
-		//	return true;
-		//}
-		//_selected = L"准备安装：您选的文件格式不对";
-		//return false;
-		return true;
+		if (dbExright.check(_file))
+		{
+			_selected = L"您选的文件，是正常的权息文件，请安装！";
+			return true;
+		}
+		_selected = L"您选的文件格式不对！";
+		return false;
 	}
 	virtual void ImportFile(const wchar_t *_file, std::function<void(const wchar_t *, int)> func)
 	{

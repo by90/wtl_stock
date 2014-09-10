@@ -14,11 +14,36 @@ public:
 
 	//insert使用vector的begin end迭代器
 
-	
+	bool check(const wchar_t *filename)
+	{
+		bool isValidFile = false;
+		const long ExrightFlag =0xFF43C832;//注意，文件中的4个字节的顺序为0x32C843FF，顺序正好相反。
+		size_t size=0;
+		long flag = 0;
+
+		std::ifstream reader(filename, std::ios::in | std::ios::binary);
+		if (!reader)
+		{
+			reader.close();
+			return false;
+		}
+
+		reader.seekg(0, ios::end);//以文件尾定位,beg以文件首字节为0开始定位，cur以当前位置开始定位
+		size = (size_t)reader.tellg();//得到文件大小
+		reader.seekg(0, ios::beg); //回到文件第一个字节
+		std::shared_ptr<char> ptr(new char[8], [](char* ptr){delete[] ptr; });
+		char *buffer = ptr.get();
+		reader.read(buffer, 8); //将最初8个字节读入
+
+		flag = *(long *)buffer;
+
+		return (flag == ExrightFlag);
+
+	}
 
 	size_t bulk_insert(const wchar_t *_file, int totals = -1, int period = 2000, std::function<void(const wchar_t *, int)> func = nullptr)
 	{
-		std::vector<Stock> stock_list;
+		std::vector<StockInfo> stock_list;
 
 		//读取文件
 		std::ifstream reader;  //注意，来自<fstream>而非<iostream>
@@ -32,7 +57,7 @@ public:
 
 		//将Exrights读取到vector
 		stock_list.clear();
-		Stock stock;
+		StockInfo stock;
 		ExRight exRight;
 		char *buffer = ptr.get();		
 		//从第12个字节开始

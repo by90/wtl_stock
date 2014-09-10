@@ -66,9 +66,9 @@ public:
 						m_end_date = current_date;
 				}
 				position += 32;
-				if (position >= size_)
+				if (position >= size_) 
 				{
-					result = false;
+					//result = false;//只有三只股票，就会出错
 					break;
 				}
 			}
