@@ -242,6 +242,19 @@ TEST_F(dbTest, ExcuteScript)
 	connection.Commit();
 }
 
+//测试Blob的Update和Get
+TEST_F(dbTest, Blob)
+{
+
+	int any_int[] = { 1, 2, 3 };
+	Db connection("test.db");
+
+	//共有6个字段，如果只书写5个字段会触发异常
+	Query cmd = connection.CreateQuery(L"UPDATE PRODUCT SET IMAGE=? WHERE TITLE='first'");
+	//Blob blob(any_int,3);
+	cmd.Bind(1, Blob(any_int,3*sizeof(int)));
+	cmd.ExcuteNonQuery();
+}
 //auto conn = Db::GetDb(); //返回默认的连接
 //EXPECT_TRUE(conn());
 //Db类应提供一个始终打开的连接...没有必要，打开关闭连接，并不是影响性能的主因。

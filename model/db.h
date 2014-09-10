@@ -260,7 +260,7 @@ public:
 	//bind Blob
 	template <typename... Args>
 	inline bool Bind(int current, Blob value, const Args &... args) {
-		if (sqlite3_bind_blob(stmt, index, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
+		if (sqlite3_bind_blob(stmt_.get(), current, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
 		{
 			return false;
 		}
