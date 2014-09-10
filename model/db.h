@@ -367,8 +367,8 @@ public:
 	}
 
 public:
-	std::shared_ptr<sqlite3_stmt> stmt_ = nullptr; //公开以支持原生代码
-	std::shared_ptr<sqlite3> connection_;
+	std::shared_ptr<sqlite3_stmt> stmt_ = nullptr; 
+	std::shared_ptr<sqlite3> connection_;//公开以支持原生代码
 	int column_count_ = 0;
 };
 

@@ -1,10 +1,6 @@
-
+#include <vector>
 #include "gtest/gtest.h"
 #include "db.h"
-#include "global.h"
-
-
-
 
 bool create_demo_database(const char * path)
 {
@@ -92,7 +88,7 @@ TEST_F(dbTest, db_construct_test)
 		 //file数据库不存在
 	//EXPECT_FALSE(db_not_exist());
 	//再次确认创建了ctest.db
-	Db::set_default_path("ctest.db", ::create_default_database);
+	Db::set_default_path("ctest.db", create_demo_database);
 	Db db_exist("ctest.db");
 	EXPECT_TRUE(db_exist());
 
@@ -107,7 +103,7 @@ TEST_F(dbTest, db_wchar_construct_test)
 	EXPECT_ANY_THROW(Db db_not_exist(L"file"));
 
 	//再次确认创建了ctest.db
-	Db::set_default_path(L"wtest.db", ::create_default_database);
+	Db::set_default_path(L"wtest.db", create_demo_database);
 	Db db_exist(L"wtest.db");
 	EXPECT_TRUE(db_exist());
 
@@ -247,8 +243,8 @@ TEST_F(dbTest, Blob)
 {
 
 	Db connection("test.db");
-	vector<int> source = { 1, 2, 3 };
-	vector<int> result;
+	std::vector<int> source = { 1, 2, 3 };
+	std::vector<int> result;
 
 	//共有6个字段，如果只书写5个字段会触发异常
 	Query cmd = connection.CreateQuery(L"UPDATE PRODUCT SET IMAGE=? WHERE TITLE='first'");

@@ -143,6 +143,8 @@ public:
 		timer time_used; //开始计时
 		time_used.reset();
 		ss << L"正在安装...";
+		if (func)
+			func(ss.str().c_str(), 0);
 		//parser_.open(_file);
 
 		//wostringstream ss;
@@ -151,18 +153,23 @@ public:
 
 		//int inserted = quote_.bulk_insert(parser_.begin(), parser_.end(), parser_.m_quote_count, 2000, func);
 		//parser_.close(); //这个函数后台执行，函数内顺序执行，因此这里关闭可行
+		int rc=dbExright.bulk_insert(_file, -1, 50, func);
 
-		ss.clear();
-		ss << L"完成,耗时";
-		auto used = time_used.elapsed_seconds();
-		if (used <= 0)
-			ss << L"不足1秒!";
-		else
-			if (used >= 60)
-				ss << used / 60 << L"分" << used % 60 << L"秒!";
+		if (rc > 0)
+		{//ss.clear();
+			ss << L"完成,耗时";
+			auto used = time_used.elapsed_seconds();
+			if (used <= 0)
+				ss << L"不足1秒!";
 			else
-				ss << used << L"秒!";
-		func(ss.str().c_str(), 100);
+				if (used >= 60)
+					ss << used / 60 << L"分" << used % 60 << L"秒!";
+				else
+					ss << used << L"秒!";
+			func(ss.str().c_str(), 100);
+		}
+
+
 	}
 };
 
