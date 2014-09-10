@@ -19,7 +19,7 @@ void ImportViewModel::Init()
 		model_.reset(new ImportModelQuote);
 		break;
 	case 1:
-		model_.reset(new ImportModelQuote);
+		model_.reset(new ImportModelExright);
 		break;
 	default:
 		model_.reset(new ImportModelQuote);
