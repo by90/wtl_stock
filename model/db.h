@@ -34,17 +34,6 @@ public:
 	}
 };
 
-//Blob：
-//Thanks For https://github.com/catnapgames/NLDatabase
-struct Blob {
-public:
-	void *data; //结构体成员变量命名，仍然是全部小写，但不使用data_形式
-	int length;
-
-	template<typename T>
-	Blob(T *data, int length) : data((void*)data), length(length) {}
-};
-
 //sql命令类
 //单独的使用，主要用于一个sql命令，多次Bind参数的情况
 //注意：Query不支持多条命令sqlite3_prepare_v2中的tail为剩下来的语句
@@ -258,9 +247,9 @@ public:
 	}
 
 	//bind Blob
-	template <typename... Args>
-	inline bool Bind(int current, Blob value, const Args &... args) {
-		if (sqlite3_bind_blob(stmt_.get(), current, value.data, value.length, SQLITE_STATIC) != SQLITE_OK)
+	template <typename T,typename... Args>
+	inline bool Bind(int current, std::vector<T> &value, const Args &... args) {
+		if (sqlite3_bind_blob(stmt_.get(), current, value.data(), value.size()*sizeof(T), SQLITE_STATIC) != SQLITE_OK)
 		{
 			return false;
 		}
@@ -348,9 +337,11 @@ public:
 		ReadColumn(idx + 1, args...);
 	}
 	//SQLITE_STATIC方式 blob
-	template <typename... Args>
-	inline void ReadColumn(int idx, Blob &first, Args &... args) {
-		first = Blob(sqlite3_column_blob(stmt_.get(), idx), sqlite3_column_bytes(stmt_.get(), idx));
+	template <typename T,typename... Args>
+	inline void ReadColumn(int idx, std::vector<T> &first, Args &... args) {
+		const T *p = (const T *)sqlite3_column_blob(stmt_.get(), idx);
+		first.assign(p, p + (sqlite3_column_bytes(stmt_.get(), idx) / sizeof(T)));
+		//first =std::move(Blob(sqlite3_column_blob(stmt_.get(), idx), sqlite3_column_bytes(stmt_.get(), idx)));
 		ReadColumn(idx + 1, args...);
 	}
 
@@ -375,8 +366,8 @@ public:
 		return (rc == SQLITE_ROW);
 	}
 
-private:
-	std::shared_ptr<sqlite3_stmt> stmt_ = nullptr;
+public:
+	std::shared_ptr<sqlite3_stmt> stmt_ = nullptr; //公开以支持原生代码
 	std::shared_ptr<sqlite3> connection_;
 	int column_count_ = 0;
 };
@@ -425,7 +416,7 @@ private:
 
 	//非静态部分
 public:
-	std::shared_ptr<sqlite3> connection_ = nullptr;
+	std::shared_ptr<sqlite3> connection_ = nullptr; //公开以支持原生sqlite api.
 
 	Db(const char *filename = nullptr)
 	{
