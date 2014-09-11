@@ -54,10 +54,8 @@
 			"[Catalog] tinyint , "
 			"[Title] nchar(8) , "
 			"[Minicode] nchar(4) ,"
-			"[TotalCirculation] INT,"
-			"[Circulation] INT,"
-			"[EarningsPerShare] FLOAT,"
-			"[Exrights] BLOB);", 0, 0, &pErrMsg);
+			"[Circulation] FLOAT,"
+			"[Exright] BLOB);", 0, 0, &pErrMsg);
 		if (rc!=SQLITE_OK)
 		{
 			printf("Error message: %s\n", pErrMsg);

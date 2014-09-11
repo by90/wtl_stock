@@ -37,9 +37,7 @@ struct StockInfo
 	char MiniCode[5]; //拼音简码	
 
 	//财务表导入部分
-	size_t TotalCirculation; //总股本
-	size_t Circulation; //流通盘
-	float EarningsPerShare; //每股收益earnings per share
+	float Circulation; //流通盘
 
 	//权息表导入部分
 	std::vector<ExRight> ExRightSet;
@@ -105,7 +103,7 @@ public:
 		Db connection;
 		auto query = connection.CreateQuery(L"select * from Stock order by Id");
 		StockInfo stock;
-		while (query.Excute(stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode, stock.TotalCirculation, stock.Circulation, stock.EarningsPerShare))
+		while (query.Excute(stock.Id, stock.Market, stock.Catalog, stock.Title, stock.MiniCode, stock.Circulation,stock.ExRightSet))
 		{
 			Data.push_back(stock);
 		}

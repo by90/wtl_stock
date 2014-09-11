@@ -22,7 +22,7 @@ void ImportViewModel::Init()
 		model_.reset(new ImportModelExright);
 		break;
 	default:
-		model_.reset(new ImportModelQuote);
+		model_.reset(new ImportModelFinance);
 		break;
 	}
 

@@ -73,7 +73,7 @@ public:
 
 		Db conn;
 		conn.Begin();
-		auto cmd = conn.CreateQuery("UPDATE STOCK SET EXRIGHTS=? WHERE ID=?");
+		auto cmd = conn.CreateQuery("UPDATE STOCK SET EXRIGHT=? WHERE ID=?");
 		while (position<fileSize)
 		{
 			++id_number;
