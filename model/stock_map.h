@@ -25,6 +25,22 @@ struct ExRight
 {
 	int QuoteTime;
 	float AddStock, BuyStock, Price, Bonus;
+
+
+	//按照下面的结构：从0遍历exright表，每个区段的各项价格乘以复权因子即可。
+	//流通盘透过送股、配股计算，由此得到换手率。
+	//针对每只股票，这些值可直接计算并保存在数据库
+	float factor; //除权因子
+
+	
+	//特定股票日线的开始序号，-1表示最后，但实际上在向前复权中没用
+	//从start到下一条的start+1
+	//如果没有下一条，则是start到0
+	//对于向前复权，这些是固定的，因此可以保存在数据库中
+	int start;
+	float SharesCount; //当前流通盘
+
+
 };
 
 struct StockInfo

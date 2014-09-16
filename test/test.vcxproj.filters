@@ -84,6 +84,12 @@
     <ClCompile Include="demo_c11\demo_stl_traits_in_algorithm.cc">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="demo_cpp\demo_cpp_float.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="adjust_price_test.cc">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_singleton\singleton_v1.h">

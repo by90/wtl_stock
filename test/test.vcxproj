@@ -83,6 +83,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="adjust_price_test.cc" />
     <ClCompile Include="base_parse_test.cc" />
     <ClCompile Include="dad_file_parse_test.cc" />
     <ClCompile Include="dad_parse_iterator_test.cc" />
@@ -97,6 +98,7 @@
     <ClCompile Include="demo_c11\demo_c11_shared_ptr.cc" />
     <ClCompile Include="demo_c11\demo_c11_enable_if.cc" />
     <ClCompile Include="demo_c11\demo_c11_vector.cc" />
+    <ClCompile Include="demo_cpp\demo_cpp_float.cc" />
     <ClCompile Include="file_parse_test.cc" />
     <ClCompile Include="demo_c11\demo_wtl_polymorphism.cc" />
     <ClCompile Include="demo_singleton\singleton_v1_test.cpp" />
