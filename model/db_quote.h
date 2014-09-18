@@ -254,6 +254,20 @@ public:
 
 	}
 
+	//计算除权因子：针对一条除权信息
+	//前复权：复权后价格＝[(复权前价格 - 现金红利)＋配(新)股价格×流通股份变动比例]÷(1＋流通股份变动比例)
+	float CacluteFactor(vector<Quote> &quotes, ExRight &exright)
+	{
+		float last_close_price = quotes[exright.Start - 1].Close; //前收盘价格
+
+		//计算前收盘，按照前复权算法应该为多少
+		auto adjusted_price = (last_close_price-exright.Bonus+exright.Price*(exright.BuyStock))/(1+exright.BuyStock+exright.AddStock);
+
+		return adjusted_price / last_close_price; //返回按除权计算的前收盘价与真实前收盘价的比
+		//设想一下，前收盘价乘以这个值，得到的是复权价
+
+	}
+
 
 };
 
