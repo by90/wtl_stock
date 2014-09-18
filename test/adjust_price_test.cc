@@ -84,14 +84,24 @@ TEST(AdjustPrice, CaculateFactor) //计算复权因子
 	dbQuote.GetExOrder(quotes, exrights);
 
 	//计算第一个复权因子
-	float factor=dbQuote.CacluteFactor(quotes, exrights[0]);
+	float factor=dbQuote.CaculateFactor(quotes, exrights[0]);
 	EXPECT_FLOAT_EQ(0.96124035f,factor);
 	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close*factor);
 	//6月17日，大智慧实际5.16，前复权计算的价格为4.96,通达信相同。
 
-	factor = factor*dbQuote.CacluteFactor(quotes, exrights[1]); //计算倒数第二次复权因子
+	factor = factor*dbQuote.CaculateFactor(quotes, exrights[1]); //计算倒数第二次复权因子
 	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close*factor);
 	//通达信前复权值为5.65,差0.03
+
+	//误差有0.03，似乎是缩减了中间数据造成的？
+	//若通达信使用递归前复权？
+	dbQuote.CaculateFactor(quotes, exrights);
+	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close*exrights[0].Factor);
+	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close*exrights[1].Factor);
+
+	//误差更大，通达信、大智慧均为6.76
+	EXPECT_FLOAT_EQ(6.9059105f, quotes[exrights[2].Start - 1].Close*exrights[2].Factor);
+
 
 
 }
