@@ -281,8 +281,12 @@ public:
 		for (unsigned int i = 0; i < exrights.size(); i++)
 		{
 			exrights[i].Factor = CaculateFactor(quotes, exrights[i]);
+			exrights[i].VolumeFactor = 1 + exrights[i].AddStock + exrights[i].BuyStock;
 			if (i>0)
+			{
 				exrights[i].Factor = exrights[i].Factor *exrights[i - 1].Factor;
+				exrights[i].VolumeFactor = exrights[i].VolumeFactor *exrights[i - 1].VolumeFactor;
+			}
 		}
 	}
 
@@ -297,7 +301,11 @@ public:
 			start = (i>exrights.size() - 1) ? exrights[i - 1].Start : 0;
 			for ( int j = exrights[i].Start - 1; j >= start; j--)
 			{
+				source[j].Open = source[j].Open / exrights[i].Factor;
+				source[j].High = source[j].High / exrights[i].Factor;
+				source[j].Low = source[j].Low / exrights[i].Factor;
 				source[j].Close = source[j].Close / exrights[i].Factor;
+				source[j].Volume = source[j].Volume*exrights[i].VolumeFactor;
 			}
 		}
 	}
