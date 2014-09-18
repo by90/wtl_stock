@@ -260,8 +260,10 @@ public:
 	{
 		float last_close_price = quotes[exright.Start - 1].Close; //前收盘价格
 
+
 		//计算前收盘，按照前复权算法应该为多少
-		auto adjusted_price = (last_close_price-exright.Bonus+exright.Price*(exright.BuyStock))/(1+exright.BuyStock+exright.AddStock);
+		float adjusted_price = (last_close_price-exright.Bonus+exright.Price*(exright.BuyStock))/(1.0f+exright.BuyStock+exright.AddStock);
+
 
 		return adjusted_price / last_close_price; //返回按除权计算的前收盘价与真实前收盘价的比
 		//设想一下，前收盘价乘以这个值，得到的是复权价

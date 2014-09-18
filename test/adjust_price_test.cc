@@ -26,10 +26,10 @@ std::vector<Quote>   quotes =
 //巨化股份前四条权息数据
 //注意时间倒叙排列，最新在前
 std::vector<ExRight> exrights = {
-	{ 1409875200, 0, 0, 0, 0.2 },
-	{ 1409616000, 0.3, 4.23, 0 },
-	{ 1409270400, 0, 0, 0, 0.15},
-	{ 1409097600,6,0,0,0.5},
+	{ 1409875200, 0.0f, 0.0f, 0.0f, 0.2f },
+	{ 1409616000, 0.0f,0.3f, 4.23f, 0.0f },
+	{ 1409270400, 0.0f, 0.0f, 0.0f, 0.15f},
+	{ 1409097600,0.6f,0.0f,0.0f,0.5f},
 };
 //测试向前复权算法
 //模拟10条数据,3条权息数据
@@ -87,7 +87,13 @@ TEST(AdjustPrice, CaculateFactor) //计算复权因子
 	float factor=dbQuote.CacluteFactor(quotes, exrights[0]);
 	EXPECT_FLOAT_EQ(0.96124035f,factor);
 	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close*factor);
-	//6月17日，大智慧实际5.16，前复权计算的价格为4.96，与我们的4.66区别较大。
+	//6月17日，大智慧实际5.16，前复权计算的价格为4.96,通达信相同。
+
+	factor = factor*dbQuote.CacluteFactor(quotes, exrights[1]); //计算倒数第二次复权因子
+	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close*factor);
+	//通达信前复权值为5.65,差0.03
+
+
 }
 
 TEST(AdjustPrice, Adjust) //测试前复权结果，包括四个价格、成交量
