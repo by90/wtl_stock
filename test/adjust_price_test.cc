@@ -26,10 +26,10 @@ std::vector<Quote>   quotes =
 //巨化股份前四条权息数据
 //注意时间倒叙排列，最新在前
 std::vector<ExRight> exrights = {
+	{ 1409875200, 0.6, 0, 0, 0.5 },
+	{ 1409616000, 0, 0, 0, 0.15 },
+	{ 1409270400, 0, 0.3, 4.23, 0 },
 	{ 1409097600,0,0,0,0.2},
-	{ 1409270400,0,0.3,4.23,0},
-	{ 1409529600, 0, 0, 0, 0.15 },
-	{ 1409702400,0.6,0,0,0.5},
 };
 //测试向前复权算法
 //模拟10条数据,3条权息数据
@@ -62,6 +62,14 @@ TEST(AdjustPrice, GetExOrder)
 	//越界：查找比最后一个大的
 	rc = dbQuote.GetExOrder(quotes, 1410220801);
 	EXPECT_EQ(10, rc); //返回最后一个序号+1，新的插入位置
+
+	//将所有的序号找出来
+	dbQuote.GetExOrder(quotes, exrights);
+	EXPECT_EQ(8, exrights[0].Start);
+	EXPECT_EQ(5, exrights[1].Start);
+	EXPECT_EQ(3, exrights[2].Start);
+	EXPECT_EQ(1, exrights[3].Start);
+
 
 }
 //航天动力 600343

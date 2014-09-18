@@ -224,6 +224,7 @@ public:
 
 
 	//比较两条日线的大小,返回小于即可
+	//注意比较函数需是静态的
 	static bool compare_quote(Quote first,Quote second)
 	{
 		return first.QuoteTime < second.QuoteTime;
@@ -241,6 +242,16 @@ public:
 		//if (bounds.first == bounds.second)//这是个空区间
 		//	return -1 - std::distance(quotes.begin(), bounds.first); //没有找到,返回负值，表示插入的位置，注意，若begin为0，则返回-1
 		return (std::distance(quotes.begin(), bounds.first)); //返回找到的第一个与第一个的距离，也就是序号
+	}
+
+	//将序号放到权息数组
+	void GetExOrder(vector<Quote> &quotes, vector<ExRight> &exrights)
+	{
+		for (auto &exright : exrights)
+		{
+			exright.Start = GetExOrder(quotes, exright.QuoteTime);
+		}
+
 	}
 
 
