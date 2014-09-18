@@ -251,9 +251,14 @@ public:
 		{
 			exright.Start = GetExOrder(quotes, exright.QuoteTime);
 		}
-
 	}
+		
+	//float BackFactor(vector<Quote> &quotes, ExRight &exright)
+	//{
+	//  return	(quotes[exright.Start-1].Close*(1.0f + exright.AddStock + exright.BuyStock)) / (quotes[exright.Start-1].Close - exright.Bonus + exright.BuyStock*exright.Price);
+	//}
 
+	//wind资讯的涨跌幅复权算法：
 	//计算除权因子：针对一条除权信息
 	//前复权：复权后价格＝[(复权前价格 - 现金红利)＋配(新)股价格×流通股份变动比例]÷(1＋流通股份变动比例)
 	float CaculateFactor(vector<Quote> &quotes, ExRight &exright)
@@ -262,23 +267,14 @@ public:
 
 
 		//计算前收盘，按照前复权算法应该为多少
-		float adjusted_price = (last_close_price-exright.Bonus+exright.Price*(exright.BuyStock))/(1.0f+exright.BuyStock+exright.AddStock);
+		float adjusted_price = (last_close_price - exright.Bonus + exright.Price*(exright.BuyStock)) / (1.0f + exright.BuyStock + exright.AddStock);
 
 
-		return adjusted_price / last_close_price; //返回按除权计算的前收盘价与真实前收盘价的比
+		return last_close_price / adjusted_price; //返回按除权计算的前收盘价与真实前收盘价的比
 		//设想一下，前收盘价乘以这个值，得到的是复权价
 
 	}
 
-	//向后复权因子：
-	//股票复权因子＝[股权登记日收盘价*（1+每股派红股+每股公积金转增+每股配股）]/(股权登记日收盘价-每股派现+每股配股*配股价格)
-	//计算向前复权价格：首先，取得当前证券的最大复权因子，然后，将复权因子除以最大复权因子，得到“前复权因子”，最后，将原始价格乘以“前复权因子”即得到向前复权价格。
-
-
-	float BackFactor(vector<Quote> &quotes, ExRight &exright)
-	{
-	  return	(quotes[exright.Start-1].Close*(1.0f + exright.AddStock + exright.BuyStock)) / (quotes[exright.Start-1].Close - exright.Bonus + exright.BuyStock*exright.Price);
-	}
 	void CaculateFactor(vector<Quote> &quotes, vector<ExRight> &exrights)
 	{
 		float max_factor=-1;
@@ -290,7 +286,21 @@ public:
 		}
 	}
 
-
+	//涨跌幅复权
+	void AdjustPrice(vector<Quote> &source, vector<ExRight> &exrights)
+	{
+		GetExOrder(source, exrights);//更新序号
+		CaculateFactor(source, exrights);
+		int start=0;
+		for (unsigned int i = 0;i<exrights.size();i++)
+		{
+			start = (i>exrights.size() - 1) ? exrights[i - 1].Start : 0;
+			for ( int j = exrights[i].Start - 1; j >= start; j--)
+			{
+				source[j].Close = source[j].Close / exrights[i].Factor;
+			}
+		}
+	}
 };
 
 

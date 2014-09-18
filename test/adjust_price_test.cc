@@ -85,22 +85,22 @@ TEST(AdjustPrice, CaculateFactor) //计算复权因子
 
 	//计算第一个复权因子
 	float factor=dbQuote.CaculateFactor(quotes, exrights[0]);
-	EXPECT_FLOAT_EQ(0.96124035f,factor);
-	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close*factor);
+	//EXPECT_FLOAT_EQ(0.96124035f,factor);
+	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close/factor);
 	//6月17日，大智慧实际5.16，前复权计算的价格为4.96,通达信相同。
 
 	factor = factor*dbQuote.CaculateFactor(quotes, exrights[1]); //计算倒数第二次复权因子
-	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close*factor);
+	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close/factor);
 	//通达信前复权值为5.65,差0.03
 
 	//误差有0.03，似乎是缩减了中间数据造成的？
 	//若通达信使用递归前复权？
 	dbQuote.CaculateFactor(quotes, exrights);
-	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close*exrights[0].Factor);
-	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close*exrights[1].Factor);
+	EXPECT_FLOAT_EQ(4.96f, quotes[exrights[0].Start - 1].Close/exrights[0].Factor); //4.96通达信和大智慧4.96
+	EXPECT_FLOAT_EQ(5.6188192f, quotes[exrights[1].Start - 1].Close/exrights[1].Factor); //5.62通达信和大智慧5.65
 
 	//误差更大，通达信、大智慧均为6.76
-	EXPECT_FLOAT_EQ(6.9059105f, quotes[exrights[2].Start - 1].Close*exrights[2].Factor);
+	EXPECT_FLOAT_EQ(6.9059105f, quotes[exrights[2].Start - 1].Close/exrights[2].Factor);//6.91通达信和大智慧6.76
 
 
 
@@ -108,6 +108,14 @@ TEST(AdjustPrice, CaculateFactor) //计算复权因子
 
 TEST(AdjustPrice, Adjust) //测试前复权结果，包括四个价格、成交量
 {
+	DbQuote dbQuote;
+	std::vector<Quote> backup_quote;
+	backup_quote.assign(quotes.begin(), quotes.end());
+	dbQuote.AdjustPrice(backup_quote,exrights);
+
+	float rate_for_old = (quotes[7].Close - quotes[6].Close) / quotes[6].Close;
+	float rate_for_adjust = (backup_quote[7].Close - backup_quote[6].Close) / backup_quote[6].Close;
+	EXPECT_FLOAT_EQ(rate_for_adjust, rate_for_old);
 
 }
 
