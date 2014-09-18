@@ -223,6 +223,27 @@ public:
 	}
 
 
+	//比较两条日线的大小,返回小于即可
+	static bool compare_quote(Quote first,Quote second)
+	{
+		return first.QuoteTime < second.QuoteTime;
+	}
+	//复权算法
+	//返回正数，表示找到，返回值为序号
+	//返回负数，表示未找到，返回值为第一个大于该日期的日线序号，也就是登记日。
+	//序号-1，为前复权需要计算的地方。
+	int GetExOrder(vector<Quote> &quotes,int _date)
+	{
+		Quote quote;
+		quote.QuoteTime = _date;
+		std::pair<std::vector<Quote>::iterator, std::vector<Quote>::iterator> bounds;
+		bounds = std::equal_range(quotes.begin(), quotes.end(), quote,DbQuote::compare_quote);//返回
+		//if (bounds.first == bounds.second)//这是个空区间
+		//	return -1 - std::distance(quotes.begin(), bounds.first); //没有找到,返回负值，表示插入的位置，注意，若begin为0，则返回-1
+		return (std::distance(quotes.begin(), bounds.first)); //返回找到的第一个与第一个的距离，也就是序号
+	}
+
+
 };
 
 
