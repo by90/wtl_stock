@@ -86,7 +86,7 @@ public:
 
 		CreateSimpleStatusBar();
 
-		m_view = ShowView<CStockView>({ -50, -50, 0, 0 });
+		m_view = ShowView<CStockView>({ 0, 0, -100, -100 });
 
 		UIAddToolBar(hWndToolBar);
 		UISetCheck(ID_VIEW_TOOLBAR, 1);
@@ -121,7 +121,7 @@ public:
 
 	LRESULT OnHomeView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 	{
-		ShowView<CStockView>({ -50, -50, 0, 0 });
+		ShowView<CStockView>({ 0, 0, -100, -100 });
 		//::ShowWindow(m_hWndClient, SW_SHOW);
 
 		return 0;

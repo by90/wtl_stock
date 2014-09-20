@@ -1,16 +1,33 @@
 // stockView.h : interface of the CStockView class
 //
 /////////////////////////////////////////////////////////////////////////////
-
+#include <functional>
+#include <thread>
 #pragma once
 #include "CCtlColor.h"
 
+class CStockView;
+class HomeViewModel
+{
+public:
+	void Search(std::function<void(int)> func)
+	{
+
+		for (int i = 0; i < 100; i++)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			func(i);
+			//Sleep(100);//win32写法
+		}
+	}
+};
 class CStockView : public CDialogImpl<CStockView>
 	, public CCtlColored<CStockView>
 {
 public:
 	enum { IDD = IDD_HOME_BOX};
-
+	HomeViewModel view_model_;
+	CProgressBarCtrl progress_bar_;
 	BOOL PreTranslateMessage(MSG* pMsg)
 	{
 		return CWindow::IsDialogMessage(pMsg);
@@ -22,6 +39,8 @@ public:
 		MESSAGE_HANDLER(WM_FORWARDMSG, OnForwardMsg)
 		MESSAGE_HANDLER(WM_PAINT, OnPaint)
 		MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBackground)
+
+		COMMAND_HANDLER(IDC_BUTTON_SEARCH, BN_CLICKED, OnClickedButtonSearch)
 		CHAIN_MSG_MAP(CCtlColored<CStockView>)
 		//MESSAGE_HANDLER(WM_SHOWWINDOW, OnShow)
 		//MESSAGE_HANDLER(WM_PAINT,OnPaint)
@@ -38,7 +57,7 @@ public:
 		SetTextBackGround(bkColor);  // Lightish kind of blue (Four)
 		SetTextColor(RGB(0X60, 0, 0)); // Dark red   
 
-		
+		progress_bar_ = GetDlgItem(IDC_PROGRESS_SEARCH);
 		//DeleteObject(bk);//delete居然导致框架窗口颜色设置失效？
 		return TRUE;
 	}
@@ -71,5 +90,17 @@ public:
 		return this->DefWindowProcW();
 		//SetMsgHandled(FALSE);
 		//return ::DefWindowProc(m_hWnd,uMsg,wParam,lParam);
+	}
+
+	LRESULT OnClickedButtonSearch(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+	{
+		std::thread t(&HomeViewModel::Search, &view_model_, [this](int now){
+			if (::IsWindow(progress_bar_.m_hWnd))
+			{
+				progress_bar_.SetPos(now + 1);
+			}
+		});
+		t.detach(); //从主线程分离后执行
+		return 0;
 	}
 };

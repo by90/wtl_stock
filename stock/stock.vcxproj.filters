@@ -68,6 +68,12 @@
     <ClInclude Include="ui_state.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="controls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="search_view.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="stock.rc">
