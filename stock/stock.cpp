@@ -10,7 +10,7 @@
 
 #include "resource.h"
 
-#include "stockView.h"
+#include "search_view.h"
 #include "aboutdlg.h"
 #include "MainFrm.h"
 #include "db.h"
