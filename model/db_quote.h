@@ -32,6 +32,34 @@ public:
 		return end_date;
 	}
 
+	
+	//获取日线
+	//不要每次打开连接、关闭连接、创建Query
+	int GetQuote(int period = 20, std::function<void(const wchar_t *, int)> func = nullptr)
+	{
+		Db connection;
+		Query query = connection.CreateQuery("select QuoteTime, Open, High, Low, Close, Volume, Amount from Quote where id = ? order by QuoteTime");
+		Quote quote;
+		for (int i = 0; i < g_stock.Data.size(); i++)
+		{
+			sqlite3_bind_text(query.stmt_.get(), 1, g_stock.Data[i].Id, 9, SQLITE_TRANSIENT);
+			do 
+			{
+				sqlite3_reset(query.stmt_.get());
+				quote.QuoteTime = sqlite3_column_int(query.stmt_.get(), 1);
+				quote.Open = sqlite3_column_double(query.stmt_.get(), 2);
+				quote.Low = sqlite3_column_double(query.stmt_.get(), 3);
+				quote.High = sqlite3_column_double(query.stmt_.get(), 4);
+				quote.Close = sqlite3_column_double(query.stmt_.get(), 5);
+				quote.Volume = sqlite3_column_double(query.stmt_.get(), 6);
+				quote.Amount = sqlite3_column_double(query.stmt_.get(), 7);
+				g_stock.Data[i].QuoteSet.push_back(quote);
+			} while (sqlite3_step(query.stmt_.get()) == SQLITE_ROW);
+			if ((i%period) == 0 && (func != nullptr))
+				func(nullptr, i * 100 / g_stock.Data.size() + 1);	
+			return g_stock.Data.size();
+		}		
+	}
 	//当回调不为为nullptr，则用T *返回结果
 	//当回调为nullptr，则直接用T的引用，在参数中返回结果
 	//这种体制可以抽象一下...
